@@ -33,19 +33,19 @@ namespace Microsoft.Maui.WebDriver.Host
 			return builder;
 		}
 
-		public static void EnqueAll<T>(this Queue<T> q, IEnumerable<T> elems)
+		internal static void EnqueAll<T>(this Queue<T> q, IEnumerable<T> elems)
 		{
 			foreach (var elem in elems)
 				q.Enqueue(elem);
 		}
 
-		public static void PushAllReverse<T>(this Stack<T> st, IEnumerable<T> elems)
+		internal static void PushAllReverse<T>(this Stack<T> st, IEnumerable<T> elems)
 		{
 			foreach (var elem in elems.Reverse())
 				st.Push(elem);
 		}
 
-		public static ReadOnlyCollection<T> ToReadOnlyCollection<T>(this IEnumerable<T> elems)
+		internal static ReadOnlyCollection<T> ToReadOnlyCollection<T>(this IEnumerable<T> elems)
 		{
 			return new ReadOnlyCollection<T>(elems.ToList());
 		}
