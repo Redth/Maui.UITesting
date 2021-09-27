@@ -8,8 +8,8 @@ using Microsoft.Maui.LifecycleEvents;
 
 namespace Microsoft.Maui.WebDriver.Host
 {
-    public static class AppBuilderExtensions
-    {
+	public static class AppBuilderExtensions
+	{
 #if ANDROID
 		internal static Android.App.Activity CurrentActivity { get; set; }
 #endif

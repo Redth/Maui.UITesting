@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Microsoft.Maui.WebDriver.Host
 {
-    public class iOSElement : IPlatformElement
+	public class iOSElement : IPlatformElement
 	{
 		public iOSElement(UIKit.UIView nativeView)
 		{

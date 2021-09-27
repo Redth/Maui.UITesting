@@ -51,7 +51,7 @@ namespace Microsoft.Maui.WebDriver.Host
 		public bool Selected
 		{
 			get
-            {
+			{
 #if ANDROID
 				if (NativeView.Handler.NativeView is Android.Views.View aview)
 					return aview.HasFocus;

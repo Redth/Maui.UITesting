@@ -8,8 +8,8 @@ using System.Linq;
 
 namespace Microsoft.Maui.WebDriver.Host
 {
-    // All the code in this file is included in all platforms.
-    public abstract class PlatformDriverBase : IWebDriver, IFindsById, IFindsByClassName, IFindsByName, IFindsByTagName
+	// All the code in this file is included in all platforms.
+	public abstract class PlatformDriverBase : IWebDriver, IFindsById, IFindsByClassName, IFindsByName, IFindsByTagName
 	{
 		
 		public string Url { get => "app://"; set { } }
@@ -108,7 +108,7 @@ namespace Microsoft.Maui.WebDriver.Host
 			=> Find(selector, GetViews(), true)?.FirstOrDefault();
 
 		protected virtual IEnumerable<IPlatformElement> Find(Func<IPlatformElement, bool> selector, IPlatformElement[] views, bool onlyFirst)
-        {
+		{
 			foreach (var v in views)
 			{
 				if (selector(v))

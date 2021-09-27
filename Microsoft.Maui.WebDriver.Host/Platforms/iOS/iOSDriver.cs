@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Microsoft.Maui.WebDriver.Host
 {
-    public class iOSDriver : PlatformDriverBase
+	public class iOSDriver : PlatformDriverBase
 	{
 		public override IPlatformElement[] GetViews()
 		{

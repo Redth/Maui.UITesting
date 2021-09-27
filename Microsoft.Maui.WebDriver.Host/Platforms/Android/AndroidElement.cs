@@ -65,18 +65,18 @@ namespace Microsoft.Maui.WebDriver.Host
 			NativeView.Selected;
 
 		public Point Location
-        {
+		{
 			get
-            {
+			{
 				var loc = new int[2];
 				NativeView.GetLocationInWindow(loc);
 
 				if (loc != null && loc.Length >= 2)
-                	return new Point(loc[0], loc[1]);
+					return new Point(loc[0], loc[1]);
 
 				return Point.Empty;
-            }
-        }
+			}
+		}
 
 		public Size Size
 			=> new Size(NativeView.MeasuredWidth, NativeView.MeasuredHeight);
