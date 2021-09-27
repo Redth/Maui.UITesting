@@ -29,7 +29,7 @@ namespace Microsoft.Maui.WebDriver.Host
 				});
 #endif
 			});
-		
+
 			return builder;
 		}
 
@@ -40,14 +40,14 @@ namespace Microsoft.Maui.WebDriver.Host
 		}
 
 		public static void PushAllReverse<T>(this Stack<T> st, IEnumerable<T> elems)
-        {
-			foreach (var elem in elems.Reverse ())
+		{
+			foreach (var elem in elems.Reverse())
 				st.Push(elem);
-        }
+		}
 
-		public static ReadOnlyCollection<T> ToReadOnlyCollection<T> (this IEnumerable<T> elems)
-        {
-			return new ReadOnlyCollection<T>(elems.ToList ());
-        }
+		public static ReadOnlyCollection<T> ToReadOnlyCollection<T>(this IEnumerable<T> elems)
+		{
+			return new ReadOnlyCollection<T>(elems.ToList());
+		}
 	}
 }

@@ -8,7 +8,8 @@ namespace Microsoft.Maui.WebDriver.Host
 	{
 		public override IEnumerable<IPlatformElement> Views
 		{
-			get {
+			get
+			{
 				var window = UIKit.UIApplication.SharedApplication.KeyWindow;
 
 				return window.Subviews.Select(s => new iOSElement(s));

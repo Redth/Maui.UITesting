@@ -27,3 +27,4 @@ namespace Microsoft.Maui.WebDriver.Host
 		}
 	}
 }
+
