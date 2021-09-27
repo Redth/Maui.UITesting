@@ -112,16 +112,15 @@ namespace Microsoft.Maui.WebDriver.Host
 			foreach (var v in views)
 			{
 				if (selector(v))
+				{
 					yield return v;
 
-				if (!onlyFirst)
-				{
-					if (v.Children?.Any() ?? false)
-						Find(selector, v.Children, onlyFirst);
+					if (onlyFirst)
+						break;
 				}
 
-				if (onlyFirst)
-					break;
+				if (v.Children?.Any() ?? false)
+					Find(selector, v.Children, onlyFirst);
 			}
 		}
 	}
