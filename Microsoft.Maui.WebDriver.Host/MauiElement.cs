@@ -23,14 +23,14 @@ namespace Microsoft.Maui.WebDriver.Host
 		public bool Enabled
 			=> NativeView.IsEnabled;
 
-		public IPlatformElement[] Children
+		public IEnumerable<IPlatformElement> Children
 		{
 			get
 			{
 				if (NativeView is ILayout layout)
-					return layout.Select(v => new MauiElement(v)).ToArray();
+					return layout.Select(v => new MauiElement(v));
 
-				return null;
+				return Enumerable.Empty<IPlatformElement>();
 			}
 		}
 

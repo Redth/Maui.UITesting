@@ -8,9 +8,11 @@ namespace Microsoft.Maui.WebDriver.Host
 {
 	public class MauiDriver : PlatformDriverBase
 	{
-		public override IPlatformElement[] GetViews()
+		public override IEnumerable<IPlatformElement> Views
 		{
-			var windows =
+			get
+			{
+				var windows =
 #if ANDROID
 			MauiApplication.Current.Application.Windows;
 
@@ -20,12 +22,8 @@ namespace Microsoft.Maui.WebDriver.Host
 			new IWindow[0];
 #endif
 
-			var elements = new List<IPlatformElement>();
-
-			foreach (var window in windows)
-				elements.Add(new MauiElement(window.Content));
-
-			return elements.ToArray();
+				return windows.Select(window => new MauiElement(window.Content));
+			}
 		}
 	}
 }

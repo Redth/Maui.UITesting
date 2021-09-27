@@ -1,5 +1,6 @@
 ﻿using OpenQA.Selenium;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Linq;
@@ -21,8 +22,8 @@ namespace Microsoft.Maui.WebDriver.Host
 		public bool Enabled
 			=> false;
 
-		public IPlatformElement[] Children
-			=> NativeView.Subviews.Select(s => new iOSElement(s)).ToArray();
+		public IEnumerable<IPlatformElement> Children
+			=> NativeView.Subviews.Select(s => new iOSElement(s));
 
 		public string TagName
 			=> NativeView.GetType().Name;

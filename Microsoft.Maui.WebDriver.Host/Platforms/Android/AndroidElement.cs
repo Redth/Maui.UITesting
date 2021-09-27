@@ -31,19 +31,16 @@ namespace Microsoft.Maui.WebDriver.Host
 		public bool Enabled
 			=> NativeView.Enabled;
 
-		public IPlatformElement[] Children
+		public IEnumerable<IPlatformElement> Children
 		{
 			get
 			{
 				if (NativeView is ViewGroup vg)
 				{
-					var views = new List<View>();
 					for (int i = 0; i < vg.ChildCount; i++)
-						views.Add(vg.GetChildAt(i));
-					return views.Select(v => new AndroidElement(v)).ToArray();
+						yield return new AndroidElement(vg.GetChildAt(i));
 				}
-
-				return null;
+				yield break;
 			}
 		}
 

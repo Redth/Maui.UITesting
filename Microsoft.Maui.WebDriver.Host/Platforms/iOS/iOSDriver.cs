@@ -6,11 +6,13 @@ namespace Microsoft.Maui.WebDriver.Host
 {
 	public class iOSDriver : PlatformDriverBase
 	{
-		public override IPlatformElement[] GetViews()
+		public override IEnumerable<IPlatformElement> Views
 		{
-			var window = UIKit.UIApplication.SharedApplication.KeyWindow;
+			get {
+				var window = UIKit.UIApplication.SharedApplication.KeyWindow;
 
-			return window.Subviews.Select(s => new iOSElement(s)).ToArray();
+				return window.Subviews.Select(s => new iOSElement(s));
+			}
 		}
 	}
 }
