@@ -11,7 +11,7 @@ namespace Microsoft.Maui.WebDriver.Host
 	// All the code in this file is included in all platforms.
 	public abstract class PlatformDriverBase : IWebDriver, IFindsById, IFindsByClassName, IFindsByName, IFindsByTagName
 	{
-		
+
 		public string Url { get => "app://"; set { } }
 
 		public string Title => string.Empty;
@@ -21,7 +21,7 @@ namespace Microsoft.Maui.WebDriver.Host
 		public string CurrentWindowHandle => "Root";
 
 		public ReadOnlyCollection<string> WindowHandles { get; }
-			= new (new List<string> { "Root" });
+			= new(new List<string> { "Root" });
 
 		public virtual void Close()
 		{
@@ -38,7 +38,7 @@ namespace Microsoft.Maui.WebDriver.Host
 			=> FindElementsByClassName(className).FirstOrDefault();
 
 		public virtual IWebElement FindElementById(string id)
-			=> Find(v => v.AutomationId.Equals(id)).FirstOrDefault ();
+			=> Find(v => v.AutomationId.Equals(id)).FirstOrDefault();
 
 		public virtual IWebElement FindElementByName(string name)
 		{
@@ -87,28 +87,28 @@ namespace Microsoft.Maui.WebDriver.Host
 
 
 		public abstract IEnumerable<IPlatformElement> Views
-        {
+		{
 			get;
-        }
+		}
 
 
 		public virtual IEnumerable<IPlatformElement> Find(Func<IPlatformElement, bool> selector)
 			=> FindDepthFirst(selector, Views);
 
-		protected static IEnumerable<IPlatformElement> FindDepthFirst (Func<IPlatformElement, bool> selector, IEnumerable<IPlatformElement> views)
-        {
+		protected static IEnumerable<IPlatformElement> FindDepthFirst(Func<IPlatformElement, bool> selector, IEnumerable<IPlatformElement> views)
+		{
 			var st = new Stack<IPlatformElement>();
 			st.PushAllReverse(views);
 			while (st.Count > 0)
-            {
+			{
 				var v = st.Pop();
 				if (selector(v))
-                {
+				{
 					yield return v;
-                }
+				}
 				st.PushAllReverse(v.Children);
-            }
-        }
+			}
+		}
 
 		protected static IEnumerable<IPlatformElement> FindBreadthFirst(Func<IPlatformElement, bool> selector, IEnumerable<IPlatformElement> views)
 		{
