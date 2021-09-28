@@ -11,6 +11,12 @@ namespace Microsoft.Maui.WebDriver.Host
 	// All the code in this file is included in all platforms.
 	public abstract class PlatformDriverBase : IWebDriver, IFindsById, IFindsByClassName, IFindsByName, IFindsByTagName
 	{
+		// for the purposes of testing in Maui we're going to make the following mappings
+		// Selenium		Here
+		// Id			Automation Id
+		// TagName		(UI Element).GetType().Name
+		// ClassName	(UI Element).GetType().Name
+		// Name			Text field of UI element
 
 		public string Url { get => "app://"; set { } }
 
@@ -27,9 +33,35 @@ namespace Microsoft.Maui.WebDriver.Host
 		{
 		}
 
+		~PlatformDriverBase ()
+        {
+			Dispose(false);
+        }
+
 		public virtual void Dispose()
 		{
+			Dispose(true);
 		}
+
+		bool disposed;
+		void Dispose (bool disposing)
+        {
+			if (!disposing)
+            {
+				if (disposing)
+					DisposeManagedResources();
+				DisposeUnmanagedResources();
+				disposed = true;
+            }
+        }
+
+		protected virtual void DisposeManagedResources()
+        {
+        }
+
+		protected virtual void DisposeUnmanagedResources()
+        {
+        }
 
 		public virtual IWebElement FindElement(By by)
 			=> by.FindElement(this);
