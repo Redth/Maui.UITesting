@@ -11,7 +11,7 @@ namespace Microsoft.Maui.WebDriver.Host
 	// All the code in this file is included in all platforms.
 	public abstract class PlatformDriverBase : IWebDriver, IFindsById, IFindsByClassName, IFindsByName, IFindsByTagName
 	{
-		
+
 		public string Url { get => "app://"; set { } }
 
 		public string Title => string.Empty;
@@ -21,7 +21,7 @@ namespace Microsoft.Maui.WebDriver.Host
 		public string CurrentWindowHandle => "Root";
 
 		public ReadOnlyCollection<string> WindowHandles { get; }
-			= new (new List<string> { "Root" });
+			= new(new List<string> { "Root" });
 
 		public virtual void Close()
 		{
@@ -35,12 +35,10 @@ namespace Microsoft.Maui.WebDriver.Host
 			=> by.FindElement(this);
 
 		public virtual IWebElement FindElementByClassName(string className)
-		{
-			throw new NotImplementedException();
-		}
+			=> FindElementsByClassName(className).FirstOrDefault();
 
 		public virtual IWebElement FindElementById(string id)
-			=> FindOne(v => v.AutomationId.Equals(id));
+			=> Find(v => v.AutomationId.Equals(id)).FirstOrDefault();
 
 		public virtual IWebElement FindElementByName(string name)
 		{
@@ -48,24 +46,16 @@ namespace Microsoft.Maui.WebDriver.Host
 		}
 
 		public virtual IWebElement FindElementByTagName(string tagName)
-		{
-			throw new NotImplementedException();
-		}
+			=> FindElementsByTagName(tagName).FirstOrDefault();
 
 		public virtual ReadOnlyCollection<IWebElement> FindElements(By by)
-		{
-			throw new NotImplementedException();
-		}
+			=> by.FindElements(this);
 
 		public virtual ReadOnlyCollection<IWebElement> FindElementsByClassName(string className)
-		{
-			throw new NotImplementedException();
-		}
+			=> Find(elem => elem.GetType().Name == className).Cast<IWebElement>().ToReadOnlyCollection();
 
 		public virtual ReadOnlyCollection<IWebElement> FindElementsById(string id)
-		{
-			throw new NotImplementedException();
-		}
+			=> Find(elem => elem.AutomationId == id).Cast<IWebElement>().ToReadOnlyCollection();
 
 		public virtual ReadOnlyCollection<IWebElement> FindElementsByName(string name)
 		{
@@ -73,9 +63,7 @@ namespace Microsoft.Maui.WebDriver.Host
 		}
 
 		public virtual ReadOnlyCollection<IWebElement> FindElementsByTagName(string tagName)
-		{
-			throw new NotImplementedException();
-		}
+			=> Find(elem => elem.TagName == tagName).Cast<IWebElement>().ToReadOnlyCollection();
 
 		public virtual IOptions Manage()
 		{
@@ -98,29 +86,42 @@ namespace Microsoft.Maui.WebDriver.Host
 		}
 
 
-		public abstract IPlatformElement[] GetViews();
+		public abstract IEnumerable<IPlatformElement> Views
+		{
+			get;
+		}
 
 
 		public virtual IEnumerable<IPlatformElement> Find(Func<IPlatformElement, bool> selector)
-			=> Find(selector, GetViews(), false);
+			=> FindDepthFirst(selector, Views);
 
-		public virtual IPlatformElement FindOne(Func<IPlatformElement, bool> selector)
-			=> Find(selector, GetViews(), true)?.FirstOrDefault();
-
-		protected virtual IEnumerable<IPlatformElement> Find(Func<IPlatformElement, bool> selector, IPlatformElement[] views, bool onlyFirst)
+		protected static IEnumerable<IPlatformElement> FindDepthFirst(Func<IPlatformElement, bool> selector, IEnumerable<IPlatformElement> views)
 		{
-			foreach (var v in views)
+			var st = new Stack<IPlatformElement>();
+			st.PushAllReverse(views);
+			while (st.Count > 0)
 			{
+				var v = st.Pop();
 				if (selector(v))
 				{
 					yield return v;
-
-					if (onlyFirst)
-						break;
 				}
+				st.PushAllReverse(v.Children);
+			}
+		}
 
-				if (v.Children?.Any() ?? false)
-					Find(selector, v.Children, onlyFirst);
+		protected static IEnumerable<IPlatformElement> FindBreadthFirst(Func<IPlatformElement, bool> selector, IEnumerable<IPlatformElement> views)
+		{
+			var q = new Queue<IPlatformElement>();
+			q.EnqueAll(views);
+			while (q.Count > 0)
+			{
+				var v = q.Dequeue();
+				if (selector(v))
+				{
+					yield return v;
+				}
+				q.EnqueAll(v.Children);
 			}
 		}
 	}
