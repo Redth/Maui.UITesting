@@ -33,10 +33,10 @@ namespace Microsoft.Maui.WebDriver.Host
 		{
 		}
 
-		~PlatformDriverBase ()
-        {
+		~PlatformDriverBase()
+		{
 			Dispose(false);
-        }
+		}
 
 		public virtual void Dispose()
 		{
@@ -44,25 +44,26 @@ namespace Microsoft.Maui.WebDriver.Host
 		}
 
 		bool disposed;
-		void Dispose (bool disposing)
-        {
+		void Dispose(bool disposing)
+		{
 			if (!disposing)
-            {
+			{
 				if (disposing)
 					DisposeManagedResources();
 				DisposeUnmanagedResources();
 				disposed = true;
-            }
-        }
+			}
+		}
 
 		protected virtual void DisposeManagedResources()
-        {
-        }
+		{
+		}
 
 		protected virtual void DisposeUnmanagedResources()
-        {
-        }
+		{
+		}
 
+		// find first (or null)
 		public virtual IWebElement FindElement(By by)
 			=> by.FindElement(this);
 
@@ -70,16 +71,16 @@ namespace Microsoft.Maui.WebDriver.Host
 			=> FindElementsByClassName(className).FirstOrDefault();
 
 		public virtual IWebElement FindElementById(string id)
-			=> Find(v => v.AutomationId.Equals(id)).FirstOrDefault();
+			=> FindElementsById(id).FirstOrDefault();
 
 		public virtual IWebElement FindElementByName(string name)
-		{
-			throw new NotImplementedException();
-		}
+			=> FindElementsByName(name).FirstOrDefault();
 
 		public virtual IWebElement FindElementByTagName(string tagName)
 			=> FindElementsByTagName(tagName).FirstOrDefault();
 
+
+		// find all and convert to read-only collection
 		public virtual ReadOnlyCollection<IWebElement> FindElements(By by)
 			=> by.FindElements(this);
 
@@ -90,40 +91,14 @@ namespace Microsoft.Maui.WebDriver.Host
 			=> Find(elem => elem.AutomationId == id).Cast<IWebElement>().ToReadOnlyCollection();
 
 		public virtual ReadOnlyCollection<IWebElement> FindElementsByName(string name)
-		{
-			throw new NotImplementedException();
-		}
+			=> Find(elem => elem.Text == name).Cast<IWebElement>().ToReadOnlyCollection();
 
+		// TagName is aliased to the name of the native view's type.
 		public virtual ReadOnlyCollection<IWebElement> FindElementsByTagName(string tagName)
 			=> Find(elem => elem.TagName == tagName).Cast<IWebElement>().ToReadOnlyCollection();
 
-		public virtual IOptions Manage()
-		{
-			throw new NotImplementedException();
-		}
 
-		public virtual INavigation Navigate()
-		{
-			throw new NotImplementedException();
-		}
-
-		public virtual void Quit()
-		{
-			throw new NotImplementedException();
-		}
-
-		public virtual ITargetLocator SwitchTo()
-		{
-			throw new NotImplementedException();
-		}
-
-
-		public abstract IEnumerable<IPlatformElement> Views
-		{
-			get;
-		}
-
-
+		// Find helpers
 		public virtual IEnumerable<IPlatformElement> Find(Func<IPlatformElement, bool> selector)
 			=> FindDepthFirst(selector, Views);
 
@@ -155,6 +130,32 @@ namespace Microsoft.Maui.WebDriver.Host
 				}
 				q.EnqueAll(v.Children);
 			}
+		}
+
+		public virtual IOptions Manage()
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual INavigation Navigate()
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual void Quit()
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual ITargetLocator SwitchTo()
+		{
+			throw new NotImplementedException();
+		}
+
+
+		public abstract IEnumerable<IPlatformElement> Views
+		{
+			get;
 		}
 	}
 }
