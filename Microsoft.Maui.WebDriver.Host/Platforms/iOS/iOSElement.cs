@@ -33,7 +33,7 @@ namespace Microsoft.Maui.WebDriver.Host
 
 		static string[] possibleTextPropertyNames = new string[]
 		{
-			"Title", "Text", 
+			"Title", "Text",
 		};
 
 		public string Text
@@ -45,16 +45,16 @@ namespace Microsoft.Maui.WebDriver.Host
 				{
 					IUITextInput ti => TextFromUIInput(ti),
 					UIButton b => b.CurrentTitle,
-					_ => TextViaReflection (NativeView, possibleTextPropertyNames)
-                };
+					_ => TextViaReflection(NativeView, possibleTextPropertyNames)
+				};
 
 			}
 		}
 
-		static string TextViaReflection (UIView view, string[] propertyNames)
-        {
+		static string TextViaReflection(UIView view, string[] propertyNames)
+		{
 			foreach (var name in propertyNames)
-            {
+			{
 				var prop = view.GetType().GetProperty("Text", typeof(string));
 				if (prop is null)
 					continue;
@@ -65,17 +65,17 @@ namespace Microsoft.Maui.WebDriver.Host
 				return prop.GetValue(view) as string ?? "";
 			}
 			return "";
-        }
+		}
 
-		static string TextFromUIInput (IUITextInput ti)
-        {
-            var start = ti.BeginningOfDocument;
-            var end = ti.EndOfDocument;
-            var range = ti.GetTextRange(start, end);
-            return ti.TextInRange(range);
-        }
+		static string TextFromUIInput(IUITextInput ti)
+		{
+			var start = ti.BeginningOfDocument;
+			var end = ti.EndOfDocument;
+			var range = ti.GetTextRange(start, end);
+			return ti.TextInRange(range);
+		}
 
-        public bool Selected =>
+		public bool Selected =>
 			NativeView.Focused;
 
 		public Point Location
