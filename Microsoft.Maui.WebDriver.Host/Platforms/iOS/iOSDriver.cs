@@ -10,9 +10,26 @@ namespace Microsoft.Maui.WebDriver.Host
 		{
 			get
 			{
-				var window = UIKit.UIApplication.SharedApplication.KeyWindow;
+				var window = KeyWindow;
+				if (window == null)
+					return Enumerable.Empty<IPlatformElement>();
 
 				return window.Subviews.Select(s => new iOSElement(s));
+			}
+		}
+
+		UIWindow KeyWindow
+		{
+			get
+			{
+				if (OperatingSystem.IsIOSVersionAtLeast(13))
+				{
+					return UIApplication.SharedApplication.Windows.FirstOrDefault(w => w.IsKeyWindow);
+				}
+				else
+				{
+					return UIKit.UIApplication.SharedApplication.KeyWindow;
+				}
 			}
 		}
 	}
