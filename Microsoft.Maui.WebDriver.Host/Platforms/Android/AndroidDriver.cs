@@ -6,6 +6,14 @@ namespace Microsoft.Maui.WebDriver.Host
 	// All the code in this file is only included on Android.
 	public class AndroidDriver : PlatformDriverBase
 	{
+		public AndroidDriver(Application app)
+			: base()
+		{
+			if (app == null)
+				throw new ArgumentNullException(nameof(app));
+			Microsoft.Maui.Essentials.Platform.Init(app);
+		}
+
 		public override IEnumerable<IPlatformElement> Views
 		{
 			get

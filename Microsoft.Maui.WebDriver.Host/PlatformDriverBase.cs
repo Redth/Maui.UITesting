@@ -46,7 +46,7 @@ namespace Microsoft.Maui.WebDriver.Host
 		bool disposed;
 		void Dispose(bool disposing)
 		{
-			if (!disposing)
+			if (!disposed)
 			{
 				if (disposing)
 					DisposeManagedResources();

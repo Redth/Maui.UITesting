@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Linq;
+using UIKit;
 
 namespace Microsoft.Maui.WebDriver.Host
 {
@@ -11,13 +12,15 @@ namespace Microsoft.Maui.WebDriver.Host
 	{
 		public iOSElement(UIKit.UIView nativeView)
 		{
+			if (nativeView == null)
+				throw new ArgumentNullException(nameof(nativeView));
 			NativeView = nativeView;
 		}
 
 		public UIKit.UIView NativeView { get; set; }
 
 		public string AutomationId
-			=> NativeView.AccessibilityIdentifier;
+			=> NativeView.AccessibilityIdentifier ?? "";
 
 		public bool Enabled
 			=> false;
@@ -28,20 +31,48 @@ namespace Microsoft.Maui.WebDriver.Host
 		public string TagName
 			=> NativeView.GetType().Name;
 
+		static string[] possibleTextPropertyNames = new string[]
+		{
+			"Title", "Text",
+		};
+
 		public string Text
 		{
 			get
 			{
-				if (NativeView is UIKit.IUITextInput ti)
-				{
-					var start = ti.BeginningOfDocument;
-					var end = ti.EndOfDocument;
-					var range = ti.GetTextRange(start, end);
-					return ti.TextInRange(range);
-				}
 
-				return null;
+				return NativeView switch
+				{
+					IUITextInput ti => TextFromUIInput(ti),
+					UIButton b => b.CurrentTitle,
+					_ => TextViaReflection(NativeView, possibleTextPropertyNames)
+				};
+
 			}
+		}
+
+		static string TextViaReflection(UIView view, string[] propertyNames)
+		{
+			foreach (var name in propertyNames)
+			{
+				var prop = view.GetType().GetProperty("Text", typeof(string));
+				if (prop is null)
+					continue;
+				if (!prop.CanRead)
+					continue;
+				if (prop.PropertyType != typeof(string))
+					continue;
+				return prop.GetValue(view) as string ?? "";
+			}
+			return "";
+		}
+
+		static string TextFromUIInput(IUITextInput ti)
+		{
+			var start = ti.BeginningOfDocument;
+			var end = ti.EndOfDocument;
+			var range = ti.GetTextRange(start, end);
+			return ti.TextInRange(range);
 		}
 
 		public bool Selected =>
@@ -108,7 +139,7 @@ namespace Microsoft.Maui.WebDriver.Host
 					return str.ToString();
 			}
 
-			return null;
+			return "";
 		}
 
 		public string GetCssValue(string propertyName)
