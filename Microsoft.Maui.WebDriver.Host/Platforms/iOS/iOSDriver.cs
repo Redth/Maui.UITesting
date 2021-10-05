@@ -19,18 +19,18 @@ namespace Microsoft.Maui.WebDriver.Host
 		}
 
 		UIWindow KeyWindow
-        {
+		{
 			get
-            {
-				if (OperatingSystem.IsIOSVersionAtLeast (13))
+			{
+				if (OperatingSystem.IsIOSVersionAtLeast(13))
 				{
 					return UIApplication.SharedApplication.Windows.FirstOrDefault(w => w.IsKeyWindow);
 				}
 				else
-                {
+				{
 					return UIKit.UIApplication.SharedApplication.KeyWindow;
-                }
-            }
-        }
+				}
+			}
+		}
 	}
 }
