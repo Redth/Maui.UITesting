@@ -27,8 +27,8 @@ namespace Microsoft.Maui.WebDriver.Host
 		{
 			get
 			{
-				if (NativeView is IContentView cv && cv.Content is not null)
-					return Enumerable.Repeat(new MauiElement(cv.Content), 1);
+				if (NativeView is IContentView cv && cv.Content is not null && cv.Content is IView contentView)
+					return Enumerable.Repeat(new MauiElement(contentView), 1);
 
 				if (NativeView is ILayout layout)
 					return layout.Select(v => new MauiElement(v));

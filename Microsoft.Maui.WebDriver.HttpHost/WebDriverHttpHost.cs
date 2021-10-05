@@ -48,8 +48,8 @@ namespace Microsoft.Maui.WebDriver.HttpHost
 
 		(int statusCode, JToken value) HandleRequest(HttpListenerContext ctx)
         {
-			var url = ctx.Request.Url;
-			var firstSegment = ctx.Request.Url.Segments.FirstOrDefault()?.ToLowerInvariant();
+			var url = ctx.Request.Url ?? new Uri("http://localhost");
+			var firstSegment = ctx.Request.Url?.Segments?.FirstOrDefault()?.ToLowerInvariant();
 			var verb = ctx.Request.HttpMethod.ToLowerInvariant();
 			var body = RequestBody.Parse(ctx);
 
@@ -247,7 +247,7 @@ namespace Microsoft.Maui.WebDriver.HttpHost
 
 								// TODO: Find a way to surface an actual element id for the value here:
 								// ALSO: yes this weird element-guid string is weird, but it is correct
-								return Ok(new JProperty("element-6066-11e4-a52e-4f735466cecf", new JValue("ID")))
+								return Ok(new JProperty("element-6066-11e4-a52e-4f735466cecf", new JValue("ID")));
 							}
 							else if (sessionCmd == "element")
 							{

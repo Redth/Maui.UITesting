@@ -6,7 +6,7 @@ namespace Microsoft.Maui.WebDriver.Host
 	// All the code in this file is only included on Android.
 	public class AndroidDriver : PlatformDriverBase
 	{
-		public AndroidDriver(Application app)
+		public AndroidDriver(global::Android.App.Application app)
 			: base()
 		{
 			if (app == null)
