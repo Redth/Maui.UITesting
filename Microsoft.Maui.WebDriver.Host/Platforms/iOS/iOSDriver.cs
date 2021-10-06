@@ -14,7 +14,7 @@ namespace Microsoft.Maui.WebDriver.Host
 				if (window == null)
 					return Enumerable.Empty<IPlatformElement>();
 
-				return window.Subviews.Select(s => new iOSElement(s));
+				return window.Subviews.Select(s => ElementFactory(s));
 			}
 		}
 
@@ -31,6 +31,11 @@ namespace Microsoft.Maui.WebDriver.Host
 					return UIKit.UIApplication.SharedApplication.KeyWindow;
 				}
 			}
+		}
+
+		protected virtual IPlatformElement ElementFactory (UIView view)
+		{
+			return new iOSElement(view);
 		}
 	}
 }
