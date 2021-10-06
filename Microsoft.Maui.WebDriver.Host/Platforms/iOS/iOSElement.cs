@@ -25,7 +25,7 @@ namespace Microsoft.Maui.WebDriver.Host
 		public bool Enabled
 			=> false;
 
-		public IEnumerable<IPlatformElement> Children
+		public virtual IEnumerable<IPlatformElement> Children
 			=> NativeView.Subviews.Select(s => new iOSElement(s));
 
 		public string TagName
