@@ -35,7 +35,7 @@ namespace Microsoft.Maui.WebDriver.Host
 			}
 		}
 
-		protected virtual IPlatformElement ElementFactory (UIView view)
+		protected virtual IPlatformElement ElementFactory(UIView view)
 		{
 			return new iOSElement(view);
 		}
@@ -47,10 +47,10 @@ namespace Microsoft.Maui.WebDriver.Host
 		}
 
 		internal static T InvokeOnMainThread<T>(Func<T> factory)
-        {
+		{
 			T value = default;
 			NSRunLoop.Main.InvokeOnMainThread(() => value = factory());
 			return value;
-        }
+		}
 	}
 }
