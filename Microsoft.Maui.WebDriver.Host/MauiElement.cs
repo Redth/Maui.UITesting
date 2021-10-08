@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Linq;
 using Microsoft.Maui;
+using Microsoft.Maui.Essentials;
 
 namespace Microsoft.Maui.WebDriver.Host
 {
@@ -97,7 +98,9 @@ namespace Microsoft.Maui.WebDriver.Host
 		public void Click()
 		{
 			if (NativeView is IButton button)
-				button.Clicked();
+			{
+				MainThread.BeginInvokeOnMainThread(button.Clicked);
+			}
 		}
 
 		public string GetAttribute(string attributeName)
