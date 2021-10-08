@@ -9,10 +9,6 @@ namespace Microsoft.Maui.WebDriver.Host
 {
 	public static class AppBuilderExtensions
 	{
-#if ANDROID
-		internal static Android.App.Activity CurrentActivity => Microsoft.Maui.Essentials.Platform.CurrentActivity;
-#endif
-
 		internal static void EnqueAll<T>(this Queue<T> q, IEnumerable<T> elems)
 		{
 			foreach (var elem in elems)

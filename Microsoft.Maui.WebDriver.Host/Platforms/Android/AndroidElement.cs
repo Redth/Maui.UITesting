@@ -100,7 +100,7 @@ namespace Microsoft.Maui.WebDriver.Host
 
 		public void Click()
 		{
-			NativeView.CallOnClick();
+			AndroidDriver.InvokeOnMainThread(NativeView.PerformClick);
 		}
 
 		public string GetAttribute(string attributeName)
