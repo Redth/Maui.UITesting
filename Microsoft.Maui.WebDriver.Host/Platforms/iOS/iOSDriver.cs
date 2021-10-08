@@ -10,11 +10,13 @@ namespace Microsoft.Maui.WebDriver.Host
 		{
 			get
 			{
-				var window = KeyWindow;
-				if (window == null)
-					return Enumerable.Empty<IPlatformElement>();
+				return InvokeOnMainThread(() =>
+				{
+					var window = KeyWindow;
+					var subviews = window.Subviews;
 
-				return window.Subviews.Select(s => ElementFactory(s));
+					return subviews.Select(s => ElementFactory(s));
+				});
 			}
 		}
 
@@ -37,5 +39,18 @@ namespace Microsoft.Maui.WebDriver.Host
 		{
 			return new iOSElement(view);
 		}
+
+		// from Essentials
+		internal static void BeginInvokeOnMainThread(Action action)
+		{
+			NSRunLoop.Main.BeginInvokeOnMainThread(action.Invoke);
+		}
+
+		internal static T InvokeOnMainThread<T>(Func<T> factory)
+        {
+			T value = default;
+			NSRunLoop.Main.InvokeOnMainThread(() => value = factory());
+			return value;
+        }
 	}
 }
