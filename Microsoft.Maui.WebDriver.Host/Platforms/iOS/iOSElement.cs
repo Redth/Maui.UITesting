@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Linq;
+using Foundation;
 using UIKit;
 
 namespace Microsoft.Maui.WebDriver.Host
@@ -20,13 +21,13 @@ namespace Microsoft.Maui.WebDriver.Host
 		public UIKit.UIView NativeView { get; set; }
 
 		public string AutomationId
-			=> NativeView.AccessibilityIdentifier ?? "";
+			=> iOSDriver.InvokeOnMainThread(() => NativeView.AccessibilityIdentifier ?? "");
 
 		public bool Enabled
 			=> false;
 
 		public virtual IEnumerable<IPlatformElement> Children
-			=> NativeView.Subviews.Select(s => new iOSElement(s));
+			=> iOSDriver.InvokeOnMainThread(() => NativeView.Subviews.Select(s => new iOSElement(s)));
 
 		public string TagName
 			=> NativeView.GetType().Name;
@@ -40,7 +41,6 @@ namespace Microsoft.Maui.WebDriver.Host
 		{
 			get
 			{
-
 				return NativeView switch
 				{
 					IUITextInput ti => TextFromUIInput(ti),
@@ -116,7 +116,11 @@ namespace Microsoft.Maui.WebDriver.Host
 
 		public void Click()
 		{
-			throw new NotImplementedException();
+			if (NativeView is UIControl control)
+			{
+				iOSDriver.BeginInvokeOnMainThread(() =>
+			   control.SendActionForControlEvents(UIControlEvent.TouchUpInside));
+			}
 		}
 
 		public string GetAttribute(string attributeName)
@@ -150,5 +154,6 @@ namespace Microsoft.Maui.WebDriver.Host
 
 		public ReadOnlyCollection<IWebElement> FindElements(By by)
 			=> by.FindElements(this);
+
 	}
 }

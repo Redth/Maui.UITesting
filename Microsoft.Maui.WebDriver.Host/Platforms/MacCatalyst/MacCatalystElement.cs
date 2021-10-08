@@ -16,6 +16,6 @@ namespace Microsoft.Maui.WebDriver.Host
 		}
 
 		public override IEnumerable<IPlatformElement> Children
-			=> NativeView.Subviews.Select(s => new MacCatalystElement(s));
+			=> iOSDriver.InvokeOnMainThread(() => NativeView.Subviews.Select(s => new MacCatalystElement(s)));
 	}
 }
