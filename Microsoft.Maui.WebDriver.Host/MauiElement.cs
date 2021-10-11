@@ -46,9 +46,10 @@ namespace Microsoft.Maui.WebDriver.Host
 			get
 			{
 				if (NativeView is IText tv)
-					return tv.Text;
+					return MauiDriver.InvokeOnMainThread (() => tv.Text);
 
-				return null;
+				var possibleResult = MauiDriver.InvokeOnMainThread (() => GetViaProperty<string>(NativeView, "Text"));
+				return possibleResult;
 			}
 		}
 
@@ -59,7 +60,7 @@ namespace Microsoft.Maui.WebDriver.Host
 #if ANDROID
 				if (NativeView.Handler.NativeView is Android.Views.View aview)
 					return aview.HasFocus;
-#elif IOS
+#elif IOS || __MACCATALYST__
 				if (NativeView.Handler.NativeView is UIKit.UIView iosview)
 					return iosview.Focused;
 #endif
@@ -87,7 +88,12 @@ namespace Microsoft.Maui.WebDriver.Host
 		public void SendKeys(string text)
 		{
 			if (NativeView is ITextInput ti)
-				ti.Text = text;
+			{
+				MainThread.BeginInvokeOnMainThread(() => ti.Text = text);
+			} else
+            {
+				MainThread.BeginInvokeOnMainThread (() => SetViaProperty(NativeView, "Text", text));
+            }
 		}
 
 		public void Submit()
@@ -117,5 +123,37 @@ namespace Microsoft.Maui.WebDriver.Host
 
 		public ReadOnlyCollection<IWebElement> FindElements(By by)
 			=> by.FindElements(this);
+
+		bool SetViaProperty<T> (IView view, string propertyName, T newValue)
+        {
+			// look for a public property named propertyName with type T and with a getter.
+			var prop = view.GetType().GetProperty(propertyName, typeof(T));
+			if (prop == null || (prop.SetMethod == null || !prop.SetMethod.IsPublic))
+				return false;
+			try
+            {
+				prop.SetValue(view, newValue);
+            } catch
+            {
+				return false;
+            }
+			return true;
+        }
+
+		T GetViaProperty<T> (IView view, string propertyName)
+        {
+			// look for a public property named propertyName with type T and with a getter.
+			var prop = view.GetType().GetProperty(propertyName, typeof(T));
+			if (prop == null || (prop.GetMethod == null || !prop.GetMethod.IsPublic))
+				return default(T);
+			try
+			{
+				return (T)prop.GetValue(view);
+			}
+			catch
+			{
+			}
+			return default(T);
+		}
 	}
 }
