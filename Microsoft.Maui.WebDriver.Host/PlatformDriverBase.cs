@@ -1,6 +1,7 @@
 ﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Internal;
 using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
@@ -157,5 +158,16 @@ namespace Microsoft.Maui.WebDriver.Host
 		{
 			get;
 		}
+#if DEBUG
+		internal static StreamWriter DebugOut;
+		internal static void DebugWriteLine(string message)
+		{
+			if (DebugOut != null)
+			{
+				DebugOut.WriteLine(message);
+				DebugOut.Flush();
+			}
+		}
+#endif
 	}
 }
