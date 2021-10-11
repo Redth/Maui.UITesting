@@ -124,24 +124,25 @@ namespace Microsoft.Maui.WebDriver.Host
 		public ReadOnlyCollection<IWebElement> FindElements(By by)
 			=> by.FindElements(this);
 
-		bool SetViaProperty<T> (IView view, string propertyName, T newValue)
-        {
+		bool SetViaProperty<T>(IView view, string propertyName, T newValue)
+		{
 			// look for a public property named propertyName with type T and with a getter.
 			var prop = view.GetType().GetProperty(propertyName, typeof(T));
 			if (prop == null || (prop.SetMethod == null || !prop.SetMethod.IsPublic))
 				return false;
 			try
-            {
+			{
 				prop.SetValue(view, newValue);
-            } catch
-            {
+			}
+			catch
+			{
 				return false;
-            }
+			}
 			return true;
-        }
+		}
 
-		T GetViaProperty<T> (IView view, string propertyName)
-        {
+		T GetViaProperty<T>(IView view, string propertyName)
+		{
 			// look for a public property named propertyName with type T and with a getter.
 			var prop = view.GetType().GetProperty(propertyName, typeof(T));
 			if (prop == null || (prop.GetMethod == null || !prop.GetMethod.IsPublic))
