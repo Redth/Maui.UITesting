@@ -18,7 +18,8 @@ namespace RemoteAutomationTests
 
             // Build a mock app
             var app = new MockApplication()
-                .WithWindow("window1", "Window", "Window Title");
+                .WithWindow("window1", "Window", "Window Title")
+                .WithView("view1");
 
             // Create our app host service implementation
             var service = new RemoteAutomationService(app);

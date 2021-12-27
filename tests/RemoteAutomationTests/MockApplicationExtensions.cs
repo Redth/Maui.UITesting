@@ -10,7 +10,9 @@
 
         public static MockApplication WithWindow(this MockApplication app, string id, string? automationId, string? title)
         {
-            app.MockWindows.Add(new MockWindow(app.CurrentPlatform, id, automationId, title));
+            var w = new MockWindow(app.CurrentPlatform, id, automationId, title);
+            app.MockWindows.Add(w);
+            app.CurrentMockWindow = w;
             return app;
         }
 
