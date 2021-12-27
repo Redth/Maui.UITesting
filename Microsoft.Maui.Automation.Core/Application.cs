@@ -94,25 +94,27 @@ namespace Microsoft.Maui.Automation
             return await Descendant(window, v => v.Id == viewId);
         }
 
-        public async IAsyncEnumerable<IView> WindowDescendants(string windowId)
+        public async IAsyncEnumerable<IView> Descendants(string windowId, string viewId)
         {
-            var window = await Window(windowId);
-
-            if (window != null)
+            if (string.IsNullOrEmpty(viewId))
             {
-                await foreach (var d in Descendants(window))
-                    yield return d;
+                var window = await Window(windowId);
+
+                if (window != null)
+                {
+                    await foreach (var d in Descendants(window))
+                        yield return d;
+                }
             }
-        }
-
-        public async IAsyncEnumerable<IView> ViewDescendants(string windowId, string viewId)
-        {
-            var view = await View(windowId, viewId);
-
-            if (view != null)
+            else
             {
-                await foreach (var d in Descendants(view))
-                    yield return d;
+                var view = await View(windowId, viewId);
+
+                if (view != null)
+                {
+                    await foreach (var d in Descendants(view))
+                        yield return d;
+                }
             }
         }
 

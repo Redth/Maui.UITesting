@@ -8,9 +8,7 @@
 
         public Task<IView?> View(string windowId, string viewId);
 
-        public IAsyncEnumerable<IView> WindowDescendants(string windowId);
-
-        public IAsyncEnumerable<IView> ViewDescendants(string windowId, string elementId);
+        public IAsyncEnumerable<IView> Descendants(string windowId, string? viewId = null);
 
         public Task<IActionResult> Invoke(string windowId, string elementId, IAction action);
 

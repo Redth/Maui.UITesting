@@ -9,8 +9,7 @@ namespace Microsoft.Maui.Automation.Remote
 
         public Task<RemoteView?> View(string windowId, string viewId);
 
-        public Task<RemoteView[]?> WindowDescendants(string windowId);
-        public Task<RemoteView[]?> ViewDescendants(string windowId, string viewId);
+        public Task<RemoteView[]> Descendants(string windowId, string? viewId = null);
 
         public Task<IActionResult> Invoke(string windowId, string viewId, IAction action);
 

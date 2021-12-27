@@ -58,25 +58,6 @@ namespace Microsoft.Maui.Automation
         public Task<object?> GetProperty(string windowId, string elementId, string propertyName)
             => PlatformApp.GetProperty(windowId, elementId, propertyName);
 
-        public async Task<RemoteView[]> WindowDescendants(string windowId)
-        {
-            var window = await PlatformApp.Window(windowId);
-
-            if (window == null)
-                return Array.Empty<RemoteView>();
-
-            var results = new List<RemoteView>();
-
-            foreach (var rootView in window.Children.Select(rv => RemoteView.From(rv)!))
-            {
-                ConvertChildren(rootView, rootView.Children);
-                results.Add(rootView);
-            }
-
-            return results.ToArray();
-        }
-
-
         void ConvertChildren(RemoteView parent, IView[] toConvert)
         {
             var converted = toConvert.Select(c => RemoteView.From(c)!);
@@ -85,19 +66,39 @@ namespace Microsoft.Maui.Automation
             foreach (var v in converted)
                 ConvertChildren(v, v.Children);
         }
-    
-        public async Task<RemoteView[]> ViewDescendants(string windowId, string elementId)
+
+        public async Task<RemoteView[]> Descendants(string windowId, string? viewId = null)
         {
-            var view = await PlatformApp.View(windowId, elementId);
+            if (!string.IsNullOrEmpty(viewId))
+            {
+                var view = await PlatformApp.View(windowId, viewId);
 
-            if (view == null)
-                return Array.Empty<RemoteView>();
+                if (view == null)
+                    return Array.Empty<RemoteView>();
 
-            var remoteView = RemoteView.From(view)!;
+                var remoteView = RemoteView.From(view)!;
 
-            ConvertChildren(remoteView, remoteView.Children);
+                ConvertChildren(remoteView, remoteView.Children);
 
-            return remoteView.Children.Cast<RemoteView>().ToArray();
+                return remoteView.Children.Cast<RemoteView>().ToArray();
+            }
+            else
+            {
+                var window = await PlatformApp.Window(windowId);
+
+                if (window == null)
+                    return Array.Empty<RemoteView>();
+
+                var results = new List<RemoteView>();
+
+                foreach (var rootView in window.Children.Select(rv => RemoteView.From(rv)!))
+                {
+                    ConvertChildren(rootView, rootView.Children);
+                    results.Add(rootView);
+                }
+
+                return results.ToArray();
+            }
         }
     }
 }

@@ -57,10 +57,8 @@ namespace Microsoft.Maui.Automation.Remote
         public Task<IView?> View(string windowId, string viewId)
             => remoteApplication.View(windowId, viewId);
 
-        public IAsyncEnumerable<IView> WindowDescendants(string windowId)
-            => remoteApplication.WindowDescendants(windowId);
-        public IAsyncEnumerable<IView> ViewDescendants(string windowId, string elementId)
-            => remoteApplication.ViewDescendants(windowId, elementId);
+        public IAsyncEnumerable<IView> Descendants(string windowId, string? viewId = null)
+            => remoteApplication.Descendants(windowId, viewId);
 
         public Task<IActionResult> Invoke(string windowId, string elementId, IAction action)
             => remoteApplication.Invoke(windowId, elementId, action);

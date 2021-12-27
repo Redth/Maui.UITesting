@@ -60,11 +60,8 @@ namespace Microsoft.Maui.Automation
         public virtual Task<IView?> View(string windowId, string viewId)
             => CurrentApp.View(windowId, viewId);
 
-        public virtual IAsyncEnumerable<IView> WindowDescendants(string windowId)
-            => CurrentApp.WindowDescendants(windowId);
-
-        public virtual IAsyncEnumerable<IView> ViewDescendants(string windowId, string viewId)
-            => CurrentApp.ViewDescendants(windowId, viewId);
+        public virtual IAsyncEnumerable<IView> Descendants(string windowId, string? viewId = null)
+            => CurrentApp.Descendants(windowId, viewId);
 
         public virtual Task<IActionResult> Invoke(string windowId, string viewId, IAction action)
             => CurrentApp.Invoke(windowId, viewId, action);
