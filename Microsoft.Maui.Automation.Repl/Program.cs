@@ -27,7 +27,7 @@ try {
         {
             var tree = new Tree(w.ToTable(ConfigureTable));
 
-            await foreach (var d in remote.WindowDescendants(w.Id))
+            await foreach (var d in remote.Descendants(w.Id))
             {
                 //var node = tree.AddNode(d.ToMarkupString(0, 0));
 

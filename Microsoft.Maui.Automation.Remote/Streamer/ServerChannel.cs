@@ -22,6 +22,7 @@ namespace Streamer
         public ServerChannel()
         {
             _serializer = new JsonSerializer();
+            _serializer.TypeNameHandling = TypeNameHandling.All;
         }
 
         public IDisposable Bind(params MethodHandler[] methods)
@@ -80,7 +81,7 @@ namespace Streamer
                         response.Error = ex?.Message;
                     }
 
-                    Console.WriteLine(response.Result.ToString());
+                    Console.WriteLine(response.Result);
                     return response;
                 };
             }

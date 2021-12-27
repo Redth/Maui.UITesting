@@ -21,7 +21,15 @@ namespace Microsoft.Maui.Automation.Remote
         
         [JsonIgnore]
         public object? PlatformElement { get; set; }
+
+        [JsonIgnore]
         public IView[] Children { get; set; } = Array.Empty<IView>();
+
+        public RemoteView[] RemoteChildren
+        {
+            get => Children?.Select(c => RemoteView.From(c))?.ToArray() ?? Array.Empty<RemoteView>();
+            set => Children = value.ToArray();
+        }
         public string Id { get; set; } = string.Empty;
         public string AutomationId { get; set; } = string.Empty;
         public string Type { get; set; } = typeof(RemoteWindow).Name;

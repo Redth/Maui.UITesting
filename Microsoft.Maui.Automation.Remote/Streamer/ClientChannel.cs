@@ -42,7 +42,7 @@ namespace Streamer
             {
                 Id = id,
                 Method = name,
-                Args = args.Select(a => JToken.FromObject(a)).ToArray()
+                Args = args?.Select(a => JToken.FromObject(a))?.ToArray() ?? Array.Empty<JToken>()
             };
 
             var tcs = new TaskCompletionSource<T?>();
@@ -64,8 +64,6 @@ namespace Streamer
                         }
                         else if (response.Result != null)
                         {
-                            Console.WriteLine(response.Result.ToString());
-                            Console.WriteLine("TYPE: " + typeof(T).FullName);
                             tcs.TrySetResult(response.Result.ToObject<T>());
                         }
                         else
