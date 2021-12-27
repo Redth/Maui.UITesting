@@ -18,9 +18,14 @@ namespace Microsoft.Maui.Automation
 			Enabled = platformView.Enabled;
 			Focused = platformView.Selected;
 
-			var loc = Location;
-			X = loc.X;
-			Y = loc.Y;
+			var loc = new int[2];
+			platformView?.GetLocationInWindow(loc);
+
+			if (loc != null && loc.Length >= 2)
+            {
+				X = loc[0];
+				Y = loc[1];
+			}
 
 			Width = platformView.MeasuredWidth;
 			Height = platformView.MeasuredHeight;

@@ -9,10 +9,6 @@ namespace Microsoft.Maui.Automation
 {
     public class AndroidWindow : Window
     {
-		public AndroidWindow() : base(Platform.Android, Guid.NewGuid().ToString())
-        {
-        }
-
 		public AndroidWindow(Activity activity)
 			: base(Platform.Android, activity.Window?.DecorView?.Id.ToString() ?? activity.ComponentName.FlattenToString())
         {
