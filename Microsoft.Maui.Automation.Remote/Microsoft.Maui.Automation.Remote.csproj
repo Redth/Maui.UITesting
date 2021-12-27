@@ -14,6 +14,10 @@
     <ProjectReference Include="..\Microsoft.Maui.Automation.Core\Microsoft.Maui.Automation.Core.csproj" />
   </ItemGroup>
 	
-<ItemGroup><Protobuf Include="app_host.proto" /></ItemGroup>
-
+  <ItemGroup>
+    <None Remove="Streamer\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Streamer\" />
+  </ItemGroup>
 </Project>

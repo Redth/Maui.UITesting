@@ -9,16 +9,12 @@ namespace Microsoft.Maui.Automation.Remote
 
         public Task<RemoteView?> View(string windowId, string viewId);
 
-        public IAsyncEnumerable<RemoteView> Descendants(string windowId);
+        public Task<RemoteView[]?> WindowDescendants(string windowId);
+        public Task<RemoteView[]?> ViewDescendants(string windowId, string viewId);
 
-        public IAsyncEnumerable<RemoteView> Descendants(string windowId, string elementId);
+        public Task<IActionResult> Invoke(string windowId, string viewId, IAction action);
 
-        public Task<RemoteView[]> Tree(string windowId);
-        public Task<RemoteView[]> Tree(string windowId, string elementId);
-
-        public Task<IActionResult> Invoke(string windowId, string elementId, IAction action);
-
-        public Task<object?> GetProperty(string windowId, string elementId, string propertyName);
+        public Task<object?> GetProperty(string windowId, string viewId, string propertyName);
 
         public Task Platform(Platform platform);
     }

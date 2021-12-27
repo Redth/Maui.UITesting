@@ -16,6 +16,7 @@ while(true)
 {
     var input = Console.ReadLine() ?? string.Empty;
 
+try {
     if (input.StartsWith("tree"))
     {
         var windows = await remote.Windows();
@@ -26,7 +27,7 @@ while(true)
         {
             var tree = new Tree(w.ToTable(ConfigureTable));
 
-            foreach (var d in await remote.Tree(w))
+            await foreach (var d in remote.WindowDescendants(w.Id))
             {
                 //var node = tree.AddNode(d.ToMarkupString(0, 0));
 
@@ -48,6 +49,10 @@ while(true)
             AnsiConsole.Write(tree);
         }
     }
+} catch (Exception ex)
+{
+    Console.WriteLine(ex);
+}
 
     if (input != null && (input.Equals("quit", StringComparison.OrdinalIgnoreCase)
         || input.Equals("q", StringComparison.OrdinalIgnoreCase)

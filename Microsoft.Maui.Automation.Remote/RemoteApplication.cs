@@ -1,4 +1,4 @@
-﻿using StreamJsonRpc;
+﻿using Streamer;
 using System.Collections.ObjectModel;
 
 namespace Microsoft.Maui.Automation.Remote
@@ -9,55 +9,70 @@ namespace Microsoft.Maui.Automation.Remote
         {
             Stream = stream;
 
-            var messageFormatter = new JsonMessageFormatter();
-
-            messageFormatter.JsonSerializer.TypeNameHandling = Newtonsoft.Json.TypeNameHandling.All;
-           
-            var messageHandler = new HeaderDelimitedMessageHandler(Stream, messageFormatter);
-            
-
             if (remoteAutomationService != null)
             {
-                // Attaching as a server, provided an implementation to fulfill requests
                 RemoteAutomationService = remoteAutomationService;
-                Rpc = new JsonRpc(messageHandler, RemoteAutomationService);
-                Rpc.StartListening();
+                Server = Streamer.Channel.CreateServer();
+                Server.Bind(
+                    new MethodHandler<RemoteWindow[]>(
+                        nameof(IRemoteAutomationService.Windows),
+                        () => RemoteAutomationService.Windows()),
+                    new MethodHandler<RemoteWindow?, string>(
+                        nameof(IRemoteAutomationService.Window),
+                        (id) => RemoteAutomationService.Window(id)),
+                    new MethodHandler<RemoteWindow?>(
+                        nameof(IRemoteAutomationService.CurrentWindow),
+                        () => RemoteAutomationService.CurrentWindow()),
+                    new MethodHandler<RemoteView?, string, string>(
+                        nameof(IRemoteAutomationService.View),
+                        (windowId, viewId) => RemoteAutomationService.View(windowId, viewId)),
+                    new MethodHandler<RemoteView[]?, string>(
+                        nameof(IRemoteAutomationService.WindowDescendants),
+                        (windowId) => RemoteAutomationService.WindowDescendants(windowId)),
+                    new MethodHandler<RemoteView[]?, string, string>(
+                        nameof(IRemoteAutomationService.ViewDescendants),
+                        (windowId, viewId) => RemoteAutomationService.ViewDescendants(windowId, viewId)),
+                    new MethodHandler<IActionResult, string, string, IAction>(
+                        nameof(IRemoteAutomationService.Invoke),
+                        (windowId, viewId, action) => RemoteAutomationService.Invoke(windowId, viewId, action)!),
+                    new MethodHandler<object?, string, string, string>(
+                        nameof(IRemoteAutomationService.GetProperty),
+                        (windowId, viewId, propertyName) => RemoteAutomationService.GetProperty(windowId, viewId, propertyName)!),
+                    new MethodHandler<object?, string>(
+                        nameof(IRemoteAutomationService.Platform),
+                        (platform) =>
+                        {
+                            RemoteAutomationService.Platform(Enum.Parse<Platform>(platform));
+                            return Task.FromResult<object?>(null);
+                        })
+                 );
+
+                _ = Task.Run(async () => await Server.StartAsync(Stream));
             }
             else
             {
-                // Attaching as a client
-                Rpc = new JsonRpc(messageHandler);
-                RemoteAutomationService = Rpc.Attach<IRemoteAutomationService>();
-                Rpc.StartListening();
+                client = new ClientChannel(Stream);
             }
         }
 
-        protected JsonRpc Rpc { get; set; }
+        protected readonly Streamer.ServerChannel? Server;
+        readonly Streamer.ClientChannel? client;
+        protected Streamer.ClientChannel Client => client ?? throw new NullReferenceException();
 
-        public Task Completion => Rpc?.Completion ?? Task.CompletedTask;
 
-        public readonly IRemoteAutomationService RemoteAutomationService;
+
+        protected readonly IRemoteAutomationService? RemoteAutomationService;
         public readonly Stream Stream;
 
         public Task Platform(Platform platform)
-            => RemoteAutomationService.Platform(platform);
+            => Client.InvokeAsync(nameof(IRemoteAutomationService.Platform), platform.ToString());
 
         public async Task<IWindow?> CurrentWindow()
-        {
-            var remoteWindow = await RemoteAutomationService.CurrentWindow();
-
-            if (remoteWindow == null)
-                return null;
-
-            return RemoteWindow.From(remoteWindow);
-        }
+            => await Client.InvokeAsync<RemoteWindow?>(nameof(IRemoteAutomationService.CurrentWindow));
 
         public async Task<IWindow[]> Windows()
-        {
-            var remoteWindows = await RemoteAutomationService.Windows();
-
-            return remoteWindows.ToArray<IWindow>();
-        }
+            => (await Client.InvokeAsync<RemoteWindow[]>(nameof(IRemoteAutomationService.Windows)))
+                ?? Array.Empty<IWindow>();
 
         public async IAsyncEnumerable<IView> Descendants(IElement of, Predicate<IView>? selector = null)
         {
@@ -65,7 +80,11 @@ namespace Microsoft.Maui.Automation.Remote
             {
                 var windowId = window.Id;
 
-                await foreach (var d in RemoteAutomationService.Descendants(windowId))
+                var views = await Client.InvokeAsync<RemoteView[]>(
+                    nameof(IRemoteAutomationService.WindowDescendants), windowId)
+                        ?? Array.Empty<IView>();
+
+                foreach (var d in views)
                 {
                     if (selector == null || selector(d))
                         yield return d;
@@ -76,7 +95,11 @@ namespace Microsoft.Maui.Automation.Remote
                 var windowId = view.WindowId;
                 var id = view.Id;
 
-                await foreach (var d in RemoteAutomationService.Descendants(windowId, id))
+                var views = await Client.InvokeAsync<RemoteView[]>(
+                    nameof(IRemoteAutomationService.ViewDescendants), windowId, id)
+                        ?? Array.Empty<IView>();
+
+                foreach (var d in views)
                 {
                     if (selector == null || selector(d))
                         yield return d;
@@ -86,67 +109,76 @@ namespace Microsoft.Maui.Automation.Remote
 
         public async Task<IView?> Descendant(IElement of, Predicate<IView>? selector = null)
         {
-            if (of is IWindow window)
-            {
-                var windowId = window.Id;
-
-                await foreach (var d in RemoteAutomationService.Descendants(windowId))
-                {
-                    if (selector == null || selector(d))
-                        return d;
-                }
-            }
-            else if (of is IView view)
-            {
-                var windowId = view.WindowId;
-                var id = view.Id;
-
-                await foreach (var d in RemoteAutomationService.Descendants(windowId, id))
-                {
-                    if (selector == null || selector(d))
-                        return d;
-                }
-            }
+            await foreach (var d in Descendants(of, selector))
+                return d;
 
             return null;
         }
 
-        public async Task<IView[]> Tree(IElement of)
-        {
-            if (of is IWindow window)
-            {
-                return await RemoteAutomationService.Tree(window.Id);
-            }
-            else if (of is IView view)
-            {
-                return await RemoteAutomationService.Tree(view.WindowId, view.Id);
-            }
-
-            return null;
-        }
 
         public Task<IActionResult> Invoke(IView view, IAction action)
-            => RemoteAutomationService.Invoke(view.WindowId, view.Id, action);
+            => Client.InvokeAsync<IActionResult>(
+                nameof(IRemoteAutomationService.Invoke),
+                view.WindowId,
+                view.Id, action)!;
 
-        public Task<object?> GetProperty(IView element, string propertyName)
-            => RemoteAutomationService.GetProperty(element.WindowId, element.Id, propertyName);
+        public Task<object?> GetProperty(IView view, string propertyName)
+            => Client.InvokeAsync<object?>(
+                nameof(IRemoteAutomationService.GetProperty),
+                view.WindowId,
+                view.Id,
+                propertyName);
 
-        public async Task<IWindow?> Window(string windowId)
-            => await RemoteAutomationService.Window(windowId);
+        public Task<IWindow?> Window(string windowId)
+            => Client.InvokeAsync<IWindow?>(
+                nameof(IRemoteAutomationService),
+                windowId);
 
         public async Task<IView?> View(string windowId, string viewId)
-            => await RemoteAutomationService.View(windowId, viewId);
+            => await Client.InvokeAsync<RemoteView?>(
+                nameof(IRemoteAutomationService.View),
+                windowId,
+                viewId);
 
-        public IAsyncEnumerable<IView> Descendants(string windowId)
-            => RemoteAutomationService.Descendants(windowId);
-        
-        public IAsyncEnumerable<IView> Descendants(string windowId, string elementId)
-            => RemoteAutomationService.Descendants(windowId, elementId);
+        public async IAsyncEnumerable<IView> WindowDescendants(string windowId)
+        {
+            var views = await Client.InvokeAsync<RemoteView[]?>(
+                nameof(IRemoteAutomationService.WindowDescendants),
+                windowId);
 
-        public Task<IActionResult> Invoke(string windowId, string elementId, IAction action)
-            => RemoteAutomationService.Invoke(windowId, elementId, action);
+            if (views != null)
+            {
+                foreach (var v in views)
+                    yield return v;
+            }
+        }
 
-        public Task<object> GetProperty(string windowId, string elementId, string propertyName)
-            => RemoteAutomationService.GetProperty(windowId, elementId, propertyName);
+        public async IAsyncEnumerable<IView> ViewDescendants(string windowId, string viewId)
+        {
+            var views = await Client.InvokeAsync<RemoteView[]?>(
+                nameof(IRemoteAutomationService.ViewDescendants),
+                windowId,
+                viewId);
+
+            if (views != null)
+            {
+                foreach (var v in views)
+                    yield return v;
+            }
+        }
+
+        public Task<IActionResult> Invoke(string windowId, string viewId, IAction action)
+            => Client.InvokeAsync<IActionResult>(
+                nameof(IRemoteAutomationService.Invoke),
+                windowId,
+                viewId,
+                action)!;
+
+        public Task<object?> GetProperty(string windowId, string viewId, string propertyName)
+             => Client.InvokeAsync<object?>(
+                nameof(IRemoteAutomationService.GetProperty),
+                windowId,
+                viewId,
+                propertyName);
     }
 }

@@ -13,7 +13,7 @@ namespace SampleMauiApp
 
             
 
-            this.StartAutomationServiceConnection("192.168.2.50");
+            this.StartAutomationServiceConnection("127.0.0.1");
         }
     }
 }

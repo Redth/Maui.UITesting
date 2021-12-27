@@ -16,8 +16,6 @@ namespace Microsoft.Maui.Automation
 
         public Task<IView?> Descendant(IElement of, Predicate<IView>? selector = null);
 
-        public Task<IView[]> Tree(IElement of);
-
         public Task<IActionResult> Invoke(IView view, IAction action);
 
         public Task<object?> GetProperty(IView element, string propertyName);

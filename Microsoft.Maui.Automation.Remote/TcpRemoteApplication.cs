@@ -48,7 +48,7 @@ namespace Microsoft.Maui.Automation.Remote
         public Task<IActionResult> Invoke(IView view, IAction action)
             => remoteApplication.Invoke(view, action);
 
-        public Task<object> GetProperty(IView view, string propertyName)
+        public Task<object?> GetProperty(IView view, string propertyName)
             => remoteApplication.GetProperty(view, propertyName);
 
         public Task<IWindow?> Window(string windowId)
@@ -57,18 +57,15 @@ namespace Microsoft.Maui.Automation.Remote
         public Task<IView?> View(string windowId, string viewId)
             => remoteApplication.View(windowId, viewId);
 
-        public IAsyncEnumerable<IView> Descendants(string windowId)
-            => remoteApplication.Descendants(windowId);
-        public IAsyncEnumerable<IView> Descendants(string windowId, string elementId)
-            => remoteApplication.Descendants(windowId, elementId);
+        public IAsyncEnumerable<IView> WindowDescendants(string windowId)
+            => remoteApplication.WindowDescendants(windowId);
+        public IAsyncEnumerable<IView> ViewDescendants(string windowId, string elementId)
+            => remoteApplication.ViewDescendants(windowId, elementId);
 
         public Task<IActionResult> Invoke(string windowId, string elementId, IAction action)
             => remoteApplication.Invoke(windowId, elementId, action);
 
-        public Task<object> GetProperty(string windowId, string elementId, string propertyName)
+        public Task<object?> GetProperty(string windowId, string elementId, string propertyName)
             => remoteApplication.GetProperty(windowId, elementId, propertyName);
-
-        public Task<IView[]> Tree(IElement of)
-            => remoteApplication.Tree(of);
     }
 }

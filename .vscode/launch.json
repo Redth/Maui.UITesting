@@ -1,0 +1,25 @@
+{
+	// Use IntelliSense to learn about possible attributes.
+	// Hover to view descriptions of existing attributes.
+	// For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "REPL",
+			"type": "coreclr",
+			"request": "launch",
+			"preLaunchTask": "build",
+			"program": "${workspaceFolder}/Microsoft.Maui.Automation.Repl/bin/Debug/net6.0/Microsoft.Maui.Automation.Repl.dll",
+			"args": [],
+			"cwd": "${workspaceFolder}",
+			"stopAtEntry": false,
+			"console":"integratedTerminal"
+		},
+		{
+			"name": "Debug",
+			"type": "comet",
+			"request": "launch",
+			"preLaunchTask": "comet: Build"
+		}
+	]
+}

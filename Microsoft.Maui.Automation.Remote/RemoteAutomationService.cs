@@ -52,25 +52,13 @@ namespace Microsoft.Maui.Automation
         public async Task<RemoteView?> View(string windowId, string viewId)
             => RemoteView.From(await PlatformApp.View(windowId, viewId));
 
-        public async IAsyncEnumerable<RemoteView> Descendants(string windowId)
-        {
-            await foreach (var d in PlatformApp.Descendants(windowId))
-                yield return RemoteView.From(d)!;
-        }
-
-        public async IAsyncEnumerable<RemoteView> Descendants(string windowId, string elementId)
-        {
-            await foreach (var d in PlatformApp.Descendants(windowId, elementId))
-                yield return RemoteView.From(d)!;
-        }
-
         public Task<IActionResult> Invoke(string windowId, string elementId, IAction action)
             => PlatformApp.Invoke(windowId, elementId, action);
 
         public Task<object?> GetProperty(string windowId, string elementId, string propertyName)
             => PlatformApp.GetProperty(windowId, elementId, propertyName);
 
-        public async Task<RemoteView[]> Tree(string windowId)
+        public async Task<RemoteView[]> WindowDescendants(string windowId)
         {
             var window = await PlatformApp.Window(windowId);
 
@@ -88,7 +76,7 @@ namespace Microsoft.Maui.Automation
             return results.ToArray();
         }
 
-        
+
         void ConvertChildren(RemoteView parent, IView[] toConvert)
         {
             var converted = toConvert.Select(c => RemoteView.From(c)!);
@@ -98,7 +86,7 @@ namespace Microsoft.Maui.Automation
                 ConvertChildren(v, v.Children);
         }
     
-        public async Task<RemoteView[]> Tree(string windowId, string elementId)
+        public async Task<RemoteView[]> ViewDescendants(string windowId, string elementId)
         {
             var view = await PlatformApp.View(windowId, elementId);
 

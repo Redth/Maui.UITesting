@@ -51,11 +51,8 @@ namespace Microsoft.Maui.Automation
         public virtual Task<IView?> Descendant(IElement of, Predicate<IView>? selector = null)
             => CurrentApp.Descendant(of, selector);
 
-        public virtual Task<IView[]> Tree(IElement of)
-            => CurrentApp.Tree(of);
-
-        public virtual Task<object?> GetProperty(IView element, string propertyName)
-            => CurrentApp.GetProperty(element, propertyName);
+        public virtual Task<object?> GetProperty(IView view, string propertyName)
+            => CurrentApp.GetProperty(view, propertyName);
 
         public virtual Task<IWindow?> Window(string id)
             => CurrentApp.Window(id);
@@ -63,16 +60,16 @@ namespace Microsoft.Maui.Automation
         public virtual Task<IView?> View(string windowId, string viewId)
             => CurrentApp.View(windowId, viewId);
 
-        public virtual IAsyncEnumerable<IView> Descendants(string windowId)
-            => CurrentApp.Descendants(windowId);
+        public virtual IAsyncEnumerable<IView> WindowDescendants(string windowId)
+            => CurrentApp.WindowDescendants(windowId);
 
-        public virtual IAsyncEnumerable<IView> Descendants(string windowId, string elementId)
-            => CurrentApp.Descendants(windowId, elementId);
+        public virtual IAsyncEnumerable<IView> ViewDescendants(string windowId, string viewId)
+            => CurrentApp.ViewDescendants(windowId, viewId);
 
-        public virtual Task<IActionResult> Invoke(string windowId, string elementId, IAction action)
-            => CurrentApp.Invoke(windowId, elementId, action);
+        public virtual Task<IActionResult> Invoke(string windowId, string viewId, IAction action)
+            => CurrentApp.Invoke(windowId, viewId, action);
 
-        public virtual Task<object?> GetProperty(string windowId, string elementId, string propertyName)
-            => CurrentApp.GetProperty(windowId, elementId, propertyName);
+        public virtual Task<object?> GetProperty(string windowId, string viewId, string propertyName)
+            => CurrentApp.GetProperty(windowId, viewId, propertyName);
     }
 }

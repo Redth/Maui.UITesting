@@ -62,11 +62,6 @@ namespace Microsoft.Maui.Automation
             return null;
         }
 
-        public Task<IView[]> Tree(IElement of)
-        {
-            return Task.FromResult(of.Children.ToArray<IView>());
-        }
-
         public abstract Task<IActionResult> Invoke(IView view, IAction action);
 
         public virtual Task<object?> GetProperty(IView view, string propertyName)
@@ -99,7 +94,7 @@ namespace Microsoft.Maui.Automation
             return await Descendant(window, v => v.Id == viewId);
         }
 
-        public async IAsyncEnumerable<IView> Descendants(string windowId)
+        public async IAsyncEnumerable<IView> WindowDescendants(string windowId)
         {
             var window = await Window(windowId);
 
@@ -110,9 +105,9 @@ namespace Microsoft.Maui.Automation
             }
         }
 
-        public async IAsyncEnumerable<IView> Descendants(string windowId, string elementId)
+        public async IAsyncEnumerable<IView> ViewDescendants(string windowId, string viewId)
         {
-            var view = await View(windowId, elementId);
+            var view = await View(windowId, viewId);
 
             if (view != null)
             {
@@ -121,19 +116,19 @@ namespace Microsoft.Maui.Automation
             }
         }
 
-        public async Task<IActionResult> Invoke(string windowId, string elementId, IAction action)
+        public async Task<IActionResult> Invoke(string windowId, string viewId, IAction action)
         {
-            var view = await View(windowId, elementId);
+            var view = await View(windowId, viewId);
 
             if (view != null)
                 return await Invoke(view, action);
 
-            return new ActionResult(ActionResultStatus.Error, $"No view found for: Window:{windowId} -> View:{elementId}");
+            return new ActionResult(ActionResultStatus.Error, $"No view found for: Window:{windowId} -> View:{viewId}");
         }
 
-        public async Task<object?> GetProperty(string windowId, string elementId, string propertyName)
+        public async Task<object?> GetProperty(string windowId, string viewId, string propertyName)
         {
-            var view = await View(windowId, elementId);
+            var view = await View(windowId, viewId);
             if (view != null)
                 return await GetProperty(view, propertyName);
             return null;
