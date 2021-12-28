@@ -32,14 +32,6 @@ namespace Microsoft.Maui.Automation
 			return Array.Empty<IView>();
 		}
 
-		public static string GetAutomationId(this Android.Views.View view)
-        {
-			if (view.Tag is Java.Lang.String str)
-				return str.ToString();
-
-			return view.ContentDescription ?? view.Id.ToString();
-		}
-
 		public static string GetText(this Android.Views.View view)
         {
 			if (view is Android.Widget.TextView tv)
@@ -47,5 +39,49 @@ namespace Microsoft.Maui.Automation
 
 			return null;
 		}
-    }
+
+		internal static string EnsureUniqueId(this Android.Views.View view)
+		{
+			var id = view.GetTag(AppHost.Resource.Id.maui_automation_unique_identifier)?.ToString();
+
+			if (string.IsNullOrEmpty(id))
+            {
+				id = Guid.NewGuid().ToString();
+				view.SetTag(AppHost.Resource.Id.maui_automation_unique_identifier, id);
+            }
+
+			return id;
+		}
+
+		public static string GetAutomationId(this Android.App.Activity activity)
+			=> activity.GetRootView().GetAutomationId();
+
+		public static string GetAutomationId(this Android.Views.View view)
+		{
+			var id = view.GetTag(Resource.Id.automation_tag_id)?.ToString();
+
+			if (string.IsNullOrEmpty(id))
+				id = view.ContentDescription;
+
+			if (string.IsNullOrEmpty(id) && view.Tag is Java.Lang.String str)
+				id = str.ToString();
+
+			if (string.IsNullOrEmpty(id))
+				id = view.EnsureUniqueId();
+
+			return id;
+		}
+
+		static Android.Views.View GetRootView(this Android.App.Activity activity)
+			=> activity.Window?.DecorView?.RootView ??
+				activity.FindViewById(Android.Resource.Id.Content)?.RootView ??
+					activity.Window?.DecorView?.FindViewById(Android.Resource.Id.Content);
+
+		public static string GetWindowId(this Android.App.Activity activity)
+		{
+			var rootView = activity.GetRootView();
+
+			return rootView.EnsureUniqueId();
+		}
+	}
 }

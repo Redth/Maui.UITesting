@@ -22,5 +22,8 @@ namespace RemoteAutomationTests
 
         public override Task<IWindow[]> Windows()
             => Task.FromResult(MockWindows.ToArray<IWindow>());
+
+        public override Task<IWindow?> Window(string id)
+            => Task.FromResult<IWindow?>(MockWindows.FirstOrDefault(w => w.Id == id));
     }
 }

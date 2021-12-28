@@ -20,19 +20,37 @@ namespace Streamer
         public ClientChannel(Stream stream)
         {
             _stream = stream;
+            _serializer.TypeNameHandling = TypeNameHandling.All;
 
             new Thread(() => ReadLoop()).Start();
         }
-
-        //public T As<T>()
-        //{
-        //    return TypedChannelBuilder<T>.Build(this);
-        //}
 
         public Task InvokeAsync(string name, params object[] args)
         {
             return InvokeAsync<object>(name, args);
         }
+
+        public Task<TResult?> InvokeAsync<TArg1, TResult>(string name, TArg1 arg1)
+            where TArg1 : class
+            => InvokeAsync<TResult>(name, new[] { arg1 });
+
+        public Task<TResult?> InvokeAsync<TArg1, TArg2, TResult>(string name, TArg1 arg1, TArg2 arg2)
+            where TArg1 : class
+            where TArg2 : class
+            => InvokeAsync<TResult>(name, new object[] { arg1, arg2 });
+
+        public Task<TResult?> InvokeAsync<TArg1, TArg2, TArg3, TResult>(string name, TArg1 arg1, TArg2 arg2, TArg3 arg3)
+            where TArg1 : class
+            where TArg2 : class
+            where TArg3 : class
+            => InvokeAsync<TResult>(name, new object[] { arg1, arg2, arg3 });
+
+        public Task<TResult?> InvokeAsync<TArg1, TArg2, TArg3, TArg4, TResult>(string name, TArg1 arg1, TArg2 arg2, TArg3 arg3, TArg4 arg4)
+            where TArg1 : class
+            where TArg2 : class
+            where TArg3 : class
+            where TArg4 : class
+            => InvokeAsync<TResult>(name, new object[] { arg1, arg2, arg3, arg4 });
 
         public Task<T?> InvokeAsync<T>(string name, params object[] args)
         {
@@ -42,7 +60,7 @@ namespace Streamer
             {
                 Id = id,
                 Method = name,
-                Args = args?.Select(a => JToken.FromObject(a))?.ToArray() ?? Array.Empty<JToken>()
+                Args = args?.Select(a => JToken.FromObject(a, _serializer))?.ToArray() ?? Array.Empty<JToken>()
             };
 
             var tcs = new TaskCompletionSource<T?>();
@@ -64,7 +82,7 @@ namespace Streamer
                         }
                         else if (response.Result != null)
                         {
-                            tcs.TrySetResult(response.Result.ToObject<T>());
+                            tcs.TrySetResult(response.Result.ToObject<T>(_serializer));
                         }
                         else
                         {

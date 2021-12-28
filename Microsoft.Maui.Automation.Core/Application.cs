@@ -51,10 +51,10 @@ namespace Microsoft.Maui.Automation
         public abstract Task<IWindow[]> Windows();
 
         // Find helpers
-        public virtual IAsyncEnumerable<IView> Descendants(IElement of, Predicate<IView>? selector = null)
+        public virtual IAsyncEnumerable<IView> Descendants(IElement of, IViewSelector? selector = null)
             => of.Children.FindDepthFirst(selector);
 
-        public virtual async Task<IView?> Descendant(IElement of, Predicate<IView>? selector = null)
+        public virtual async Task<IView?> Descendant(IElement of, IViewSelector? selector = null)
         {
             await foreach (var element in of.Children.FindDepthFirst(selector))
                 return element;
@@ -91,10 +91,10 @@ namespace Microsoft.Maui.Automation
             if (window == null)
                 return null;
 
-            return await Descendant(window, v => v.Id == viewId);
+            return await Descendant(window, new IdSelector(viewId));
         }
 
-        public async IAsyncEnumerable<IView> Descendants(string windowId, string viewId)
+        public async IAsyncEnumerable<IView> Descendants(string windowId, string? viewId = null, IViewSelector? selector = null)
         {
             if (string.IsNullOrEmpty(viewId))
             {
@@ -102,7 +102,7 @@ namespace Microsoft.Maui.Automation
 
                 if (window != null)
                 {
-                    await foreach (var d in Descendants(window))
+                    await foreach (var d in Descendants(window, selector))
                         yield return d;
                 }
             }
@@ -112,7 +112,7 @@ namespace Microsoft.Maui.Automation
 
                 if (view != null)
                 {
-                    await foreach (var d in Descendants(view))
+                    await foreach (var d in Descendants(view, selector))
                         yield return d;
                 }
             }

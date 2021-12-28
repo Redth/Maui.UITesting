@@ -39,10 +39,10 @@ namespace Microsoft.Maui.Automation.Remote
         public Task<IWindow[]> Windows()
             => remoteApplication.Windows();
 
-        public IAsyncEnumerable<IView> Descendants(IElement of, Predicate<IView>? selector = null)
+        public IAsyncEnumerable<IView> Descendants(IElement of, IViewSelector? selector = null)
             => remoteApplication.Descendants(of, selector);
 
-        public Task<IView?> Descendant(IElement of, Predicate<IView>? selector = null)
+        public Task<IView?> Descendant(IElement of, IViewSelector? selector = null)
             => remoteApplication.Descendant(of, selector);
 
         public Task<IActionResult> Invoke(IView view, IAction action)
@@ -57,8 +57,8 @@ namespace Microsoft.Maui.Automation.Remote
         public Task<IView?> View(string windowId, string viewId)
             => remoteApplication.View(windowId, viewId);
 
-        public IAsyncEnumerable<IView> Descendants(string windowId, string? viewId = null)
-            => remoteApplication.Descendants(windowId, viewId);
+        public IAsyncEnumerable<IView> Descendants(string windowId, string? viewId = null, IViewSelector? selector = null)
+            => remoteApplication.Descendants(windowId, viewId, selector);
 
         public Task<IActionResult> Invoke(string windowId, string elementId, IAction action)
             => remoteApplication.Invoke(windowId, elementId, action);

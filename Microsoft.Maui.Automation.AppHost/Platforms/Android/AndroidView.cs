@@ -9,7 +9,7 @@ namespace Microsoft.Maui.Automation
     public class AndroidView : View
 	{
 		public AndroidView(string windowId, Android.Views.View platformView)
-			: base(Platform.Android, windowId, platformView.Id.ToString())
+			: base(Platform.Android, windowId, platformView.EnsureUniqueId())
 		{
 			AutomationId = platformView.GetAutomationId();
 			Children = platformView.GetChildren(windowId);

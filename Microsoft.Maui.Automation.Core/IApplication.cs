@@ -12,9 +12,9 @@ namespace Microsoft.Maui.Automation
 
     public interface IApplication : IApplicationInterop
     {
-        public IAsyncEnumerable<IView> Descendants(IElement of, Predicate<IView>? selector = null);
+        public IAsyncEnumerable<IView> Descendants(IElement of, IViewSelector? selector = null);
 
-        public Task<IView?> Descendant(IElement of, Predicate<IView>? selector = null);
+        public Task<IView?> Descendant(IElement of, IViewSelector? selector = null);
 
         public Task<IActionResult> Invoke(IView view, IAction action);
 

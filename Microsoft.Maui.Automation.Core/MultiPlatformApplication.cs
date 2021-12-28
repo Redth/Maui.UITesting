@@ -45,10 +45,10 @@ namespace Microsoft.Maui.Automation
         Task<Platform> IMultiPlatformApplication.CurrentPlatform()
             => Task.FromResult(CurrentPlatform);
 
-        public virtual IAsyncEnumerable<IView> Descendants(IElement of, Predicate<IView>? selector = null)
+        public virtual IAsyncEnumerable<IView> Descendants(IElement of, IViewSelector? selector = null)
             => CurrentApp.Descendants(of, selector);
 
-        public virtual Task<IView?> Descendant(IElement of, Predicate<IView>? selector = null)
+        public virtual Task<IView?> Descendant(IElement of, IViewSelector? selector = null)
             => CurrentApp.Descendant(of, selector);
 
         public virtual Task<object?> GetProperty(IView view, string propertyName)
@@ -60,8 +60,8 @@ namespace Microsoft.Maui.Automation
         public virtual Task<IView?> View(string windowId, string viewId)
             => CurrentApp.View(windowId, viewId);
 
-        public virtual IAsyncEnumerable<IView> Descendants(string windowId, string? viewId = null)
-            => CurrentApp.Descendants(windowId, viewId);
+        public virtual IAsyncEnumerable<IView> Descendants(string windowId, string? viewId = null, IViewSelector? selector = null)
+            => CurrentApp.Descendants(windowId, viewId, selector);
 
         public virtual Task<IActionResult> Invoke(string windowId, string viewId, IAction action)
             => CurrentApp.Invoke(windowId, viewId, action);

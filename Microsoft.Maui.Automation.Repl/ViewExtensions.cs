@@ -7,7 +7,7 @@ namespace Microsoft.Maui.Automation
         public static Table ToTable(this IView view, Action<Table>? config = null)
         {
             var table = new Table()
-                .AddColumn(view.Type)
+                .AddColumn("[bold]" + view.Type + "[/]")
                 .AddColumn("");
 
             if (config != null)

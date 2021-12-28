@@ -20,7 +20,7 @@ namespace Microsoft.Maui.Automation
 				st.Push(elem);
 		}
 
-        internal static async IAsyncEnumerable<IView> FindDepthFirst(this IReadOnlyCollection<IView> elements, Predicate<IView>? selector)
+        internal static async IAsyncEnumerable<IView> FindDepthFirst(this IReadOnlyCollection<IView> elements, IViewSelector? selector)
         {
             var st = new Stack<IView>();
             st.PushAllReverse(elements);
@@ -28,7 +28,7 @@ namespace Microsoft.Maui.Automation
             while (st.Count > 0)
             {
                 var v = st.Pop();
-                if (selector == null || selector(v))
+                if (selector == null || selector.Matches(v))
                 {
                     yield return v;
                 }
@@ -37,14 +37,14 @@ namespace Microsoft.Maui.Automation
             }
         }
 
-        internal static IEnumerable<IView> FindBreadthFirst(this IEnumerable<IView> views, Predicate<IView>? selector)
+        internal static IEnumerable<IView> FindBreadthFirst(this IEnumerable<IView> views, IViewSelector? selector)
         {
             var q = new Queue<IView>();
             q.EnqueAll(views);
             while (q.Count > 0)
             {
                 var v = q.Dequeue();
-                if (selector == null || selector(v))
+                if (selector == null || selector.Matches(v))
                 {
                     yield return v;
                 }

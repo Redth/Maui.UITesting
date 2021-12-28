@@ -58,16 +58,21 @@ namespace Microsoft.Maui.Automation
         public Task<object?> GetProperty(string windowId, string elementId, string propertyName)
             => PlatformApp.GetProperty(windowId, elementId, propertyName);
 
-        void ConvertChildren(RemoteView parent, IView[] toConvert)
+        void ConvertChildren(RemoteView parent, IView[] toConvert, IViewSelector? selector)
         {
-            var converted = toConvert.Select(c => RemoteView.From(c)!);
+            selector ??= new DefaultViewSelector();
+
+            var converted = toConvert
+                .Where(c => selector.Matches(c))
+                .Select(c => RemoteView.From(c)!);
+
             parent.Children = converted.ToArray<IView>();
 
             foreach (var v in converted)
-                ConvertChildren(v, v.Children);
+                ConvertChildren(v, v.Children, selector);
         }
 
-        public async Task<RemoteView[]> Descendants(string windowId, string? viewId = null)
+        public async Task<RemoteView[]> Descendants(string windowId, string? viewId = null, IViewSelector? selector = null)
         {
             if (!string.IsNullOrEmpty(viewId))
             {
@@ -78,7 +83,7 @@ namespace Microsoft.Maui.Automation
 
                 var remoteView = RemoteView.From(view)!;
 
-                ConvertChildren(remoteView, remoteView.Children);
+                ConvertChildren(remoteView, remoteView.Children, selector);
 
                 return remoteView.Children.Cast<RemoteView>().ToArray();
             }
@@ -93,7 +98,7 @@ namespace Microsoft.Maui.Automation
 
                 foreach (var rootView in window.Children.Select(rv => RemoteView.From(rv)!))
                 {
-                    ConvertChildren(rootView, rootView.Children);
+                    ConvertChildren(rootView, rootView.Children, selector);
                     results.Add(rootView);
                 }
 

@@ -51,16 +51,16 @@ namespace Streamer
 
                     try
                     {
-                        var jtokenArgs = request.Args ?? Array.Empty<JToken>();
+                        var jsonArgs = request.Args ?? Array.Empty<JToken>();
 
                         if ((request?.Args?.Length ?? 0) != m.ArgumentTypes.Length)
                             throw new ArgumentOutOfRangeException();
 
                         // Convert JToken's into the arg types they should be
                         var typedArgs = new List<object>();
-                        for (int i = 0; i < jtokenArgs.Length; i++)
+                        for (int i = 0; i < jsonArgs.Length; i++)
                         {
-                            var convertedArg = jtokenArgs[i].ToObject(m.ArgumentTypes[i]);
+                            var convertedArg = jsonArgs[i].ToObject<object>(_serializer);
                             if (convertedArg != null)
                                 typedArgs.Add(convertedArg);
                         }
@@ -69,7 +69,7 @@ namespace Streamer
 
                         if (result != null)
                         {
-                            response.Result = JToken.FromObject(result);
+                            response.Result = JToken.FromObject(result, _serializer);
                         }
                     }
                     catch (TargetInvocationException ex)
@@ -106,6 +106,8 @@ namespace Streamer
                 {
                     // REVIEW: This does a blocking read
                     var reader = new JsonTextReader(new StreamReader(stream));
+                    _serializer.TypeNameHandling = TypeNameHandling.All;
+
                     var request = _serializer.Deserialize<Request>(reader);
 
                     if (request != null)
