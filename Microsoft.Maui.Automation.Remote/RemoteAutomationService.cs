@@ -32,10 +32,10 @@ namespace Microsoft.Maui.Automation
         }
 
         public async Task<RemoteWindow?> CurrentWindow()
-            => RemoteWindow.From(await PlatformApp.CurrentWindow());
+            => RemoteWindow.From(PlatformApp, await PlatformApp.CurrentWindow());
 
         public async Task<RemoteWindow?> Window(string id)
-            => RemoteWindow.From(await PlatformApp.Window(id));
+            => RemoteWindow.From(PlatformApp, await PlatformApp.Window(id));
 
         public async Task<RemoteWindow[]> Windows()
         {
@@ -44,13 +44,13 @@ namespace Microsoft.Maui.Automation
             var r = new List<RemoteWindow>();
 
             foreach (var w in windows)
-                r.Add(RemoteWindow.From(w)!);
+                r.Add(RemoteWindow.From(PlatformApp, w)!);
 
             return r.ToArray();
         }
 
         public async Task<RemoteView?> View(string windowId, string viewId)
-            => RemoteView.From(await PlatformApp.View(windowId, viewId));
+            => RemoteView.From(PlatformApp, await PlatformApp.View(windowId, viewId));
 
         public Task<IActionResult> Invoke(string windowId, string elementId, IAction action)
             => PlatformApp.Invoke(windowId, elementId, action);
@@ -64,7 +64,7 @@ namespace Microsoft.Maui.Automation
 
             var converted = toConvert
                 .Where(c => selector.Matches(c))
-                .Select(c => RemoteView.From(c)!);
+                .Select(c => RemoteView.From(PlatformApp, c)!);
 
             parent.Children = converted.ToArray<IView>();
 
@@ -81,7 +81,7 @@ namespace Microsoft.Maui.Automation
                 if (view == null)
                     return Array.Empty<RemoteView>();
 
-                var remoteView = RemoteView.From(view)!;
+                var remoteView = RemoteView.From(PlatformApp, view)!;
 
                 ConvertChildren(remoteView, remoteView.Children, selector);
 
@@ -96,7 +96,7 @@ namespace Microsoft.Maui.Automation
 
                 var results = new List<RemoteView>();
 
-                foreach (var rootView in window.Children.Select(rv => RemoteView.From(rv)!))
+                foreach (var rootView in window.Children.Select(rv => RemoteView.From(PlatformApp, rv)!))
                 {
                     ConvertChildren(rootView, rootView.Children, selector);
                     results.Add(rootView);

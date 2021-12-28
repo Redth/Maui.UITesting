@@ -9,7 +9,7 @@ namespace Microsoft.Maui.Automation
 {
     public abstract class Window : IWindow
     {
-        public Window(Platform platform, string id)
+        public Window(IApplication application, Platform platform, string id)
         {
             Id = id ?? Guid.NewGuid().ToString();
             AutomationId = Id;
@@ -21,6 +21,9 @@ namespace Microsoft.Maui.Automation
             Width = -1;
             Height = -1;
         }
+
+        [JsonIgnore]
+        public virtual IApplication Application { get; protected set; }
 
         public virtual Platform Platform { get; }
 

@@ -58,7 +58,7 @@ namespace Microsoft.Maui.Automation
 					if (scene is UIWindowScene windowScene)
 					{
 						foreach (var window in windowScene.Windows)
-							windows.Add(new iOSWindow(window));
+							windows.Add(new iOSWindow(this, window));
 					}
 				}
 			}
@@ -70,7 +70,7 @@ namespace Microsoft.Maui.Automation
 			{
 				foreach (var window in UIApplication.SharedApplication.Windows)
 				{
-					windows.Add(new iOSWindow(window));
+					windows.Add(new iOSWindow(this, window));
 				}
 			}
 

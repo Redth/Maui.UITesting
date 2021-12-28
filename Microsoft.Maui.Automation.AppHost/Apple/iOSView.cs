@@ -10,14 +10,14 @@ namespace Microsoft.Maui.Automation
 {
     public class iOSView : View
 	{
-		public iOSView(string windowId, UIKit.UIView platformView)
-			: base(Platform.iOS, windowId, platformView.Handle.ToString())
+		public iOSView(IApplication application, string windowId, UIKit.UIView platformView)
+			: base(application, Platform.iOS, windowId, platformView.Handle.ToString())
 		{	
 			PlatformView = platformView;
 			PlatformElement = platformView;
 
 			AutomationId = platformView.AccessibilityIdentifier;
-			Children = platformView.Subviews?.Select(s => new iOSView(windowId, s))?.ToArray<IView>() ?? Array.Empty<IView>();
+			Children = platformView.Subviews?.Select(s => new iOSView(application, windowId, s))?.ToArray<IView>() ?? Array.Empty<IView>();
 
 			Visible = !platformView.Hidden;
 			Enabled = platformView.UserInteractionEnabled;

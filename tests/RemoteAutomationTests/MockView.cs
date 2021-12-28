@@ -6,8 +6,8 @@ namespace RemoteAutomationTests
 {
     public class MockView : View
     {
-        public MockView(Platform platform, string windowId, string id) 
-            : base(platform, windowId, id)
+        public MockView(IApplication application, Platform platform, string windowId, string id) 
+            : base(application, platform, windowId, id)
         {
             WindowId = windowId;
             Text = string.Empty;

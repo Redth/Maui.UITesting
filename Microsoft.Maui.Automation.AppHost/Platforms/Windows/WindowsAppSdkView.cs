@@ -9,14 +9,14 @@ namespace Microsoft.Maui.Automation
 {
     public class WindowsAppSdkView : View
     {
-        public WindowsAppSdkView(string windowId, UIElement platformView)
-            : base(Platform.WinAppSdk, windowId, platformView.GetHashCode().ToString())
+        public WindowsAppSdkView(IApplication application, string windowId, UIElement platformView)
+            : base(application, Platform.WinAppSdk, windowId, platformView.GetHashCode().ToString())
         {
             PlatformView = platformView;
             PlatformElement = platformView;
 
             AutomationId = platformView.GetType().Name;
-            Children = (platformView as Panel)?.Children?.Select(c => new WindowsAppSdkView(windowId, c))?.ToArray<IView>() ?? Array.Empty<IView>();
+            Children = (platformView as Panel)?.Children?.Select(c => new WindowsAppSdkView(application, windowId, c))?.ToArray<IView>() ?? Array.Empty<IView>();
 
             Visible = PlatformView.Visibility == UI.Xaml.Visibility.Visible;
             Enabled = PlatformView.IsTapEnabled;

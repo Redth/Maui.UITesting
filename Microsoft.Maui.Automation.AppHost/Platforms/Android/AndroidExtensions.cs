@@ -7,27 +7,27 @@ namespace Microsoft.Maui.Automation
 {
     public static class AndroidExtensions
     {
-		public static IView[] GetChildren(this Android.Views.View nativeView, string windowId)
+		public static IView[] GetChildren(this Android.Views.View nativeView, IApplication application, string windowId)
         {
 			var c = new List<IView>();
 
 			if (nativeView is ViewGroup vg)
 			{
 				for (int i = 0; i < vg.ChildCount; i++)
-					c.Add(new AndroidView(windowId, vg.GetChildAt(i)));
+					c.Add(new AndroidView(application, windowId, vg.GetChildAt(i)));
 			}
 
 			return c.ToArray();
 		}
 
-		public static IView[] GetChildren(this Android.App.Activity activity, string windowId)
+		public static IView[] GetChildren(this Android.App.Activity activity, IApplication application, string windowId)
         {
 			var rootView = activity.Window?.DecorView?.RootView ??
 						activity.FindViewById(Android.Resource.Id.Content)?.RootView ??
 						activity.Window?.DecorView?.FindViewById(Android.Resource.Id.Content);
 
 			if (rootView is not null)
-				return new [] { new AndroidView(windowId, rootView) };
+				return new [] { new AndroidView(application, windowId, rootView) };
 
 			return Array.Empty<IView>();
 		}

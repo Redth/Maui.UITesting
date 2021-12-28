@@ -8,9 +8,9 @@ namespace Microsoft.Maui.Automation
 {
     public class MauiWindow : Window
     {
-		internal MauiWindow(Maui.IWindow window) : base(Platform.MAUI, "")
+		internal MauiWindow(IApplication application, Maui.IWindow window) : base(application, Platform.MAUI, "")
         {
-			PlatformWindow = window.ToAutomationWindow() ?? throw new PlatformNotSupportedException();
+			PlatformWindow = window.ToAutomationWindow(application) ?? throw new PlatformNotSupportedException();
 			PlatformElement = window;
 
 			Id = PlatformWindow.Id;
@@ -21,7 +21,7 @@ namespace Microsoft.Maui.Automation
 			Height = PlatformWindow.Height;
 			Text = PlatformWindow.Text;
 
-			Children = window.GetChildren(Id);
+			Children = window.GetChildren(Id, application);
 		}
 
 		[JsonIgnore]

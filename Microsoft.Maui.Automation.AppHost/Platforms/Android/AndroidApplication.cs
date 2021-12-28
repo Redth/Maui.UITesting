@@ -36,11 +36,11 @@ namespace Microsoft.Maui.Automation
 			if (activity == null)
 				return Task.FromResult<IWindow>(default);
 
-			return Task.FromResult<IWindow>(new AndroidWindow(activity));
+			return Task.FromResult<IWindow>(new AndroidWindow(this, activity));
         }
 
         public override Task<IWindow[]> Windows()
-			=> Task.FromResult(LifecycleListener.Activities.Select(a => new AndroidWindow(a)).ToArray<IWindow>());
+			=> Task.FromResult(LifecycleListener.Activities.Select(a => new AndroidWindow(this, a)).ToArray<IWindow>());
 
 		internal class AutomationActivityLifecycleContextListener : Java.Lang.Object, Android.App.Application.IActivityLifecycleCallbacks
 		{

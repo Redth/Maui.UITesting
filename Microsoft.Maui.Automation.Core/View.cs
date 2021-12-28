@@ -4,8 +4,9 @@ namespace Microsoft.Maui.Automation
 {
     public abstract class View : IView
     {
-        public View(Platform platform, string windowId, string id)
+        public View(IApplication application, Platform platform, string windowId, string id)
         {
+            Application = application;
             WindowId = windowId;
             Id = id;
             AutomationId = Id;
@@ -21,6 +22,9 @@ namespace Microsoft.Maui.Automation
             Width = -1;
             Height = -1;
         }
+
+        [JsonIgnore]
+        public virtual IApplication Application { get; protected set; }
 
         public virtual string WindowId { get; protected set; }
         public virtual bool Visible { get; protected set; }

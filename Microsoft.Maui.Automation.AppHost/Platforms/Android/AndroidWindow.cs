@@ -9,13 +9,13 @@ namespace Microsoft.Maui.Automation
 {
     public class AndroidWindow : Window
     {
-		public AndroidWindow(Activity activity)
-			: base(Platform.Android, activity.GetWindowId())
+		public AndroidWindow(IApplication application, Activity activity)
+			: base(application, Platform.Android, activity.GetWindowId())
         {
 			PlatformWindow = activity;
 			AutomationId = activity.GetAutomationId();
 
-			Children = activity.GetChildren(Id);
+			Children = activity.GetChildren(application, Id);
 			Width = activity.Window?.DecorView?.Width ?? -1;
 			Height = activity.Window?.DecorView?.Height ?? -1;
 			Text = PlatformWindow.Title;

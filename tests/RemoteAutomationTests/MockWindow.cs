@@ -7,8 +7,8 @@ namespace RemoteAutomationTests
 {
     public class MockWindow : Window
     {
-        public MockWindow(Platform platform, string id, string? automationId, string? title = null) 
-            : base(platform, id)
+        public MockWindow(IApplication application, Platform platform, string id, string? automationId, string? title = null) 
+            : base(application, platform, id)
         {
             AutomationId = automationId ?? Id;
             
@@ -35,7 +35,7 @@ namespace RemoteAutomationTests
         }
         public static MockWindow WithView(this MockWindow window, string windowId, string id)
         {
-            window.MockViews.Add(new MockView(window.Platform, windowId, id));
+            window.MockViews.Add(new MockView(window.Application, window.Platform, windowId, id));
             return window;
         }
     }

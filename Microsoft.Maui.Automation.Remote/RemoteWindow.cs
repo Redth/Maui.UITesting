@@ -4,18 +4,22 @@ namespace Microsoft.Maui.Automation.Remote
 {
     public class RemoteWindow : IWindow
     {
-        public static RemoteWindow? From(IWindow? window)
+        public static RemoteWindow? From(IApplication application, IWindow? window)
            => window == null ? null : new RemoteWindow
            {
+               Application = application,
                Id = window.Id,
                Platform = window.Platform,
-               Children = window.Children?.Select(c => RemoteView.From(c)!)?.ToArray() ?? Array.Empty<IView>(),
+               Children = window.Children?.Select(c => RemoteView.From(application, c)!)?.ToArray() ?? Array.Empty<IView>(),
                AutomationId = window.AutomationId,
                Type = window.Type,
                Text = window.Text,
                Width = window.Width,
                Height = window.Height
            };
+
+        [JsonIgnore]
+        public IApplication? Application { get; set; }
 
         public Platform Platform { get; set; }
         
@@ -27,7 +31,7 @@ namespace Microsoft.Maui.Automation.Remote
 
         public RemoteView[] RemoteChildren
         {
-            get => Children?.Select(c => RemoteView.From(c))?.ToArray() ?? Array.Empty<RemoteView>();
+            get => Children?.Select(c => RemoteView.From(Application, c))?.ToArray() ?? Array.Empty<RemoteView>();
             set => Children = value.ToArray();
         }
         public string Id { get; set; } = string.Empty;

@@ -5,6 +5,8 @@ namespace Microsoft.Maui.Automation
 {
     public interface IElement
     {
+		public IApplication? Application { get; }
+
 		public Platform Platform { get; }
 
 		[JsonIgnore]

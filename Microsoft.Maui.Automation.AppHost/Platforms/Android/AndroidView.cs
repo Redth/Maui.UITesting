@@ -8,11 +8,11 @@ namespace Microsoft.Maui.Automation
 {
     public class AndroidView : View
 	{
-		public AndroidView(string windowId, Android.Views.View platformView)
-			: base(Platform.Android, windowId, platformView.EnsureUniqueId())
+		public AndroidView(IApplication application, string windowId, Android.Views.View platformView)
+			: base(application, Platform.Android, windowId, platformView.EnsureUniqueId())
 		{
 			AutomationId = platformView.GetAutomationId();
-			Children = platformView.GetChildren(windowId);
+			Children = platformView.GetChildren(Application, windowId);
 
 			Visible = platformView.Visibility == ViewStates.Visible;
 			Enabled = platformView.Enabled;

@@ -10,11 +10,11 @@ namespace Microsoft.Maui.Automation
 {
     public class MauiView : View
 	{
-		public MauiView(string windowId, Maui.IView view)
-			: base(Platform.MAUI, windowId, "")
+		public MauiView(IApplication application, string windowId, Maui.IView view)
+			: base(application, Platform.MAUI, windowId, "")
 		{
 			PlatformElement = view;
-			PlatformView = view.ToAutomationView(windowId) ?? throw new PlatformNotSupportedException();
+			PlatformView = view.ToAutomationView(windowId, application) ?? throw new PlatformNotSupportedException();
 
 			WindowId = PlatformView.WindowId;
 			Id = PlatformView.Id;
@@ -30,7 +30,7 @@ namespace Microsoft.Maui.Automation
 			Width = PlatformView.Width;
 			Height = PlatformView.Height;
 
-			Children = view.GetChildren(windowId);
+			Children = view.GetChildren(windowId, application);
 		}
 
 		[JsonIgnore]

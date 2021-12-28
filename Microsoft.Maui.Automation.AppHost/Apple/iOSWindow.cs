@@ -11,18 +11,14 @@ namespace Microsoft.Maui.Automation
 {
     public class iOSWindow : Window
     {
-        public iOSWindow() : base(Platform.iOS, Guid.NewGuid().ToString())
-        {
-        }
-
-        public iOSWindow(UIWindow window)
-            : base(Platform.iOS, window.Handle.ToString())
+        public iOSWindow(IApplication application, UIWindow window)
+            : base(application, Platform.iOS, window.Handle.ToString())
         {
             PlatformWindow = window;
             PlatformElement = window;
             AutomationId = window.AccessibilityIdentifier ?? Id;
 
-            Children = window.Subviews?.Select(s => new iOSView(Id, s))?.ToArray<IView>() ?? Array.Empty<IView>();
+            Children = window.Subviews?.Select(s => new iOSView(application, Id, s))?.ToArray<IView>() ?? Array.Empty<IView>();
             Width = (int)PlatformWindow.Frame.Width;
             Height = (int)PlatformWindow.Frame.Height;
             Text = string.Empty;
