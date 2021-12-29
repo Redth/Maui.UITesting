@@ -46,26 +46,31 @@ namespace Streamer
 
                 _callbacks[methodName] = async request =>
                 {
+                    var reqJson = JObject.FromObject(request, _serializer).ToString(Formatting.Indented);
+                    Console.WriteLine(reqJson);
+
                     var response = new Response();
                     response.Id = request.Id;
 
                     try
                     {
-                        var jsonArgs = request.Args ?? Array.Empty<JToken>();
+                        //var jsonArgs = request.Args ?? Array.Empty<object?>();
 
-                        if ((request?.Args?.Length ?? 0) != m.ArgumentTypes.Length)
+                        if ((request.Args?.Length ?? 0) != m.ArgumentTypes.Length)
                             throw new ArgumentOutOfRangeException();
 
                         // Convert JToken's into the arg types they should be
-                        var typedArgs = new List<object>();
-                        for (int i = 0; i < jsonArgs.Length; i++)
-                        {
-                            var convertedArg = jsonArgs[i].ToObject<object>(_serializer);
-                            if (convertedArg != null)
-                                typedArgs.Add(convertedArg);
-                        }
+                        //var typedArgs = new List<object>();
+                        //for (int i = 0; i < jsonArgs.Length; i++)
+                        //{
+                        //    var convertedArg = jsonArgs[i].ToObject<object>(_serializer);
+                        //    if (convertedArg != null)
+                        //        typedArgs.Add(convertedArg);
+                        //}
 
-                        var result = await m.Handle(typedArgs.ToArray());
+                        //var result = await m.Handle(typedArgs.ToArray());
+
+                        var result = await m.Handle(request.Args?.ToArray() ?? Array.Empty<object?>());
 
                         if (result != null)
                         {

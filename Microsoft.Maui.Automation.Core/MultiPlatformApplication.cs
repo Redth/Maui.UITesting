@@ -6,26 +6,6 @@ namespace Microsoft.Maui.Automation
 {
     public class MultiPlatformApplication : Application
     {
-		public MultiPlatformApplication
-			(
-			Platform defaultPlatform
-#if ANDROID
-			, Android.App.Application application
-#endif
-			)
-		{
-			DefaultPlatform = defaultPlatform;
-			PlatformApps = new Dictionary<Platform, IApplication>
-            {
-				{ Platform.MAUI, new MauiApplication() },
-				{ App.GetCurrentPlatform(), App.CreateForCurrentPlatform(
-#if ANDROID
-												application
-#endif
-				) }
-            };
-		}
-
 		public MultiPlatformApplication(Platform defaultPlatform, params (Platform platform, IApplication app)[] apps)
         {
 			DefaultPlatform = defaultPlatform;

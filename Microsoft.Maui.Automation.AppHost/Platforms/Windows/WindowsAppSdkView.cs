@@ -18,7 +18,7 @@ namespace Microsoft.Maui.Automation
 
             AutomationId = platformView.GetType().Name;
 
-            var children = (platformView as Panel)?.Children?.Select(c => new WindowsAppSdkView(application, c, Id))?.ToList<IElement>() ?? new List<IElement>()
+            var children = (platformView as Panel)?.Children?.Select(c => new WindowsAppSdkView(application, c, Id))?.ToList<IElement>() ?? new List<IElement>();
             Children = new ReadOnlyCollection<IElement>(children);
 
             Visible = PlatformView.Visibility == UI.Xaml.Visibility.Visible;

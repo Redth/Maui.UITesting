@@ -8,7 +8,7 @@
 
         public abstract string Name { get; }
 
-        public abstract Task<object?> Handle(object[] args);
+        public abstract Task<object?> Handle(object?[] args);
     }
 
     public class MethodHandler<TReturn> : MethodHandler

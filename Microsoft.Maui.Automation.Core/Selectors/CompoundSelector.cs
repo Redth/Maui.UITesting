@@ -1,20 +1,16 @@
-﻿namespace Microsoft.Maui.Automation
+﻿using Newtonsoft.Json;
+
+namespace Microsoft.Maui.Automation
 {
     public class CompoundSelector : IElementSelector
     {
-        public CompoundSelector(params IElementSelector[] elementSelectors)
-        {
-            Selectors = elementSelectors;
-            Any = false;
-        }
-
         public CompoundSelector(bool any, params IElementSelector[] elementSelectors)
         {
             Selectors = elementSelectors;
             Any = any;
         }
 
-        public  IElementSelector[] Selectors { get; protected set; }
+        public IElementSelector[] Selectors { get; protected set; }
         public bool Any { get; protected set; }
 
         public bool Matches(IElement element)

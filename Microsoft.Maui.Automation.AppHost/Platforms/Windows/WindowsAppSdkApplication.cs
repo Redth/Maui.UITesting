@@ -9,7 +9,7 @@ public class WindowsAppSdkApplication : Application
 {
 public override Platform DefaultPlatform => Platform.WinAppSdk;
 
-public override Task<IActionResult> Invoke(Platform platform, string elementId, IAction action)
+public override Task<IActionResult> Perform(Platform platform, string elementId, IAction action)
 {
     throw new System.NotImplementedException();
 }

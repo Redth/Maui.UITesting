@@ -50,8 +50,12 @@ namespace Streamer
             {
                 Id = id,
                 Method = name,
-                Args = args?.Select(a => a is null ? null : JToken.FromObject(a, _serializer))?.ToArray() ?? Array.Empty<JToken?>()
+                Args = args
             };
+
+            var reqJson = JObject.FromObject(request, _serializer).ToString(Formatting.Indented);
+
+            Console.WriteLine(reqJson);
 
             var tcs = new TaskCompletionSource<T?>();
 
