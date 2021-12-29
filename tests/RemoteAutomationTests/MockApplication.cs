@@ -8,22 +8,22 @@ namespace RemoteAutomationTests
 {
     public class MockApplication : MultiPlatformApplication
     {
-        public MockApplication() : base()
+        public MockApplication(Platform defaultPlatform = Platform.MAUI) : base(defaultPlatform)
         {
-            PlatformApps.Add(Platform.MAUI, this);
+            PlatformApps.Add(defaultPlatform, this);
+            CurrentPlatform = defaultPlatform;
         }
 
         public readonly List<MockWindow> MockWindows = new ();
 
         public MockWindow? CurrentMockWindow { get; set; }
 
-        public override async Task<IWindow?> CurrentWindow()
-            => CurrentMockWindow ?? (await Windows()).FirstOrDefault();
+        public Platform CurrentPlatform { get; set; }
 
-        public override Task<IWindow[]> Windows()
-            => Task.FromResult(MockWindows.ToArray<IWindow>());
-
-        public override Task<IWindow?> Window(string id)
-            => Task.FromResult<IWindow?>(MockWindows.FirstOrDefault(w => w.Id == id));
+        public override async IAsyncEnumerable<IElement> Children(Platform platform)
+        {
+            foreach (var w in MockWindows)
+                yield return w;
+        }
     }
 }

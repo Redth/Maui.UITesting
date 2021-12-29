@@ -2,7 +2,7 @@
 {
     public interface IAction
     {
-        public Task<IActionResult> Invoke(IView element);
+        public Task<IActionResult> Invoke(IElement element);
 
         //public void Clear();
 

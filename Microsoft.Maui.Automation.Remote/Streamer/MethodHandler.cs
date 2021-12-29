@@ -12,7 +12,6 @@
     }
 
     public class MethodHandler<TReturn> : MethodHandler
-        where TReturn : class?
     {
         public MethodHandler(string name, Func<Task<TReturn>> handler)
         {
@@ -33,8 +32,6 @@
     }
 
     public class MethodHandler<TReturn, TArg1> : MethodHandler
-        where TArg1 : class
-        where TReturn : class?
     {
         public MethodHandler(string name, Func<TArg1, Task<TReturn>> handler)
         {
@@ -60,9 +57,6 @@
     }
 
     public class MethodHandler<TReturn, TArg1, TArg2> : MethodHandler
-        where TArg1 : class
-        where TArg2 : class
-        where TReturn : class?
     {
         public MethodHandler(string name, Func<TArg1, TArg2, Task<TReturn>> handler)
         {
@@ -89,10 +83,6 @@
     }
 
     public class MethodHandler<TReturn, TArg1, TArg2, TArg3> : MethodHandler
-        where TArg1 : class
-        where TArg2 : class
-        where TArg3 : class
-        where TReturn : class?
     {
         public MethodHandler(string name, Func<TArg1, TArg2, TArg3, Task<TReturn?>> handler)
         {
@@ -124,11 +114,6 @@
     }
 
     public class MethodHandler<TReturn, TArg1, TArg2, TArg3, TArg4> : MethodHandler
-        where TArg1 : class
-        where TArg2 : class
-        where TArg3 : class
-        where TArg4 : class
-        where TReturn : class?
     {
         public MethodHandler(string name, Func<TArg1, TArg2, TArg3, TArg4, Task<TReturn?>> handler)
         {
@@ -162,12 +147,6 @@
     }
 
     public class MethodHandler<TReturn, TArg1, TArg2, TArg3, TArg4, TArg5> : MethodHandler
-        where TArg1 : class
-        where TArg2 : class
-        where TArg3 : class
-        where TArg4 : class
-        where TArg5 : class
-        where TReturn : class?
     {
         public MethodHandler(string name, Func<TArg1, TArg2, TArg3, TArg4, TArg5, Task<TReturn?>> handler)
         {

@@ -8,8 +8,8 @@ using UIKit;
 
 namespace Microsoft.Maui.Automation
 {
-    internal static class iOSExtensions
-    {
+	internal static class iOSExtensions
+	{
 		static string[] possibleTextPropertyNames = new string[]
 		{
 			"Title", "Text",

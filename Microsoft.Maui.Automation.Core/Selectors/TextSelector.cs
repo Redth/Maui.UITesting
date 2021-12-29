@@ -1,6 +1,6 @@
 ﻿namespace Microsoft.Maui.Automation
 {
-    public class TextSelector : IViewSelector
+    public class TextSelector : IElementSelector
     {
         public TextSelector(string text, TextMatchRule rule = TextMatchRule.Contains, StringComparison comparison = StringComparison.InvariantCultureIgnoreCase)
         {
@@ -13,7 +13,7 @@
         public TextMatchRule Rule { get; protected set; }
         public string Text { get; protected set; }
 
-        public bool Matches(IView view)
+        public bool Matches(IElement view)
             => Rule switch
             {
                 TextMatchRule.Contains => view.Text?.Contains(Text, Comparison) ?? false,

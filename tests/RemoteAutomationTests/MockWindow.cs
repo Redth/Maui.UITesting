@@ -1,17 +1,18 @@
 ﻿using Microsoft.Maui.Automation;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace RemoteAutomationTests
 {
-    public class MockWindow : Window
+    public class MockWindow : Element
     {
-        public MockWindow(IApplication application, Platform platform, string id, string? automationId, string? title = null) 
+        public MockWindow(IApplication application, Platform platform, string id, string? automationId, string? title = null)
             : base(application, platform, id)
         {
             AutomationId = automationId ?? Id;
-            
+
             Text = title ?? string.Empty;
 
             PlatformElement = new MockNativeWindow();
@@ -23,7 +24,8 @@ namespace RemoteAutomationTests
 
         public override Platform Platform => platform;
 
-        public override IView[] Children => MockViews.ToArray();
+        public override IReadOnlyCollection<IElement> Children
+            => new ReadOnlyCollection<IElement>(MockViews.ToList<IElement>());
     }
 
     public static class MockWindowExtensions

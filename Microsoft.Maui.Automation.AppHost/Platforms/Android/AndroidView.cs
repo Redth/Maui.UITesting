@@ -6,13 +6,13 @@ using System.Drawing;
 
 namespace Microsoft.Maui.Automation
 {
-    public class AndroidView : View
+	public class AndroidView : Element
 	{
-		public AndroidView(IApplication application, string windowId, Android.Views.View platformView)
-			: base(application, Platform.Android, windowId, platformView.EnsureUniqueId())
+		public AndroidView(IApplication application, Android.Views.View platformView, string? parentId = null)
+			: base(application, Platform.Android, platformView.EnsureUniqueId(), parentId)
 		{
 			AutomationId = platformView.GetAutomationId();
-			Children = platformView.GetChildren(Application, windowId);
+			Children = platformView.GetChildren(Application, parentId);
 
 			Visible = platformView.Visibility == ViewStates.Visible;
 			Enabled = platformView.Enabled;
@@ -22,7 +22,7 @@ namespace Microsoft.Maui.Automation
 			platformView?.GetLocationInWindow(loc);
 
 			if (loc != null && loc.Length >= 2)
-            {
+			{
 				X = loc[0];
 				Y = loc[1];
 			}

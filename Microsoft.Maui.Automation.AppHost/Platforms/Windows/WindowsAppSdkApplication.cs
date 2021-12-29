@@ -5,14 +5,18 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Maui.Automation
 {
-    public class WindowsAppSdkApplication : Application
-    {
-        public override Task<IActionResult> Invoke(IView view, IAction action)
-        {
-            throw new System.NotImplementedException();
-        }
+public class WindowsAppSdkApplication : Application
+{
+public override Platform DefaultPlatform => Platform.WinAppSdk;
 
-        public override Task<IWindow[]> Windows()
-            => Task.FromResult(Array.Empty<IWindow>());
-    }
+public override Task<IActionResult> Invoke(Platform platform, string elementId, IAction action)
+{
+    throw new System.NotImplementedException();
+}
+
+public override async IAsyncEnumerable<IElement> Children(Platform platform)
+{
+    yield return new WindowsAppSdkWindow(this, Microsoft.UI.Xaml.Window.Current);
+}
+}
 }

@@ -7,13 +7,19 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Maui.Automation
 {
+    public class ElementNotFoundException : Exception
+    {
+        public ElementNotFoundException(string elementId)
+            : base($"Element with the ID: '{elementId}' was not found.")
+        {
+            ElementId = elementId;
+        }
+
+        public readonly string ElementId;
+    }
+
     public abstract class Application : IApplication
     {
-        
-
-        public virtual async Task<IWindow?> CurrentWindow()
-            => (await Windows())?.FirstOrDefault();
-
         public virtual void Close()
         {
         }
@@ -48,25 +54,27 @@ namespace Microsoft.Maui.Automation
         {
         }
 
-        public abstract Task<IWindow[]> Windows();
+        public abstract Platform DefaultPlatform { get; }
 
-        // Find helpers
-        public virtual IAsyncEnumerable<IView> Descendants(IElement of, IViewSelector? selector = null)
-            => of.Children.FindDepthFirst(selector);
+        public abstract IAsyncEnumerable<IElement> Children(Platform platform);
 
-        public virtual async Task<IView?> Descendant(IElement of, IViewSelector? selector = null)
+        public abstract Task<IActionResult> Perform(Platform platform, string elementId, IAction action);
+
+        protected async Task<IElement> FindElementOrThrow(Platform platform, string elementId)
         {
-            await foreach (var element in of.Children.FindDepthFirst(selector))
-                return element;
+            var element = await Element(platform, elementId);
 
-            return null;
+            if (element is null)
+                throw new ElementNotFoundException(elementId);
+
+            return element;
         }
 
-        public abstract Task<IActionResult> Invoke(IView view, IAction action);
-
-        public virtual Task<object?> GetProperty(IView view, string propertyName)
+        public virtual async Task<object?> GetProperty(Platform platform, string elementId, string propertyName)
         {
-            var t = view.PlatformElement?.GetType();
+            var element = await FindElementOrThrow(platform, elementId);
+
+            var t = element.PlatformElement?.GetType();
 
             if (t != null)
             {
@@ -74,66 +82,37 @@ namespace Microsoft.Maui.Automation
 
                 if (prop != null)
                 {
-                    return Task.FromResult(prop.GetValue(view.PlatformElement));
+                    return Task.FromResult(prop.GetValue(element.PlatformElement));
                 }
             }
 
             return Task.FromResult<object?>(null);
         }
 
-        public virtual async Task<IWindow?> Window(string windowId)
-            => (await Windows()).FirstOrDefault(w => w.Id == windowId);
-
-        public virtual async Task<IView?> View(string windowId, string viewId)
+        public virtual async Task<IElement?> Element(Platform platform, string elementId)
         {
-            var window = await Window(windowId);
+            await foreach (var d in Descendants(platform, elementId))
+            {
+                return d;
+            }
 
-            if (window == null)
-                return null;
-
-            return await Descendant(window, new IdSelector(viewId));
+            return null;
         }
 
-        public async IAsyncEnumerable<IView> Descendants(string windowId, string? viewId = null, IViewSelector? selector = null)
+        public async IAsyncEnumerable<IElement> Descendants(Platform platform, string? ofElementId = null, IElementSelector? selector = null)
         {
-            if (string.IsNullOrEmpty(viewId))
+            if (string.IsNullOrEmpty(ofElementId))
             {
-                var window = await Window(windowId);
-
-                if (window != null)
-                {
-                    await foreach (var d in Descendants(window, selector))
-                        yield return d;
-                }
+                await foreach (var c in Children(platform).FindBreadthFirst(selector))
+                    yield return c;
             }
             else
             {
-                var view = await View(windowId, viewId);
+                var element = await FindElementOrThrow(platform, ofElementId);
 
-                if (view != null)
-                {
-                    await foreach (var d in Descendants(view, selector))
-                        yield return d;
-                }
+                await foreach (var c in element.Children.AsEnumerable().FindBreadthFirst(selector))
+                    yield return c;
             }
-        }
-
-        public async Task<IActionResult> Invoke(string windowId, string viewId, IAction action)
-        {
-            var view = await View(windowId, viewId);
-
-            if (view != null)
-                return await Invoke(view, action);
-
-            return new ActionResult(ActionResultStatus.Error, $"No view found for: Window:{windowId} -> View:{viewId}");
-        }
-
-        public async Task<object?> GetProperty(string windowId, string viewId, string propertyName)
-        {
-            var view = await View(windowId, viewId);
-            if (view != null)
-                return await GetProperty(view, propertyName);
-            return null;
         }
     }
 }

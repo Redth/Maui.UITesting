@@ -1,17 +1,17 @@
 ﻿namespace Microsoft.Maui.Automation
 {
-    public interface IApplicationInterop
+    public interface IApplication
     {
-        public Task<IWindow[]> Windows();
-        public Task<IWindow?> Window(string id);
-        public Task<IWindow?> CurrentWindow();
+        public Platform DefaultPlatform { get; }
 
-        public Task<IView?> View(string windowId, string viewId);
+        public IAsyncEnumerable<IElement> Children(Platform platform);
 
-        public IAsyncEnumerable<IView> Descendants(string windowId, string? viewId = null, IViewSelector? selector = null);
+        public Task<IElement?> Element(Platform platform, string elementId);
 
-        public Task<IActionResult> Invoke(string windowId, string viewId, IAction action);
+        public IAsyncEnumerable<IElement> Descendants(Platform platform, string? ofElementId = null, IElementSelector? selector = null);
 
-        public Task<object?> GetProperty(string windowId, string viewId, string propertyName);
+        public Task<IActionResult> Perform(Platform platform, string elementId, IAction action);
+
+        public Task<object?> GetProperty(Platform platform, string elementId, string propertyName);
     }
 }

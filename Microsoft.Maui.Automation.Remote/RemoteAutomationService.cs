@@ -1,6 +1,7 @@
 ﻿using Microsoft.Maui.Automation.Remote;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -8,101 +9,86 @@ namespace Microsoft.Maui.Automation
 {
     public class RemoteAutomationService : IRemoteAutomationService
     {
-        public RemoteAutomationService(IMultiPlatformApplication app)
+        public RemoteAutomationService(IApplication app)
         {
             PlatformApp = app;
         }
         
-        readonly IMultiPlatformApplication PlatformApp;
-        
+        readonly IApplication PlatformApp;
 
-        public async Task Platform(Platform platform)
+
+
+        public async Task<RemoteElement?> Element(Platform platform, string elementId)
         {
-            await PlatformApp.Platform(platform);
-            currentPlatform = platform;
+            var platformElement = await PlatformApp.Element(platform, elementId);
+
+            if (platformElement is null)
+                return null;
+
+            return new RemoteElement(PlatformApp, platformElement, platformElement.ParentId);
         }
 
-        Platform? currentPlatform;
-        public async Task<Platform> CurrentPlatform()
+        public async Task<RemoteElement[]> Children(Platform platform)
         {
-            if (currentPlatform == null)
-                currentPlatform = await PlatformApp.CurrentPlatform();
+            var children = new List<RemoteElement>();
 
-            return currentPlatform ?? throw new PlatformNotSupportedException();
+            await foreach (var c in PlatformApp.Children(platform))
+            {
+                children.Add(new RemoteElement(PlatformApp, c, c.ParentId));
+            }
+
+            return children.ToArray();
         }
 
-        public async Task<RemoteWindow?> CurrentWindow()
-            => RemoteWindow.From(PlatformApp, await PlatformApp.CurrentWindow());
+        public Task<IActionResult> Perform(Platform platform, string elementId, IAction action)
+            => PlatformApp.Perform(platform, elementId, action);
 
-        public async Task<RemoteWindow?> Window(string id)
-            => RemoteWindow.From(PlatformApp, await PlatformApp.Window(id));
+        public Task<object?> GetProperty(Platform platform, string elementId, string propertyName)
+            => PlatformApp.GetProperty(platform, elementId, propertyName);
 
-        public async Task<RemoteWindow[]> Windows()
-        {
-            var windows = await PlatformApp.Windows();
-
-            var r = new List<RemoteWindow>();
-
-            foreach (var w in windows)
-                r.Add(RemoteWindow.From(PlatformApp, w)!);
-
-            return r.ToArray();
-        }
-
-        public async Task<RemoteView?> View(string windowId, string viewId)
-            => RemoteView.From(PlatformApp, await PlatformApp.View(windowId, viewId));
-
-        public Task<IActionResult> Invoke(string windowId, string elementId, IAction action)
-            => PlatformApp.Invoke(windowId, elementId, action);
-
-        public Task<object?> GetProperty(string windowId, string elementId, string propertyName)
-            => PlatformApp.GetProperty(windowId, elementId, propertyName);
-
-        void ConvertChildren(RemoteView parent, IView[] toConvert, IViewSelector? selector)
+        void ConvertChildren(RemoteElement parent, IEnumerable<IElement> toConvert, IElementSelector? selector, string? parentId = null)
         {
             selector ??= new DefaultViewSelector();
 
             var converted = toConvert
                 .Where(c => selector.Matches(c))
-                .Select(c => RemoteView.From(PlatformApp, c)!);
+                .Select(c => new RemoteElement(PlatformApp, c, parentId)!);
 
-            parent.Children = converted.ToArray<IView>();
+            parent.SetChildren(converted);
 
             foreach (var v in converted)
                 ConvertChildren(v, v.Children, selector);
         }
 
-        public async Task<RemoteView[]> Descendants(string windowId, string? viewId = null, IViewSelector? selector = null)
+        public async Task<RemoteElement[]> Descendants(Platform platform, string? elementId = null, IElementSelector? selector = null)
         {
-            if (!string.IsNullOrEmpty(viewId))
+            if (!string.IsNullOrEmpty(elementId))
             {
-                var view = await PlatformApp.View(windowId, viewId);
+                var view = await PlatformApp.Element(platform, elementId);
 
                 if (view == null)
-                    return Array.Empty<RemoteView>();
+                    return Array.Empty<RemoteElement>();
 
-                var remoteView = RemoteView.From(PlatformApp, view)!;
+                var remoteView = new RemoteElement(PlatformApp, view, view.ParentId);
 
                 ConvertChildren(remoteView, remoteView.Children, selector);
 
-                return remoteView.Children.Cast<RemoteView>().ToArray();
+                return remoteView.Children.Cast<RemoteElement>().ToArray();
             }
             else
             {
-                var window = await PlatformApp.Window(windowId);
+                var children = new List<RemoteElement>();
 
-                if (window == null)
-                    return Array.Empty<RemoteView>();
-
-                var results = new List<RemoteView>();
-
-                foreach (var rootView in window.Children.Select(rv => RemoteView.From(PlatformApp, rv)!))
+                foreach (var c in await Children(platform))
                 {
-                    ConvertChildren(rootView, rootView.Children, selector);
-                    results.Add(rootView);
+                    var remoteView = new RemoteElement(PlatformApp, c, c.ParentId);
+
+                    ConvertChildren(remoteView, remoteView.Children, selector);
+
+                    children.Add(c);
                 }
 
-                return results.ToArray();
+                return children.ToArray();
             }
         }
     }

@@ -1,39 +1,40 @@
 ﻿using Android.Views;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace Microsoft.Maui.Automation
 {
-    public static class AndroidExtensions
-    {
-		public static IView[] GetChildren(this Android.Views.View nativeView, IApplication application, string windowId)
-        {
-			var c = new List<IView>();
+	public static class AndroidExtensions
+	{
+		public static IReadOnlyCollection<IElement> GetChildren(this Android.Views.View nativeView, IApplication application, string parentId)
+		{
+			var c = new List<IElement>();
 
 			if (nativeView is ViewGroup vg)
 			{
 				for (int i = 0; i < vg.ChildCount; i++)
-					c.Add(new AndroidView(application, windowId, vg.GetChildAt(i)));
+					c.Add(new AndroidView(application, vg.GetChildAt(i), parentId));
 			}
 
-			return c.ToArray();
+			return new ReadOnlyCollection<IElement>(c.ToList());
 		}
 
-		public static IView[] GetChildren(this Android.App.Activity activity, IApplication application, string windowId)
-        {
+		public static IReadOnlyCollection<IElement> GetChildren(this Android.App.Activity activity, IApplication application, string parentId)
+		{
 			var rootView = activity.Window?.DecorView?.RootView ??
 						activity.FindViewById(Android.Resource.Id.Content)?.RootView ??
 						activity.Window?.DecorView?.FindViewById(Android.Resource.Id.Content);
 
 			if (rootView is not null)
-				return new [] { new AndroidView(application, windowId, rootView) };
+				return new ReadOnlyCollection<IElement>(new List<IElement> { new AndroidView(application, rootView, parentId) });
 
-			return Array.Empty<IView>();
+			return new ReadOnlyCollection<IElement>(new List<IElement>());
 		}
 
 		public static string GetText(this Android.Views.View view)
-        {
+		{
 			if (view is Android.Widget.TextView tv)
 				return tv.Text;
 
@@ -45,10 +46,10 @@ namespace Microsoft.Maui.Automation
 			var id = view.GetTag(AppHost.Resource.Id.maui_automation_unique_identifier)?.ToString();
 
 			if (string.IsNullOrEmpty(id))
-            {
+			{
 				id = Guid.NewGuid().ToString();
 				view.SetTag(AppHost.Resource.Id.maui_automation_unique_identifier, id);
-            }
+			}
 
 			return id;
 		}

@@ -8,23 +8,13 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Maui.Automation
 {
-	public class MauiApplication : Application
+    public class MauiApplication : Application
 	{
-		public MauiApplication() : base()
+		public MauiApplication(Maui.IApplication? mauiApp = default) : base()
 		{
-#if ANDROID
-            MauiPlatformApplication = Maui.MauiApplication.Current.Application;
-#elif IOS || MACCATALYST
-			MauiPlatformApplication = MauiUIApplicationDelegate.Current.Application;
-#elif WINDOWS
-			MauiPlatformApplication = MauiWinUIApplication.Current.Application;
-#endif
+			MauiPlatformApplication = mauiApp
+				?? App.GetCurrentMauiApplication() ?? throw new PlatformNotSupportedException();
 		}
-
-		public MauiApplication(Maui.IApplication mauiPlatformApplication) : base()
-		{
-			MauiPlatformApplication = mauiPlatformApplication;
-        }
 
 		Task<TResult> Dispatch<TResult>(Func<TResult> action)
         {
@@ -48,15 +38,22 @@ namespace Microsoft.Maui.Automation
 			return tcs.Task;
         }
 
-		public readonly Maui.IApplication MauiPlatformApplication;
+		public override Platform DefaultPlatform => Platform.MAUI;
 
-		public override Task<IWindow[]> Windows()
-			=> Dispatch(() => MauiPlatformApplication.Windows.Select(w => new MauiWindow(this, w)).ToArray<IWindow>());
+        public readonly Maui.IApplication MauiPlatformApplication;
 
-        public override Task<IWindow> CurrentWindow()
-            => Task.FromResult<IWindow>(new MauiWindow(this, MauiPlatformApplication.Windows.First()));
+		public override async IAsyncEnumerable<IElement> Children(Platform platform)
+		{
+			var windows = await Dispatch(() =>
+			{
+				return MauiPlatformApplication.Windows.Select(w => new MauiWindow(this, w));
+			});
 
-        public override Task<IActionResult> Invoke(IView view, IAction action)
+			foreach (var w in windows)
+				yield return w;
+		}
+
+        public override Task<IActionResult> Perform(Platform platform, string elementId, IAction action)
         {
             throw new NotImplementedException();
         }

@@ -2,8 +2,8 @@
 
 namespace Microsoft.Maui.Automation
 {
-    public interface IViewSelector
+    public interface IElementSelector
     {
-		public bool Matches(IView element);
+		public bool Matches(IElement element);
     }
 }

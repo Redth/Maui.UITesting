@@ -2,7 +2,7 @@
 
 namespace Microsoft.Maui.Automation
 {
-    public class RegularExpressionSelector : IViewSelector
+    public class RegularExpressionSelector : IElementSelector
     {
         public RegularExpressionSelector(string pattern, RegexOptions options = RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace)
         {
@@ -15,7 +15,7 @@ namespace Microsoft.Maui.Automation
         public RegexOptions Options { get; protected set; }
         public Regex Rx { get; protected set; }
 
-        public bool Matches(IView view)
+        public bool Matches(IElement view)
             => view.Text != null && Rx.IsMatch(view.Text);
     }
 }

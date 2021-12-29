@@ -3,20 +3,23 @@ using Microsoft.UI.Xaml.Controls;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace Microsoft.Maui.Automation
 {
-    public class WindowsAppSdkView : View
+    public class WindowsAppSdkView : Element
     {
-        public WindowsAppSdkView(IApplication application, string windowId, UIElement platformView)
-            : base(application, Platform.WinAppSdk, windowId, platformView.GetHashCode().ToString())
+        public WindowsAppSdkView(IApplication application, UIElement platformView, string? parentId = null)
+            : base(application, Platform.WinAppSdk, platformView.GetHashCode().ToString(), parentId)
         {
             PlatformView = platformView;
             PlatformElement = platformView;
 
             AutomationId = platformView.GetType().Name;
-            Children = (platformView as Panel)?.Children?.Select(c => new WindowsAppSdkView(application, windowId, c))?.ToArray<IView>() ?? Array.Empty<IView>();
+
+            var children = (platformView as Panel)?.Children?.Select(c => new WindowsAppSdkView(application, c, Id))?.ToList<IElement>() ?? new List<IElement>()
+            Children = new ReadOnlyCollection<IElement>(children);
 
             Visible = PlatformView.Visibility == UI.Xaml.Visibility.Visible;
             Enabled = PlatformView.IsTapEnabled;

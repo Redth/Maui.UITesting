@@ -1,16 +1,18 @@
-﻿using Newtonsoft.Json;
+﻿using System.Collections.ObjectModel;
+using Newtonsoft.Json;
 
 namespace Microsoft.Maui.Automation
 {
-    public abstract class View : IView
+    public abstract class Element : IElement
     {
-        public View(IApplication application, Platform platform, string windowId, string id)
+        public Element(IApplication application, Platform platform, string id, string? parentId = null)
         {
             Application = application;
-            WindowId = windowId;
+            ParentId = parentId;
             Id = id;
             AutomationId = Id;
             Type = GetType().Name;
+            FullType = GetType().FullName ?? Type;
 
             Visible = false;
             Enabled = false;
@@ -18,7 +20,7 @@ namespace Microsoft.Maui.Automation
             X = -1;
             Y = -1;
             Platform = platform;
-            Children = Array.Empty<IView>();
+            Children = new ReadOnlyCollection<IElement>(new List<IElement>());
             Width = -1;
             Height = -1;
         }
@@ -26,7 +28,8 @@ namespace Microsoft.Maui.Automation
         [JsonIgnore]
         public virtual IApplication Application { get; protected set; }
 
-        public virtual string WindowId { get; protected set; }
+        public virtual string? ParentId { get; protected set; }
+
         public virtual bool Visible { get; protected set; }
         public virtual bool Enabled { get; protected set; }
         public virtual bool Focused { get; protected set; }
@@ -36,10 +39,11 @@ namespace Microsoft.Maui.Automation
 
         [JsonIgnore]
         public virtual object? PlatformElement { get; protected set; }
-        public virtual IView[] Children { get; protected set; }
+        public virtual IReadOnlyCollection<IElement> Children { get; protected set; }
         public virtual string Id { get; protected set; }
         public virtual string AutomationId { get; protected set; }
         public virtual string Type { get; protected set; }
+        public virtual string FullType { get; protected set; }
         public virtual string? Text { get; protected set; }
         public virtual int Width { get; protected set; }
         public virtual int Height { get; protected set; }

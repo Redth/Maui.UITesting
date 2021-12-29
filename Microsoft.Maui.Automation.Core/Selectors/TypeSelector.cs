@@ -1,20 +1,23 @@
 ﻿namespace Microsoft.Maui.Automation
 {
-    public class TypeSelector : IViewSelector
+    public class TypeSelector : IElementSelector
     {
-        public TypeSelector(string typeName)
+        public TypeSelector(string typeName, bool fullName = false)
         {
             TypeName = typeName;
+            FullName = fullName;
         }
 
-        public TypeSelector(Type type)
+        public TypeSelector(Type type, bool fullName = false)
         {
-           TypeName = type.Name;
+            TypeName = type.Name;
+            FullName = fullName;
         }
 
         public string TypeName { get; protected set; }
+        public bool FullName { get; protected set; }
 
-        public bool Matches(IView view)
-            => view.Type.Equals(TypeName);
+        public bool Matches(IElement element)
+            => element.Type.Equals(TypeName);
     }
 }

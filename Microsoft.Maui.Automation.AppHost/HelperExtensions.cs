@@ -50,72 +50,77 @@ namespace Microsoft.Maui.Automation
 
     internal static class HelperExtensions
 	{
-		internal static void EnqueAll<T>(this Queue<T> q, IEnumerable<T> elems)
-		{
-			foreach (var elem in elems)
-				q.Enqueue(elem);
-		}
-
-		internal static void PushAllReverse<T>(this Stack<T> st, IEnumerable<T> elems)
-		{
-			foreach (var elem in elems.Reverse())
-				st.Push(elem);
-		}
-
-        internal static async IAsyncEnumerable<IView> FindDepthFirst(this IEnumerable<IView> views, Predicate<IView> selector)
+        internal static void PushAllReverse<T>(this Stack<T> st, IEnumerable<T> elems)
         {
-            if (views != null)
+            foreach (var elem in elems.Reverse())
+                st.Push(elem);
+        }
+
+        internal static async IAsyncEnumerable<IElement> FindDepthFirst(this IAsyncEnumerable<IElement> elements, IElementSelector? selector)
+        {
+            var list = new List<IElement>();
+            await foreach (var e in elements)
+                list.Add(e);
+
+            await foreach (var e in FindDepthFirst(list, selector))
+                yield return e;
+        }
+
+        internal static async IAsyncEnumerable<IElement> FindDepthFirst(this IEnumerable<IElement> elements, IElementSelector? selector)
+        {
+            var st = new Stack<IElement>();
+            st.PushAllReverse(elements);
+
+            while (st.Count > 0)
             {
-                var st = new Stack<IView>();
-                st.PushAllReverse(views);
-
-                while (st.Count > 0)
+                var v = st.Pop();
+                if (selector == null || selector.Matches(v))
                 {
-                    var v = st.Pop();
-                    if (selector == null || selector(v))
-                    {
-                        yield return v;
-                    }
-
-                    st.PushAllReverse(v.Children);
+                    yield return v;
                 }
+
+                st.PushAllReverse(v.Children);
             }
         }
 
-        internal static IEnumerable<IView> FindBreadthFirst(this IEnumerable<IView> views, Predicate<IView> selector)
+        internal static async IAsyncEnumerable<IElement> FindBreadthFirst(this IAsyncEnumerable<IElement> elements, IElementSelector? selector)
         {
-            if (views != null)
+            var list = new List<IElement>();
+            await foreach (var e in elements)
+                list.Add(e);
+
+            await foreach (var e in FindBreadthFirst(list, selector))
+                yield return e;
+        }
+
+        internal static async IAsyncEnumerable<IElement> FindBreadthFirst(this IEnumerable<IElement> elements, IElementSelector? selector)
+        {
+            var q = new Queue<IElement>();
+
+            foreach (var e in elements)
+                q.Enqueue(e);
+
+            while (q.Count > 0)
             {
-                var q = new Queue<IView>();
-                q.EnqueAll(views);
-                while (q.Count > 0)
+                var v = q.Dequeue();
+                if (selector == null || selector.Matches(v))
                 {
-                    var v = q.Dequeue();
-                    if (selector == null || selector(v))
-                    {
-                        yield return v;
-                    }
-                    q.EnqueAll(v.Children);
+                    yield return v;
                 }
+                foreach (var c in v.Children)
+                    q.Enqueue(c);
             }
         }
 
-        internal static IReadOnlyCollection<T> ToReadOnlyCollection<T>(this IEnumerable<T> elems)
-		{
-			return new ReadOnlyCollection<T>(elems.ToList());
-		}
-
-		internal static IReadOnlyCollection<IView> AsReadOnlyCollection(this IView element)
+        public static IReadOnlyCollection<T> ToReadOnlyCollection<T>(this IEnumerable<T> elems)
         {
-			var list = new List<IView> { element };
-			return list.AsReadOnly();
+            return new ReadOnlyCollection<T>(elems.ToList());
         }
 
-		internal static IReadOnlyCollection<IWindow> AsReadOnlyCollection(this IWindow window)
-		{
-			var list = new List<IWindow> { window };
-			return list.AsReadOnly();
-		}
-
-	}
+        public static IReadOnlyCollection<IElement> AsReadOnlyCollection(this IElement element)
+        {
+            var list = new List<IElement> { element };
+            return list.AsReadOnly();
+        }
+    }
 }

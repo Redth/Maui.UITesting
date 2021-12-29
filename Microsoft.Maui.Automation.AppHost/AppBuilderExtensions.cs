@@ -13,11 +13,11 @@ using Microsoft.Maui.Automation.Remote;
 namespace Microsoft.Maui.Automation
 {
     public static class AutomationAppBuilderExtensions
-	{
+    {
         static IRemoteAutomationService RemoteAutomationService;
         static IApplication App;
 
-        static IMultiPlatformApplication CreateMultiApp(
+        static IApplication CreateApp(
             Maui.IApplication app
 #if ANDROID
             , Android.App.Application application
@@ -34,7 +34,7 @@ namespace Microsoft.Maui.Automation
 
             var platform = Automation.App.GetCurrentPlatform();
 
-            var multiApp = new MultiPlatformApplication(new[]
+            var multiApp = new MultiPlatformApplication(Platform.MAUI, new[]
             {
                 ( Platform.MAUI, new MauiApplication(app)),
                 ( platform, platformApp )
@@ -49,7 +49,7 @@ namespace Microsoft.Maui.Automation
             if (!string.IsNullOrEmpty(host) && IPAddress.TryParse(host, out var ip))
                 address = ip;
 
-            var multiApp = CreateMultiApp(mauiApplication
+            var multiApp = CreateApp(mauiApplication
 #if ANDROID
                 , (Android.App.Application.Context as Android.App.Application)
                     ?? Microsoft.Maui.MauiApplication.Current
@@ -57,14 +57,14 @@ namespace Microsoft.Maui.Automation
                 );
 
             RemoteAutomationService = new RemoteAutomationService(multiApp);
-            App = new TcpRemoteApplication(address, port, false, RemoteAutomationService);
+            App = new TcpRemoteApplication(Platform.MAUI, address, port, false, RemoteAutomationService);
         }
 
         public static void StartAutomationServiceListener(this Maui.IApplication mauiApplication, int port = TcpRemoteApplication.DefaultPort)
         {
             var address = IPAddress.Any;
 
-            var multiApp = CreateMultiApp(mauiApplication
+            var multiApp = CreateApp(mauiApplication
 #if ANDROID
                 , (Android.App.Application.Context as Android.App.Application)
                     ?? Microsoft.Maui.MauiApplication.Current
@@ -72,7 +72,7 @@ namespace Microsoft.Maui.Automation
                 );
 
             RemoteAutomationService = new RemoteAutomationService(multiApp);
-            App = new TcpRemoteApplication(address, port, true, RemoteAutomationService);
+            App = new TcpRemoteApplication(Platform.MAUI, address, port, true, RemoteAutomationService);
         }
     }
 }

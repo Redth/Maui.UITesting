@@ -10,15 +10,19 @@ namespace Microsoft.Maui.Automation
 {
 	public class iOSApplication : Application
 	{
-        public override async Task<object> GetProperty(IView element, string propertyName)
-        {	
-			var p = await base.GetProperty(element, propertyName);
+		public override Platform DefaultPlatform => Platform.iOS;
+
+		public override async Task<object> GetProperty(Platform platform, string elementId, string propertyName)
+		{
+			var p = await base.GetProperty(platform, elementId, propertyName);
 
 			if (p != null)
 				return p;
 
 			var selector = new ObjCRuntime.Selector(propertyName);
 			var getSelector = new ObjCRuntime.Selector("get" + System.Globalization.CultureInfo.InvariantCulture.TextInfo.ToTitleCase(propertyName));
+
+			var element = await FindElementOrThrow(platform, elementId);
 
 			if (element is iOSView view)
 			{
@@ -40,16 +44,16 @@ namespace Microsoft.Maui.Automation
 			return Task.FromResult<object>(null);
 		}
 
-        public override Task<IActionResult> Invoke(IView view, IAction action)
-        {
-            throw new NotImplementedException();
-        }
+		public override Task<IActionResult> Perform(Platform platform, string elementId, IAction action)
+		{
+			throw new NotImplementedException();
+		}
 
-        public override Task<IWindow[]> Windows()
-        {
-			var windows = new List<IWindow>();
-
+		public override async IAsyncEnumerable<IElement> Children(Platform platform)
+		{
 			var scenes = UIApplication.SharedApplication.ConnectedScenes?.ToArray();
+
+			var hadScenes = false;
 
 			if (scenes?.Any() ?? false)
 			{
@@ -58,23 +62,25 @@ namespace Microsoft.Maui.Automation
 					if (scene is UIWindowScene windowScene)
 					{
 						foreach (var window in windowScene.Windows)
-							windows.Add(new iOSWindow(this, window));
+						{
+							yield return new iOSWindow(this, window);
+							hadScenes = true;
+						}
 					}
 				}
 			}
 
-			if (windows.Any())
-				return Task.FromResult(windows.ToArray());
 
-			if (!OperatingSystem.IsMacCatalystVersionAtLeast(15, 0) && !OperatingSystem.IsIOSVersionAtLeast(15, 0))
+			if (!hadScenes)
 			{
-				foreach (var window in UIApplication.SharedApplication.Windows)
+				if (!OperatingSystem.IsMacCatalystVersionAtLeast(15, 0) && !OperatingSystem.IsIOSVersionAtLeast(15, 0))
 				{
-					windows.Add(new iOSWindow(this, window));
+					foreach (var window in UIApplication.SharedApplication.Windows)
+					{
+						yield return new iOSWindow(this, window);
+					}
 				}
 			}
-
-			return Task.FromResult(windows.ToArray());
 		}
 	}
 }

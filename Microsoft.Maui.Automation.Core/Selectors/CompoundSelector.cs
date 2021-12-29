@@ -1,27 +1,27 @@
 ﻿namespace Microsoft.Maui.Automation
 {
-    public class CompoundSelector : IViewSelector
+    public class CompoundSelector : IElementSelector
     {
-        public CompoundSelector(params IViewSelector[] elementSelectors)
+        public CompoundSelector(params IElementSelector[] elementSelectors)
         {
             Selectors = elementSelectors;
             Any = false;
         }
 
-        public CompoundSelector(bool any, params IViewSelector[] elementSelectors)
+        public CompoundSelector(bool any, params IElementSelector[] elementSelectors)
         {
             Selectors = elementSelectors;
             Any = any;
         }
 
-        public  IViewSelector[] Selectors { get; protected set; }
+        public  IElementSelector[] Selectors { get; protected set; }
         public bool Any { get; protected set; }
 
-        public bool Matches(IView view)
+        public bool Matches(IElement element)
         {
             foreach (var s in Selectors)
             {
-                var isMatch = s.Matches(view);
+                var isMatch = s.Matches(element);
 
                 // If looking for any to match, and we found a match, return true
                 if (Any && isMatch)

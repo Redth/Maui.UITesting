@@ -5,37 +5,37 @@ namespace Microsoft.Maui.Automation
 {
     internal static class MauiExtensions
     {
-		internal static IView[] GetChildren(this Maui.IWindow window, string windowId, IApplication application)
+		internal static IElement[] GetChildren(this Maui.IWindow window, IApplication application, string? parentId = null)
 		{
 			if (window.Content == null)
-				return Array.Empty<IView>();
+				return Array.Empty<IElement>();
 
-			return new[] { new MauiView(application, windowId, window.Content) };
+			return new[] { new MauiElement(application, window.Content, parentId) };
 		}
 
-		internal static IView[] GetChildren(this Maui.IView view, string windowId, IApplication application)
+		internal static IElement[] GetChildren(this Maui.IView view, IApplication application, string? parentId = null)
 		{
 			if (view is ILayout layout)
             {
-				var children = new List<IView>();
+				var children = new List<IElement>();
 
 				foreach (var v in layout)
                 {
-					children.Add(new MauiView(application, windowId, v));
+					children.Add(new MauiElement(application, v, parentId));
                 }
 
 				return children.ToArray();
             }
 			else if (view is IContentView content && content?.Content is Maui.IView contentView)
             {
-				return new[] { new MauiView(application, windowId, contentView) };
+				return new[] { new MauiElement(application, contentView, parentId) };
             }
 
-			return Array.Empty<IView>();
+			return Array.Empty<IElement>();
 		}
 
 
-		internal static IWindow ToAutomationWindow(this Maui.IWindow window, IApplication application)
+		internal static IElement ToAutomationWindow(this Maui.IWindow window, IApplication application)
 		{
 #if ANDROID
 			if (window.Handler.NativeView is Android.App.Activity activity)
@@ -50,17 +50,17 @@ namespace Microsoft.Maui.Automation
 			return null;
 		}
 
-		internal static IView ToAutomationView(this Maui.IView view, string windowId, IApplication application)
+		internal static IElement ToAutomationView(this Maui.IView view, IApplication application, string? parentId = null)
         {
 #if ANDROID
 			if (view.Handler.NativeView is Android.Views.View androidview)
-				return new AndroidView(application, windowId, androidview);
+				return new AndroidView(application, androidview, parentId);
 #elif IOS || MACCATALYST
 			if (view.Handler.NativeView is UIKit.UIView uiview)
-				return new iOSView(application, windowId, uiview);
+				return new iOSView(application, uiview, parentId);
 #elif WINDOWS
 			if (view.Handler.NativeView is Microsoft.UI.Xaml.UIElement uielement)
-				return new WindowsAppSdkView(application, windowId, uielement);
+				return new WindowsAppSdkView(application, uielement, parentId);
 #endif
 
 			return null;

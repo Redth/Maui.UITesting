@@ -6,8 +6,8 @@ using System.Net;
 var port = TcpRemoteApplication.DefaultPort;
 
 Console.WriteLine($"REPL> Waiting for remote automation connection on port {port}...");
-
-var remote = new TcpRemoteApplication(IPAddress.Any, port);
+var platform = Platform.MAUI;
+var remote = new TcpRemoteApplication(platform, IPAddress.Any, port);
 
 Console.WriteLine("Connected.");
 
@@ -19,15 +19,11 @@ while(true)
 try {
     if (input.StartsWith("tree"))
     {
-        var windows = await remote.Windows();
-
-        
-
-        foreach (var w in windows)
+        await foreach (var w in remote.Children(platform))
         {
             var tree = new Tree(w.ToTable(ConfigureTable));
 
-            await foreach (var d in remote.Descendants(w.Id))
+            await foreach (var d in remote.Descendants(platform, w.Id))
             {
                 //var node = tree.AddNode(d.ToMarkupString(0, 0));
 
@@ -40,9 +36,7 @@ try {
     }
     else if (input.StartsWith("windows"))
     {
-        var windows = await remote.Windows();
-
-        foreach (var w in windows)
+        await foreach (var w in remote.Children(platform))
         {
             var tree = new Tree(w.ToTable(ConfigureTable));
 
@@ -61,11 +55,11 @@ try {
 }
 
 
-void PrintTree(IHasTreeNodes node, IView view, int depth)
+void PrintTree(IHasTreeNodes node, IElement element, int depth)
 {
-    var subnode = node.AddNode(view.ToTable(ConfigureTable));
+    var subnode = node.AddNode(element.ToTable(ConfigureTable));
 
-    foreach (var c in view.Children)
+    foreach (var c in element.Children)
         PrintTree(subnode, c, depth);
 }
 

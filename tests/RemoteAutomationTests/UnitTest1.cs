@@ -1,5 +1,6 @@
 using Microsoft.Maui.Automation;
 using Microsoft.Maui.Automation.Remote;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using Xunit;
@@ -14,7 +15,7 @@ namespace RemoteAutomationTests
             // Start the 'test runner' as a server, listening for the 'app/device' to connect
             var tcsHost = new TaskCompletionSource<TcpRemoteApplication>();
             _ = Task.Run(() =>
-                tcsHost.TrySetResult(new TcpRemoteApplication(IPAddress.Any)));
+                tcsHost.TrySetResult(new TcpRemoteApplication(Platform.MAUI, IPAddress.Any)));
 
             // Build a mock app
             var app = new MockApplication()
@@ -25,13 +26,17 @@ namespace RemoteAutomationTests
             var service = new RemoteAutomationService(app);
 
             // Connect the 'app/device' as a client
-            var device = new TcpRemoteApplication(IPAddress.Loopback, listen: false, remoteAutomationService: service);
+            var device = new TcpRemoteApplication(Platform.MAUI, IPAddress.Loopback, listen: false, remoteAutomationService: service);
 
             // Wait until the client connects to the host to proceed
             var runner = await tcsHost.Task;
 
+            var windows = new List<IElement>();
             // Query the remote host
-            var windows = await runner.Windows();
+            await foreach (var window in runner.Children(Platform.MAUI))
+            {
+                windows.Add(window);
+            }
 
             Assert.NotEmpty(windows);
         }
@@ -42,7 +47,7 @@ namespace RemoteAutomationTests
             // Start the 'test runner' as a server, listening for the 'app/device' to connect
             var tcsHost = new TaskCompletionSource<TcpRemoteApplication>();
             _ = Task.Run(() =>
-                tcsHost.TrySetResult(new TcpRemoteApplication(IPAddress.Any)));
+                tcsHost.TrySetResult(new TcpRemoteApplication(Platform.MAUI, IPAddress.Any)));
 
             // Build a mock app
             var app = new MockApplication()
@@ -55,15 +60,14 @@ namespace RemoteAutomationTests
             var service = new RemoteAutomationService(app);
 
             // Connect the 'app/device' as a client
-            var device = new TcpRemoteApplication(IPAddress.Loopback, listen: false, remoteAutomationService: service);
+            var device = new TcpRemoteApplication(Platform.MAUI, IPAddress.Loopback, listen: false, remoteAutomationService: service);
 
             // Wait until the client connects to the host to proceed
             var runner = await tcsHost.Task;
 
-
-            var v = await runner.Descendant(window!, new IdSelector("view1"));
-
-            Assert.NotNull(v);
+            var e = await runner.ById(Platform.MAUI, "view1");
+            
+            Assert.NotNull(e);
         }
     }
 }

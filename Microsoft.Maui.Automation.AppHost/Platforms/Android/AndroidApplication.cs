@@ -9,8 +9,8 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Maui.Automation
 {
-    // All the code in this file is only included on Android.
-    public class AndroidApplication : Application
+	// All the code in this file is only included on Android.
+	public class AndroidApplication : Application
 	{
 		public AndroidApplication(global::Android.App.Application app) : base()
 		{
@@ -22,25 +22,35 @@ namespace Microsoft.Maui.Automation
 			app.RegisterActivityLifecycleCallbacks(LifecycleListener);
 		}
 
+		public override Platform DefaultPlatform => Platform.Android;
+
 		AutomationActivityLifecycleContextListener LifecycleListener { get; }
 
-        public override Task<IActionResult> Invoke(IView view, IAction action)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override Task<IWindow> CurrentWindow()
+		public override Task<IActionResult> Perform(Platform platform, string elementId, IAction action)
 		{
-			var activity = LifecycleListener.Activity ?? LifecycleListener.Activities.FirstOrDefault();
+			throw new NotImplementedException();
+		}
 
-			if (activity == null)
-				return Task.FromResult<IWindow>(default);
+		//public override Task<IWindow> CurrentWindow()
+		//{
+		//	var activity = LifecycleListener.Activity ?? LifecycleListener.Activities.FirstOrDefault();
 
-			return Task.FromResult<IWindow>(new AndroidWindow(this, activity));
-        }
+		//	if (activity == null)
+		//		return Task.FromResult<IWindow>(default);
 
-        public override Task<IWindow[]> Windows()
-			=> Task.FromResult(LifecycleListener.Activities.Select(a => new AndroidWindow(this, a)).ToArray<IWindow>());
+		//	return Task.FromResult<IWindow>(new AndroidWindow(this, activity));
+		//}
+
+		public override async IAsyncEnumerable<IElement> Children(Platform platform)
+		{
+			foreach (var w in LifecycleListener.Activities.Select(a => new AndroidWindow(this, a)))
+			{
+				yield return w;
+			}
+		}
+
+		public bool IsActivityCurrent(Activity activity)
+			=> LifecycleListener.Activity == activity;
 
 		internal class AutomationActivityLifecycleContextListener : Java.Lang.Object, Android.App.Application.IActivityLifecycleCallbacks
 		{
@@ -49,7 +59,7 @@ namespace Microsoft.Maui.Automation
 			WeakReference<Activity> currentActivity = new WeakReference<Activity>(null);
 
 			internal Context Context =>
-                Activity ?? Android.App.Application.Context;
+				Activity ?? Android.App.Application.Context;
 
 			internal Activity Activity
 			{

@@ -12,6 +12,6 @@ namespace Streamer
         public string? Method { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore, PropertyName = "params")]
-        public JToken[]? Args { get; set; }
+        public JToken?[] Args { get; set; }
     }
 }

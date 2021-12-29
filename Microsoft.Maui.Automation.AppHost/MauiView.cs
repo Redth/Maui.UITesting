@@ -8,15 +8,15 @@ using Newtonsoft.Json;
 
 namespace Microsoft.Maui.Automation
 {
-    public class MauiView : View
+    public class MauiElement : Element
 	{
-		public MauiView(IApplication application, string windowId, Maui.IView view)
-			: base(application, Platform.MAUI, windowId, "")
+		public MauiElement(IApplication application, Maui.IView view, string? parentId = null)
+			: base(application, Platform.MAUI, string.Empty, parentId)
 		{
 			PlatformElement = view;
-			PlatformView = view.ToAutomationView(windowId, application) ?? throw new PlatformNotSupportedException();
+			PlatformView = view.ToAutomationView(application, parentId) ?? throw new PlatformNotSupportedException();
 
-			WindowId = PlatformView.WindowId;
+			ParentId = parentId;
 			Id = PlatformView.Id;
 			AutomationId = PlatformView.AutomationId;
 			Type = view.GetType().Name;
@@ -30,11 +30,11 @@ namespace Microsoft.Maui.Automation
 			Width = PlatformView.Width;
 			Height = PlatformView.Height;
 
-			Children = view.GetChildren(windowId, application);
+			Children = view.GetChildren(application, parentId);
 		}
 
 		[JsonIgnore]
-		protected IView PlatformView { get; set; }
+		protected IElement PlatformView { get; set; }
 
   //      public void Clear()
 		//{
@@ -46,11 +46,6 @@ namespace Microsoft.Maui.Automation
 		//{
 		//	if (NativeView is ITextInput ti)
 		//		ti.Text = text;
-		//}
-
-		//public void Return()
-		//{
-		//	throw new NotImplementedException();
 		//}
 
 		//public bool Focus()

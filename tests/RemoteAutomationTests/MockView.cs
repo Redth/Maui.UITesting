@@ -1,15 +1,15 @@
 ﻿using Microsoft.Maui.Automation;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace RemoteAutomationTests
 {
-    public class MockView : View
+    public class MockView : Element
     {
-        public MockView(IApplication application, Platform platform, string windowId, string id) 
-            : base(application, platform, windowId, id)
+        public MockView(IApplication application, Platform platform, string id, string? parentId = null) 
+            : base(application, platform, id, parentId)
         {
-            WindowId = windowId;
             Text = string.Empty;
 
             PlatformElement = new MockNativeView();
@@ -17,7 +17,8 @@ namespace RemoteAutomationTests
 
         public readonly List<MockView> MockViews = new List<MockView>();
 
-        public override IView[] Children
-            => MockViews.ToArray();
+        
+        public override IReadOnlyCollection<IElement> Children
+            => new ReadOnlyCollection<IElement>(MockViews.ToList<IElement>());
     }
 }

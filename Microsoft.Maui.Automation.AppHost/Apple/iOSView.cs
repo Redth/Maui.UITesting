@@ -2,22 +2,26 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Linq;
 using UIKit;
 
 namespace Microsoft.Maui.Automation
 {
-    public class iOSView : View
+	public class iOSView : Element
 	{
-		public iOSView(IApplication application, string windowId, UIKit.UIView platformView)
-			: base(application, Platform.iOS, windowId, platformView.Handle.ToString())
+		public iOSView(IApplication application, UIKit.UIView platformView, string? parentId = null)
+			: base(application, Platform.iOS, platformView.Handle.ToString(), parentId)
 		{	
 			PlatformView = platformView;
 			PlatformElement = platformView;
 
 			AutomationId = platformView.AccessibilityIdentifier;
-			Children = platformView.Subviews?.Select(s => new iOSView(application, windowId, s))?.ToArray<IView>() ?? Array.Empty<IView>();
+
+
+			var children = platformView.Subviews?.Select(s => new iOSView(application, s, Id))?.ToList<IElement>() ?? new List<IElement>();
+			Children = new ReadOnlyCollection<IElement>(children);
 
 			Visible = !platformView.Hidden;
 			Enabled = platformView.UserInteractionEnabled;
@@ -57,11 +61,6 @@ namespace Microsoft.Maui.Automation
 		//	}
 		//}
 
-		//public void Return()
-		//{
-		//	throw new NotImplementedException();
-		//}
-
 		//public bool Focus()
 		//{
 		//	if (!PlatformElement.CanBecomeFirstResponder)
@@ -70,11 +69,7 @@ namespace Microsoft.Maui.Automation
 		//	return PlatformElement.BecomeFirstResponder();
 		//}
 
-		//public void Click()
-		//{
-		//	throw new NotImplementedException();
-		//}
-
+		
 	}
 }
 #endif

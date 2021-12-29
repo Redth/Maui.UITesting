@@ -7,15 +7,16 @@ namespace Microsoft.Maui.Automation.Remote
     {
         public const int DefaultPort = 4327;
 
-        public TcpRemoteApplication(IPAddress address, int port = DefaultPort, bool listen = true, IRemoteAutomationService? remoteAutomationService = null)
+        public TcpRemoteApplication(Platform defaultPlatform, IPAddress address, int port = DefaultPort, bool listen = true, IRemoteAutomationService? remoteAutomationService = null)
         {
+            DefaultPlatform = defaultPlatform;
             if (listen)
             {
                 tcpListener = new TcpListener(address, port);
                 tcpListener.Start();
                 client = tcpListener.AcceptTcpClient();
                 stream = client.GetStream();
-                remoteApplication = new RemoteApplication(stream, remoteAutomationService);
+                remoteApplication = new RemoteApplication(DefaultPlatform, stream, remoteAutomationService);
                 tcpListener.Stop();
             }
             else
@@ -24,7 +25,7 @@ namespace Microsoft.Maui.Automation.Remote
                 client = new TcpClient();
                 client.Connect(address, port);
                 stream = client.GetStream();
-                remoteApplication = new RemoteApplication(stream, remoteAutomationService);
+                remoteApplication = new RemoteApplication(DefaultPlatform, stream, remoteAutomationService);
             }
         }
 
@@ -33,37 +34,21 @@ namespace Microsoft.Maui.Automation.Remote
         readonly RemoteApplication remoteApplication;
         readonly TcpClient client;
 
-        public Task<IWindow?> CurrentWindow()
-            => remoteApplication.CurrentWindow();
+        public Platform DefaultPlatform { get; }
 
-        public Task<IWindow[]> Windows()
-            => remoteApplication.Windows();
+        public IAsyncEnumerable<IElement> Children(Platform platform)
+            => remoteApplication.Children(platform);
 
-        public IAsyncEnumerable<IView> Descendants(IElement of, IViewSelector? selector = null)
-            => remoteApplication.Descendants(of, selector);
+        public Task<IElement?> Element(Platform platform, string elementId)
+            => remoteApplication.Element(platform, elementId);
 
-        public Task<IView?> Descendant(IElement of, IViewSelector? selector = null)
-            => remoteApplication.Descendant(of, selector);
+        public IAsyncEnumerable<IElement> Descendants(Platform platform, string? elementId = null, IElementSelector? selector = null)
+            => remoteApplication.Descendants(platform, elementId, selector);
 
-        public Task<IActionResult> Invoke(IView view, IAction action)
-            => remoteApplication.Invoke(view, action);
+        public Task<IActionResult> Perform(Platform platform, string elementId, IAction action)
+            => remoteApplication.Perform(platform, elementId, action);
 
-        public Task<object?> GetProperty(IView view, string propertyName)
-            => remoteApplication.GetProperty(view, propertyName);
-
-        public Task<IWindow?> Window(string windowId)
-            => remoteApplication.Window(windowId);
-
-        public Task<IView?> View(string windowId, string viewId)
-            => remoteApplication.View(windowId, viewId);
-
-        public IAsyncEnumerable<IView> Descendants(string windowId, string? viewId = null, IViewSelector? selector = null)
-            => remoteApplication.Descendants(windowId, viewId, selector);
-
-        public Task<IActionResult> Invoke(string windowId, string elementId, IAction action)
-            => remoteApplication.Invoke(windowId, elementId, action);
-
-        public Task<object?> GetProperty(string windowId, string elementId, string propertyName)
-            => remoteApplication.GetProperty(windowId, elementId, propertyName);
+        public Task<object?> GetProperty(Platform platform, string elementId, string propertyName)
+            => remoteApplication.GetProperty(platform, elementId, propertyName);
     }
 }

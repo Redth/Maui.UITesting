@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace Microsoft.Maui.Automation
 {
     // All the code in this file is only included on Windows.
-    public class WindowsAppSdkWindow : Window
+    public class WindowsAppSdkWindow : Element
     {
         public WindowsAppSdkWindow(IApplication application, Microsoft.UI.Xaml.Window window)
             : base(application, Platform.WinAppSdk, window.GetHashCode().ToString())
@@ -14,7 +14,11 @@ namespace Microsoft.Maui.Automation
             PlatformWindow = window;
 
             AutomationId = Id;
-            Children = new [] { new WindowsAppSdkView(application, Id, PlatformWindow.Content) };
+
+            var children = new List<IElement> { new WindowsAppSdkView(application, PlatformWindow.Content, Id) };
+
+            Children = new ReadOnlyCollection<IElement>(children);
+
             Width = (int)window.Bounds.Width;
             Height = (int)window.Bounds.Height;
             Text = window.Title;
