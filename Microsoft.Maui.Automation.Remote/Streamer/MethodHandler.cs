@@ -27,7 +27,7 @@
 
         public override Type ReturnType => typeof(TReturn);
 
-        public override async Task<object?> Handle(object[] args)
+        public override async Task<object?> Handle(object?[] args)
             => await Handler();
     }
 
@@ -47,7 +47,7 @@
 
         public override Type ReturnType => typeof(TReturn);
 
-        public override async Task<object?> Handle(object[] args)
+        public override async Task<object?> Handle(object?[] args)
         {
             if (args?[0] is TArg1 a1)
                 return await Handler(a1);
@@ -72,7 +72,7 @@
 
         public override Type ReturnType => typeof(TReturn);
 
-        public override async Task<object?> Handle(object[] args)
+        public override async Task<object?> Handle(object?[] args)
         {
             if (args?[0] is TArg1 a1
                 && args?[1] is TArg2 a2)
@@ -102,7 +102,7 @@
 
         public override Type ReturnType => typeof(TReturn);
 
-        public override async Task<object?> Handle(object[] args)
+        public override async Task<object?> Handle(object?[] args)
         {
             if (args?[0] is TArg1 a1
                 && args?[1] is TArg2 a2
@@ -134,7 +134,7 @@
 
         public override Type ReturnType => typeof(TReturn);
 
-        public override async Task<object?> Handle(object[] args)
+        public override async Task<object?> Handle(object?[] args)
         {
             if (args?[0] is TArg1 a1
                 && args?[1] is TArg2 a2
@@ -168,7 +168,7 @@
 
         public override Type ReturnType => typeof(TReturn);
 
-        public override async Task<object?> Handle(object[] args)
+        public override async Task<object?> Handle(object?[] args)
         {
             if (args?[0] is TArg1 a1
                 && args?[1] is TArg2 a2
