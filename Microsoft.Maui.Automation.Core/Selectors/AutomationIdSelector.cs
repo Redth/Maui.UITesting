@@ -1,4 +1,6 @@
-﻿namespace Microsoft.Maui.Automation
+﻿using Newtonsoft.Json;
+
+namespace Microsoft.Maui.Automation
 {
 
     public class AutomationIdSelector : IElementSelector
@@ -9,7 +11,10 @@
             Comparison = comparison;
         }
 
+        [JsonProperty]
         public string AutomationId { get; protected set; }
+
+        [JsonProperty]
         public StringComparison Comparison { get; protected set; }
 
         public bool Matches(IElement view)

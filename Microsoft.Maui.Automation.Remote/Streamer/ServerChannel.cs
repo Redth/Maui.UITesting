@@ -49,33 +49,13 @@ namespace Streamer
                     var reqJson = JObject.FromObject(request, _serializer).ToString(Formatting.Indented);
                     Console.WriteLine(reqJson);
 
-                    var response = new Response();
+                    Response response = new();
                     response.Id = request.Id;
 
                     try
                     {
-                        //var jsonArgs = request.Args ?? Array.Empty<object?>();
-
-                        if ((request.Args?.Length ?? 0) != m.ArgumentTypes.Length)
-                            throw new ArgumentOutOfRangeException();
-
-                        // Convert JToken's into the arg types they should be
-                        //var typedArgs = new List<object>();
-                        //for (int i = 0; i < jsonArgs.Length; i++)
-                        //{
-                        //    var convertedArg = jsonArgs[i].ToObject<object>(_serializer);
-                        //    if (convertedArg != null)
-                        //        typedArgs.Add(convertedArg);
-                        //}
-
-                        //var result = await m.Handle(typedArgs.ToArray());
-
-                        var result = await m.Handle(request.Args?.ToArray() ?? Array.Empty<object?>());
-
-                        if (result != null)
-                        {
-                            response.Result = JToken.FromObject(result, _serializer);
-                        }
+                        response = await m.HandleAsync(request);
+                        response.Id = request.Id;
                     }
                     catch (TargetInvocationException ex)
                     {
@@ -86,7 +66,6 @@ namespace Streamer
                         response.Error = ex?.Message;
                     }
 
-                    Console.WriteLine(response.Result);
                     return response;
                 };
             }

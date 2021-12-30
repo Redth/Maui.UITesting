@@ -15,21 +15,21 @@ namespace Microsoft.Maui.Automation.Remote
                 RemoteAutomationService = remoteAutomationService;
                 Server = Streamer.Channel.CreateServer();
                 Server.Bind(
-                    new MethodHandler<RemoteElement[], Platform>(
+                    new MethodHandler<ChildrenResponse, ChildrenRequest>(
                         nameof(IRemoteAutomationService.Children),
-                        (platform) => RemoteAutomationService.Children(platform)),
-                    new MethodHandler<RemoteElement?, Platform, string>(
+                        async req => new ChildrenResponse(await RemoteAutomationService.Children(req.Platform))),
+                    new MethodHandler<ElementResponse, ElementRequest>(
                         nameof(IRemoteAutomationService.Element),
-                        (platform, id) => RemoteAutomationService.Element(platform, id)),
-                    new MethodHandler<RemoteElement[], Platform, string, IElementSelector>(
+                        async req => new ElementResponse(await RemoteAutomationService.Element(req.Platform, req.ElementId))),
+                    new MethodHandler<DescendantsResponse, DescendantsRequest>(
                         nameof(IRemoteAutomationService.Descendants),
-                        (platform, id, selector) => RemoteAutomationService.Descendants(platform, id, selector)!),
-                    new MethodHandler<IActionResult, Platform, string, IAction>(
+                        async req => new DescendantsResponse(await RemoteAutomationService.Descendants(req.Platform, req.ElementId, req.Selector))),
+                    new MethodHandler<PerformResponse, PerformRequest>(
                         nameof(IRemoteAutomationService.Perform),
-                        (platform, viewId, action) => RemoteAutomationService.Perform(platform, viewId, action)!),
-                    new MethodHandler<object?, Platform, string, string>(
+                        async req => new PerformResponse(await RemoteAutomationService.Perform(req.Platform, req.ElementId, req.Action))),
+                    new MethodHandler<GetPropertyResponse, GetPropertyRequest>(
                         nameof(IRemoteAutomationService.GetProperty),
-                        (platform, viewId, propertyName) => RemoteAutomationService.GetProperty(platform, viewId, propertyName)!)
+                        async req => new GetPropertyResponse(await RemoteAutomationService.GetProperty(req.Platform, req.ElementId, req.PropertyName)))
                  );
 
                 _ = Task.Run(() => { _ = Server.StartAsync(Stream); });
@@ -53,48 +53,42 @@ namespace Microsoft.Maui.Automation.Remote
 
         public async IAsyncEnumerable<IElement> Children(Platform platform)
         {
-            var children = (await Client.InvokeAsync<Platform, RemoteElement[]>(
-                    nameof(IRemoteAutomationService.Children),
-                    platform))
-                        ?? Array.Empty<IElement>();
-
+            var response = await Client.InvokeAsync<ChildrenRequest, ChildrenResponse>(new ChildrenRequest(platform));
+            var children = response?.Result ?? Array.Empty<RemoteElement>();
             foreach (var c in children)
                 yield return c;
         }
 
-        public Task<IElement?> Element(Platform platform, string elementId)
-            => Client.InvokeAsync<Platform, string, IElement?>(
-                nameof(IRemoteAutomationService.Element),
-                platform,
-                elementId);
+        public async Task<IElement?> Element(Platform platform, string elementId)
+        {
+            var response = await Client.InvokeAsync<ElementRequest, ElementResponse>(new ElementRequest(platform, elementId));
+
+            return response?.Element;
+        }
 
         public async IAsyncEnumerable<IElement> Descendants(Platform platform, string? elementId = null, IElementSelector? selector = null)
         {
-            var views = await Client.InvokeAsync<Platform, string, IElementSelector, RemoteElement[]>(
-                nameof(IRemoteAutomationService.Descendants),
-                platform,
-                elementId ?? string.Empty,
-                selector ?? new DefaultViewSelector());
+            var response = await Client.InvokeAsync<DescendantsRequest, DescendantsResponse>(new DescendantsRequest(platform, elementId, selector));
 
-            if (views != null)
+            if (response?.Result is not null)
             {
-                foreach (var v in views)
-                    yield return v;
+                foreach (var e in response.Result)
+                    yield return e;
             }
         }
 
-        public Task<IActionResult> Perform(Platform platform, string elementId, IAction action)
-            => Client.InvokeAsync<Platform, string, IAction, IActionResult>(
-                nameof(IRemoteAutomationService.Perform),
-                platform,
-                elementId,
-                action)!;
+        public async Task<IActionResult> Perform(Platform platform, string elementId, IAction action)
+        {
+            var response = await Client.InvokeAsync<PerformRequest, PerformResponse>(new PerformRequest(platform, elementId, action));
 
-        public Task<object?> GetProperty(Platform platform, string elementId, string propertyName)
-             => Client.InvokeAsync<Platform, string, string, object?>(
-                nameof(IRemoteAutomationService.GetProperty),
-                platform,
-                elementId,
-                propertyName);
+            return response?.Result ?? new ActionResult(ActionResultStatus.Error, "Unknown");
+        }
+
+        public async Task<object?> GetProperty(Platform platform, string elementId, string propertyName)
+        {
+            var response = await Client.InvokeAsync<GetPropertyRequest, GetPropertyResponse>(new GetPropertyRequest(platform, elementId, propertyName));
+
+            return response?.Result;
+        }
     }
 }

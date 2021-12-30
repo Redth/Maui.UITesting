@@ -1,9 +1,8 @@
 ﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Streamer
 {
-    public class Request
+    public abstract class Request
     {
         [JsonProperty("id")]
         public int Id { get; set; }

@@ -8,10 +8,7 @@ namespace Streamer
         [JsonProperty("id")]
         public int Id { get; set; }
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore, PropertyName = "result")]
-        public JToken? Result { get; set; }
-
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore, PropertyName = "error")]
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string? Error { get; set; }
     }
 }

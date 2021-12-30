@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using Newtonsoft.Json;
+using System.Text.RegularExpressions;
 
 namespace Microsoft.Maui.Automation
 {
@@ -11,8 +12,13 @@ namespace Microsoft.Maui.Automation
             Rx = new Regex(Pattern, Options);
         }
 
+        [JsonProperty]
         public string Pattern { get; protected set; }
+        
+        [JsonProperty]
         public RegexOptions Options { get; protected set; }
+        
+        [JsonIgnore]
         public Regex Rx { get; protected set; }
 
         public bool Matches(IElement view)

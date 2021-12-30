@@ -1,4 +1,6 @@
-﻿namespace Microsoft.Maui.Automation
+﻿using Newtonsoft.Json;
+
+namespace Microsoft.Maui.Automation
 {
     public class TypeSelector : IElementSelector
     {
@@ -14,7 +16,10 @@
             FullName = fullName;
         }
 
+        [JsonProperty]
         public string TypeName { get; protected set; }
+
+        [JsonProperty]
         public bool FullName { get; protected set; }
 
         public bool Matches(IElement element)

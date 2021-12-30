@@ -5,6 +5,11 @@ namespace Microsoft.Maui.Automation.Remote
 {
     public class RemoteElement : Element
     {
+        [JsonConstructor]
+        public RemoteElement(Platform platform = Platform.MAUI)
+            : base(new NullApplication(platform), platform, "")
+        { }
+
         public RemoteElement(IApplication application, IElement from, string? parentId = null)
             : base(application, from.Platform, from.Id, parentId)
         {

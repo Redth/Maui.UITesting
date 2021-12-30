@@ -25,39 +25,18 @@ namespace Streamer
             new Thread(() => ReadLoop()).Start();
         }
 
-        public Task InvokeAsync(string name, params object[] args)
-        {
-            return InvokeAsync<object>(name, args);
-        }
-
-        public Task<TResult?> InvokeAsync<TArg1, TResult>(string name, TArg1? arg1)
-            => InvokeAsync<TResult>(name, new[] { arg1 });
-
-        public Task<TResult?> InvokeAsync<TArg1, TArg2, TResult>(string name, TArg1? arg1, TArg2? arg2)
-            => InvokeAsync<TResult>(name, new object?[] { arg1, arg2 });
-
-        public Task<TResult?> InvokeAsync<TArg1, TArg2, TArg3, TResult>(string name, TArg1? arg1, TArg2? arg2, TArg3? arg3)
-            => InvokeAsync<TResult>(name, new object?[] { arg1, arg2, arg3 });
-
-        public Task<TResult?> InvokeAsync<TArg1, TArg2, TArg3, TArg4, TResult>(string name, TArg1? arg1, TArg2? arg2, TArg3? arg3, TArg4? arg4)
-            => InvokeAsync<TResult>(name, new object?[] { arg1, arg2, arg3, arg4 });
-
-        public Task<T?> InvokeAsync<T>(string name, params object?[] args)
+        public Task<TResponse?> InvokeAsync<TRequest, TResponse>(TRequest request) 
+            where TRequest : Request
+            where TResponse : Response
         {
             int id = Interlocked.Increment(ref _id);
-
-            var request = new Request
-            {
-                Id = id,
-                Method = name,
-                Args = args
-            };
+            request.Id = id;
 
             var reqJson = JObject.FromObject(request, _serializer).ToString(Formatting.Indented);
 
             Console.WriteLine(reqJson);
 
-            var tcs = new TaskCompletionSource<T?>();
+            var tcs = new TaskCompletionSource<TResponse?>();
 
             lock (_invocations)
             {
@@ -74,13 +53,9 @@ namespace Streamer
                         {
                             tcs.TrySetException(new InvalidOperationException(response.Error));
                         }
-                        else if (response.Result != null)
-                        {
-                            tcs.TrySetResult(response.Result.ToObject<T>(_serializer));
-                        }
                         else
                         {
-                            tcs.TrySetResult(default);
+                            tcs.TrySetResult(response as TResponse);
                         }
                     }
                     catch (Exception ex)
