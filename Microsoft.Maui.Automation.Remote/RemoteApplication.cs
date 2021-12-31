@@ -51,30 +51,23 @@ namespace Microsoft.Maui.Automation.Remote
         protected readonly IRemoteAutomationService? RemoteAutomationService;
         public readonly Stream Stream;
 
-        public async IAsyncEnumerable<IElement> Children(Platform platform)
+        public async Task<IEnumerable<IElement>> Children(Platform platform)
         {
             var response = await Client.InvokeAsync<ChildrenRequest, ChildrenResponse>(new ChildrenRequest(platform));
-            var children = response?.Result ?? Array.Empty<RemoteElement>();
-            foreach (var c in children)
-                yield return c;
+            return response?.Result ?? Array.Empty<RemoteElement>();
         }
 
         public async Task<IElement?> Element(Platform platform, string elementId)
         {
             var response = await Client.InvokeAsync<ElementRequest, ElementResponse>(new ElementRequest(platform, elementId));
-
             return response?.Element;
         }
 
-        public async IAsyncEnumerable<IElement> Descendants(Platform platform, string? elementId = null, IElementSelector? selector = null)
+        public async Task<IEnumerable<IElement>> Descendants(Platform platform, string? elementId = null, IElementSelector? selector = null)
         {
             var response = await Client.InvokeAsync<DescendantsRequest, DescendantsResponse>(new DescendantsRequest(platform, elementId, selector));
 
-            if (response?.Result is not null)
-            {
-                foreach (var e in response.Result)
-                    yield return e;
-            }
+            return response?.Result ?? Enumerable.Empty<IElement>();
         }
 
         public async Task<IActionResult> Perform(Platform platform, string elementId, IAction action)

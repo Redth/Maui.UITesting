@@ -29,16 +29,7 @@ namespace Microsoft.Maui.Automation
         }
 
         public async Task<RemoteElement[]> Children(Platform platform)
-        {
-            var children = new List<RemoteElement>();
-
-            await foreach (var c in PlatformApp.Children(platform))
-            {
-                children.Add(new RemoteElement(PlatformApp, c, c.ParentId));
-            }
-
-            return children.ToArray();
-        }
+            => (await PlatformApp.Children(platform))?.Select(c => new RemoteElement(PlatformApp, c, c.ParentId))?.ToArray() ?? Array.Empty<RemoteElement>();
 
         public Task<IActionResult> Perform(Platform platform, string elementId, IAction action)
             => PlatformApp.Perform(platform, elementId, action);

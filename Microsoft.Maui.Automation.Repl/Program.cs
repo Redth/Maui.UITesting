@@ -19,11 +19,11 @@ while(true)
 try {
     if (input.StartsWith("tree"))
     {
-        await foreach (var w in remote.Children(platform))
+        foreach (var w in await remote.Children(platform))
         {
             var tree = new Tree(w.ToTable(ConfigureTable));
 
-            await foreach (var d in remote.Descendants(platform, w.Id))
+            foreach (var d in await remote.Descendants(platform, w.Id))
             {
                 //var node = tree.AddNode(d.ToMarkupString(0, 0));
 
@@ -36,7 +36,7 @@ try {
     }
     else if (input.StartsWith("windows"))
     {
-        await foreach (var w in remote.Children(platform))
+        foreach (var w in await remote.Children(platform))
         {
             var tree = new Tree(w.ToTable(ConfigureTable));
 

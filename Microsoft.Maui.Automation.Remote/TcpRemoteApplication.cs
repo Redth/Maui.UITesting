@@ -36,13 +36,13 @@ namespace Microsoft.Maui.Automation.Remote
 
         public Platform DefaultPlatform { get; }
 
-        public IAsyncEnumerable<IElement> Children(Platform platform)
+        public Task<IEnumerable<IElement>> Children(Platform platform)
             => remoteApplication.Children(platform);
 
         public Task<IElement?> Element(Platform platform, string elementId)
             => remoteApplication.Element(platform, elementId);
 
-        public IAsyncEnumerable<IElement> Descendants(Platform platform, string? elementId = null, IElementSelector? selector = null)
+        public Task<IEnumerable<IElement>> Descendants(Platform platform, string? elementId = null, IElementSelector? selector = null)
             => remoteApplication.Descendants(platform, elementId, selector);
 
         public Task<IActionResult> Perform(Platform platform, string elementId, IAction action)

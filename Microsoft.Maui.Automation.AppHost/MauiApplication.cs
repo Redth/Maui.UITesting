@@ -42,15 +42,14 @@ namespace Microsoft.Maui.Automation
 
         public readonly Maui.IApplication MauiPlatformApplication;
 
-		public override async IAsyncEnumerable<IElement> Children(Platform platform)
+		public override async Task<IEnumerable<IElement>> Children(Platform platform)
 		{
 			var windows = await Dispatch(() =>
 			{
 				return MauiPlatformApplication.Windows.Select(w => new MauiWindow(this, w));
 			});
 
-			foreach (var w in windows)
-				yield return w;
+			return windows;
 		}
 
         public override Task<IActionResult> Perform(Platform platform, string elementId, IAction action)

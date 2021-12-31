@@ -56,7 +56,7 @@ namespace Microsoft.Maui.Automation
 
         public abstract Platform DefaultPlatform { get; }
 
-        public abstract IAsyncEnumerable<IElement> Children(Platform platform);
+        public abstract Task<IEnumerable<IElement>> Children(Platform platform);
 
         public abstract Task<IActionResult> Perform(Platform platform, string elementId, IAction action);
 
@@ -90,29 +90,29 @@ namespace Microsoft.Maui.Automation
         }
 
         public virtual async Task<IElement?> Element(Platform platform, string elementId)
-        {
-            await foreach (var d in Descendants(platform, elementId))
-            {
-                return d;
-            }
+            => (await Descendants(platform, elementId))?.FirstOrDefault();
 
-            return null;
-        }
-
-        public async IAsyncEnumerable<IElement> Descendants(Platform platform, string? ofElementId = null, IElementSelector? selector = null)
+        public virtual async Task<IEnumerable<IElement>> Descendants(Platform platform, string? ofElementId = null, IElementSelector? selector = null)
         {
+            var descendants = new List<IElement>();
+
             if (string.IsNullOrEmpty(ofElementId))
             {
-                await foreach (var c in Children(platform).FindBreadthFirst(selector))
-                    yield return c;
+                var children = (await Children(platform))?.FindBreadthFirst(selector);
+
+                if (children is not null && children.Any())
+                    descendants.AddRange(children);
             }
             else
             {
                 var element = await FindElementOrThrow(platform, ofElementId);
 
-                await foreach (var c in element.Children.AsEnumerable().FindBreadthFirst(selector))
-                    yield return c;
+                var children = element.Children?.FindBreadthFirst(selector);
+                if (children is not null && children.Any())
+                    descendants.AddRange(children);
             }
+
+            return descendants;
         }
     }
 }

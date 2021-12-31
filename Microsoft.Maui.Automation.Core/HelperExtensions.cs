@@ -14,17 +14,7 @@ namespace Microsoft.Maui.Automation
 				st.Push(elem);
 		}
 
-        internal static async IAsyncEnumerable<IElement> FindDepthFirst(this IAsyncEnumerable<IElement> elements, IElementSelector? selector)
-        {
-            var list = new List<IElement>();
-            await foreach (var e in elements)
-                list.Add(e);
-
-            await foreach (var e in FindDepthFirst(list, selector))
-                yield return e;
-        }
-
-        internal static async IAsyncEnumerable<IElement> FindDepthFirst(this IEnumerable<IElement> elements, IElementSelector? selector)
+        internal static IEnumerable<IElement> FindDepthFirst(this IEnumerable<IElement> elements, IElementSelector? selector)
         {
             var st = new Stack<IElement>();
             st.PushAllReverse(elements);
@@ -41,17 +31,7 @@ namespace Microsoft.Maui.Automation
             }
         }
 
-        internal static async IAsyncEnumerable<IElement> FindBreadthFirst(this IAsyncEnumerable<IElement> elements, IElementSelector? selector)
-        {
-            var list = new List<IElement>();
-            await foreach (var e in elements)
-                list.Add(e);
-
-            await foreach (var e in FindBreadthFirst(list, selector))
-                yield return e;
-        }
-
-        internal static async IAsyncEnumerable<IElement> FindBreadthFirst(this IEnumerable<IElement> elements, IElementSelector? selector)
+        internal static IEnumerable<IElement> FindBreadthFirst(this IEnumerable<IElement> elements, IElementSelector? selector)
         {
             var q = new Queue<IElement>();
 

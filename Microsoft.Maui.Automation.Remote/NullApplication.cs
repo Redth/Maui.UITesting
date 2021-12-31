@@ -7,15 +7,11 @@
 
         public Platform DefaultPlatform { get; }
 
-        public async IAsyncEnumerable<IElement> Children(Platform platform)
-        {
-            yield break;
-        }
+        public Task<IEnumerable<IElement>> Children(Platform platform)
+            => Task.FromResult(Enumerable.Empty<IElement>());
 
-        public async IAsyncEnumerable<IElement> Descendants(Platform platform, string? ofElementId = null, IElementSelector? selector = null)
-        {
-            yield break;
-        }
+        public Task<IEnumerable<IElement>> Descendants(Platform platform, string? ofElementId = null, IElementSelector? selector = null)
+            => Task.FromResult(Enumerable.Empty<IElement>());
 
         public Task<IElement?> Element(Platform platform, string elementId)
         {

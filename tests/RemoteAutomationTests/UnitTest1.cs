@@ -33,7 +33,7 @@ namespace RemoteAutomationTests
 
             var windows = new List<IElement>();
             // Query the remote host
-            await foreach (var window in runner.Children(Platform.MAUI))
+            foreach (var window in await runner.Children(Platform.MAUI))
             {
                 windows.Add(window);
             }

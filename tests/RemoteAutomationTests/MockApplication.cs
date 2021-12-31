@@ -19,11 +19,8 @@ namespace RemoteAutomationTests
 
         public override Platform DefaultPlatform { get; }
 
-        public override async IAsyncEnumerable<IElement> Children(Platform platform)
-        {
-            foreach (var w in MockWindows)
-                yield return w;
-        }
+        public override Task<IEnumerable<IElement>> Children(Platform platform)
+            => Task.FromResult<IEnumerable<IElement>>(MockWindows);
 
         public Func<Platform, string, IAction, Task<IActionResult>>? PerformHandler { get; set; }
 

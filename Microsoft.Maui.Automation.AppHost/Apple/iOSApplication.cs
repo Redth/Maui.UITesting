@@ -49,8 +49,10 @@ namespace Microsoft.Maui.Automation
 			throw new NotImplementedException();
 		}
 
-		public override async IAsyncEnumerable<IElement> Children(Platform platform)
+		public override Task<IEnumerable<IElement>> Children(Platform platform)
 		{
+			var children = new List<IElement>();
+
 			var scenes = UIApplication.SharedApplication.ConnectedScenes?.ToArray();
 
 			var hadScenes = false;
@@ -63,7 +65,7 @@ namespace Microsoft.Maui.Automation
 					{
 						foreach (var window in windowScene.Windows)
 						{
-							yield return new iOSWindow(this, window);
+							children.Add(new iOSWindow(this, window));
 							hadScenes = true;
 						}
 					}
@@ -77,10 +79,12 @@ namespace Microsoft.Maui.Automation
 				{
 					foreach (var window in UIApplication.SharedApplication.Windows)
 					{
-						yield return new iOSWindow(this, window);
+						children.Add(new iOSWindow(this, window));
 					}
 				}
 			}
+
+			return Task.FromResult<IEnumerable<IElement>>(children);
 		}
 	}
 }

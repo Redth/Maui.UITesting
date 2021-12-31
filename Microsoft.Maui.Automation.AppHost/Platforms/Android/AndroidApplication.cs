@@ -41,13 +41,8 @@ namespace Microsoft.Maui.Automation
 		//	return Task.FromResult<IWindow>(new AndroidWindow(this, activity));
 		//}
 
-		public override async IAsyncEnumerable<IElement> Children(Platform platform)
-		{
-			foreach (var w in LifecycleListener.Activities.Select(a => new AndroidWindow(this, a)))
-			{
-				yield return w;
-			}
-		}
+		public override Task<IEnumerable<IElement>> Children(Platform platform)
+			=> Task.FromResult<IEnumerable<IElement>>(LifecycleListener.Activities.Select(a => new AndroidWindow(this, a)));
 
 		public bool IsActivityCurrent(Activity activity)
 			=> LifecycleListener.Activity == activity;
