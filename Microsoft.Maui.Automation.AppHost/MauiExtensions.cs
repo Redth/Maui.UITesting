@@ -38,13 +38,13 @@ namespace Microsoft.Maui.Automation
 		internal static IElement ToAutomationWindow(this Maui.IWindow window, IApplication application)
 		{
 #if ANDROID
-			if (window.Handler.NativeView is Android.App.Activity activity)
+			if (window.Handler.PlatformView is Android.App.Activity activity)
 				return new AndroidWindow(application, activity);
 #elif IOS || MACCATALYST
-			if (window.Handler.NativeView is UIKit.UIWindow uiwindow)
+			if (window.Handler.PlatformView is UIKit.UIWindow uiwindow)
 				return new iOSWindow(application, uiwindow);
 #elif WINDOWS
-			if (window.Handler.NativeView is Microsoft.UI.Xaml.Window xamlwindow)
+			if (window.Handler.PlatformView is Microsoft.UI.Xaml.Window xamlwindow)
 				return new WindowsAppSdkWindow(application, xamlwindow);
 #endif
 			return null;
@@ -53,13 +53,13 @@ namespace Microsoft.Maui.Automation
 		internal static IElement ToAutomationView(this Maui.IView view, IApplication application, string? parentId = null)
         {
 #if ANDROID
-			if (view.Handler.NativeView is Android.Views.View androidview)
+			if (view.Handler.PlatformView is Android.Views.View androidview)
 				return new AndroidView(application, androidview, parentId);
 #elif IOS || MACCATALYST
-			if (view.Handler.NativeView is UIKit.UIView uiview)
+			if (view.Handler.PlatformView is UIKit.UIView uiview)
 				return new iOSView(application, uiview, parentId);
 #elif WINDOWS
-			if (view.Handler.NativeView is Microsoft.UI.Xaml.UIElement uielement)
+			if (view.Handler.PlatformView is Microsoft.UI.Xaml.UIElement uielement)
 				return new WindowsAppSdkView(application, uielement, parentId);
 #endif
 

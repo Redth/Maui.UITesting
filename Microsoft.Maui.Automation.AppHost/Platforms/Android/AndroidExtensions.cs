@@ -1,4 +1,5 @@
 ﻿using Android.Views;
+using AndroidX.Core.View.Accessibility;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -57,9 +58,9 @@ namespace Microsoft.Maui.Automation
 		public static string GetAutomationId(this Android.App.Activity activity)
 			=> activity.GetRootView().GetAutomationId();
 
-		public static string GetAutomationId(this Android.Views.View view)
+		public static string GetAutomationId(this View view)
 		{
-			var id = view.GetTag(Resource.Id.automation_tag_id)?.ToString();
+			var id = string.Empty;
 
 			if (string.IsNullOrEmpty(id))
 				id = view.ContentDescription;

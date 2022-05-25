@@ -13,10 +13,6 @@
 		<SupportedOSPlatformVersion Condition="$(TargetFramework.Contains('-windows'))">10.0.18362.0</SupportedOSPlatformVersion>
 	</PropertyGroup>
 
-	<ItemGroup Condition="$(TargetFramework.Contains('-windows'))">
-		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.0.0" />
-	</ItemGroup>
-
 	<ItemGroup>
 	  <ProjectReference Include="..\Microsoft.Maui.Automation.Core\Microsoft.Maui.Automation.Core.csproj" />
 	  <ProjectReference Include="..\Microsoft.Maui.Automation.Remote\Microsoft.Maui.Automation.Remote.csproj" />
