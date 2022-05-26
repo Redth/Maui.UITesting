@@ -60,21 +60,11 @@ namespace Microsoft.Maui.Automation
 
         public abstract Task<IActionResult> Perform(Platform platform, string elementId, IAction action);
 
-        protected async Task<IElement> FindElementOrThrow(Platform platform, string elementId)
+        public virtual async Task<object?> GetProperty(Platform platform, string elementId, string propertyName)
         {
             var element = await Element(platform, elementId);
 
-            if (element is null)
-                throw new ElementNotFoundException(elementId);
-
-            return element;
-        }
-
-        public virtual async Task<object?> GetProperty(Platform platform, string elementId, string propertyName)
-        {
-            var element = await FindElementOrThrow(platform, elementId);
-
-            var t = element.PlatformElement?.GetType();
+            var t = element?.PlatformElement?.GetType();
 
             if (t != null)
             {
@@ -82,7 +72,7 @@ namespace Microsoft.Maui.Automation
 
                 if (prop != null)
                 {
-                    return Task.FromResult(prop.GetValue(element.PlatformElement));
+                    return Task.FromResult(prop.GetValue(element?.PlatformElement));
                 }
             }
 
@@ -90,7 +80,9 @@ namespace Microsoft.Maui.Automation
         }
 
         public virtual async Task<IElement?> Element(Platform platform, string elementId)
-            => (await Descendants(platform, elementId))?.FirstOrDefault();
+        {
+            return (await Children(platform)).FindDepthFirst(new IdSelector(elementId))?.FirstOrDefault();
+        }
 
         public virtual async Task<IEnumerable<IElement>> Descendants(Platform platform, string? ofElementId = null, IElementSelector? selector = null)
         {
@@ -105,9 +97,9 @@ namespace Microsoft.Maui.Automation
             }
             else
             {
-                var element = await FindElementOrThrow(platform, ofElementId);
+                var element = await Element(platform, ofElementId);
 
-                var children = element.Children?.FindBreadthFirst(selector);
+                var children = element?.Children?.FindBreadthFirst(selector);
                 if (children is not null && children.Any())
                     descendants.AddRange(children);
             }

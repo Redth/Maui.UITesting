@@ -1,6 +1,6 @@
-﻿using Newtonsoft.Json;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Microsoft.Maui.Automation
@@ -24,7 +24,8 @@ namespace Microsoft.Maui.Automation
             Text = window.Title;
         }
 
-        [JsonIgnore]
+		[Newtonsoft.Json.JsonIgnore]
+		[JsonIgnore]
         public readonly UI.Xaml.Window PlatformWindow;
     }
 }

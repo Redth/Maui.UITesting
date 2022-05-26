@@ -1,10 +1,9 @@
 ﻿#if IOS || MACCATALYST
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-
+using System.Text.Json.Serialization;
 using UIKit;
 
 namespace Microsoft.Maui.Automation
@@ -25,6 +24,7 @@ namespace Microsoft.Maui.Automation
 			Text = string.Empty;
 		}
 
+		[Newtonsoft.Json.JsonIgnore]
 		[JsonIgnore]
 		public readonly UIWindow PlatformWindow;
 	}

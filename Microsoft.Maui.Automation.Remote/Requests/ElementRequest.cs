@@ -1,10 +1,9 @@
 ﻿using Microsoft.Maui.Automation;
 using Microsoft.Maui.Automation.Remote;
-using Newtonsoft.Json;
 
 namespace Streamer
 {
-    public class ElementRequest : Request
+	public class ElementRequest : Request
     {
         public ElementRequest(Platform platform, string elementId)
         {
@@ -13,10 +12,8 @@ namespace Streamer
             ElementId = elementId;
         }
 
-        [JsonProperty]
         public Platform Platform { get; set; }
 
-        [JsonProperty]
         public string ElementId { get; set; }
     }
 }

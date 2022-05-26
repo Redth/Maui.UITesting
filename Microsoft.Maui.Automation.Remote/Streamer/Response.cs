@@ -1,14 +1,18 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+﻿
+using Microsoft.Maui.Automation;
 
 namespace Streamer
 {
-    public class Response
+	[System.Text.Json.Serialization.JsonConverter(typeof(PolyJsonConverter))]
+	[JsonKnownType(typeof(ChildrenResponse), nameof(ChildrenResponse))]
+	[JsonKnownType(typeof(DescendantsResponse), nameof(DescendantsResponse))]
+	[JsonKnownType(typeof(ElementResponse), nameof(ElementResponse))]
+	[JsonKnownType(typeof(GetPropertyResponse), nameof(GetPropertyResponse))]
+	[JsonKnownType(typeof(PerformResponse), nameof(PerformResponse))]
+	public class Response
     {
-        [JsonProperty("id")]
         public int Id { get; set; }
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string? Error { get; set; }
     }
 }

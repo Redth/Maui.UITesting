@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-
+﻿
 namespace Microsoft.Maui.Automation
 {
     public class TextSelector : IElementSelector
@@ -11,13 +10,10 @@ namespace Microsoft.Maui.Automation
             Comparison = comparison;
         }
 
-        [JsonProperty]
         public StringComparison Comparison { get; protected set; }
 
-        [JsonProperty]
         public TextMatchRule Rule { get; protected set; }
 
-        [JsonProperty]
         public string Text { get; protected set; }
 
         public bool Matches(IElement view)

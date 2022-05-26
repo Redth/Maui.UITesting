@@ -1,8 +1,9 @@
 ﻿
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace Microsoft.Maui.Automation
 {
+	[JsonConverter(typeof(ElementConverter))]
     public interface IElement
     {
 		public IApplication Application { get; }
@@ -16,9 +17,11 @@ namespace Microsoft.Maui.Automation
 		public bool Focused { get; }
 
 
+		[Newtonsoft.Json.JsonIgnore]
 		[JsonIgnore]
 		public object? PlatformElement { get; }
 
+		[JsonIgnore]
 		public IReadOnlyCollection<IElement> Children { get; }
 
 		public string Id { get; }

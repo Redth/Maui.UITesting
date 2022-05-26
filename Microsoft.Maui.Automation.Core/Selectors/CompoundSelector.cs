@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json;
-
-namespace Microsoft.Maui.Automation
+﻿namespace Microsoft.Maui.Automation
 {
     public class CompoundSelector : IElementSelector
     {
@@ -10,10 +8,8 @@ namespace Microsoft.Maui.Automation
             Any = any;
         }
 
-        [JsonProperty]
         public IElementSelector[] Selectors { get; protected set; }
 
-        [JsonProperty]
         public bool Any { get; protected set; }
 
         public bool Matches(IElement element)

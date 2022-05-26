@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-
+﻿
 namespace Microsoft.Maui.Automation
 {
     public interface IElementSelector

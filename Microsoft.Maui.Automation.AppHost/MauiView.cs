@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Linq;
+using System.Text.Json.Serialization;
 using Microsoft.Maui;
-using Newtonsoft.Json;
 
 namespace Microsoft.Maui.Automation
 {
@@ -33,6 +33,7 @@ namespace Microsoft.Maui.Automation
 			Children = view.GetChildren(application, parentId);
 		}
 
+		[Newtonsoft.Json.JsonIgnore]
 		[JsonIgnore]
 		protected IElement PlatformView { get; set; }
 

@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Streamer
 {
@@ -15,12 +14,10 @@ namespace Streamer
         private int _id;
         private readonly Dictionary<long, Action<Response?>> _invocations = new ();
         private readonly Stream _stream;
-        private readonly JsonSerializer _serializer = new ();
-
+        
         public ClientChannel(Stream stream)
         {
             _stream = stream;
-            _serializer.TypeNameHandling = TypeNameHandling.All;
 
             new Thread(() => ReadLoop()).Start();
         }
@@ -31,10 +28,6 @@ namespace Streamer
         {
             int id = Interlocked.Increment(ref _id);
             request.Id = id;
-
-            var reqJson = JObject.FromObject(request, _serializer).ToString(Formatting.Indented);
-
-            Console.WriteLine(reqJson);
 
             var tcs = new TaskCompletionSource<TResponse?>();
 
@@ -65,7 +58,7 @@ namespace Streamer
                 };
             }
 
-            Write(request);
+            Channel.WriteRequest(_stream, request);
 
             return tcs.Task;
         }
@@ -75,24 +68,22 @@ namespace Streamer
             try
             {
                 while (true)
-                {
-                    var reader = new JsonTextReader(new StreamReader(_stream));
+				{
+                    var response = Channel.ReadResponse(_stream);
 
-                    var response = _serializer.Deserialize<Response>(reader);
+					if (response != null)
+					{
+						lock (_invocations)
+						{
+							if (_invocations.TryGetValue(response.Id, out var invocation))
+							{
+								invocation?.Invoke(response);
 
-                    if (response != null)
-                    {
-                        lock (_invocations)
-                        {
-                            if (_invocations.TryGetValue(response.Id, out var invocation))
-                            {
-                                invocation?.Invoke(response);
-
-                                _invocations.Remove(response.Id);
-                            }
-                        }
-                    }
-                }
+								_invocations.Remove(response.Id);
+							}
+						}
+					}
+				}
             }
             catch (Exception ex)
             {
@@ -109,14 +100,6 @@ namespace Streamer
                     }
                 }
             }
-        }
-
-        private void Write(object value)
-        {
-            // TODO: Pooling and async writes
-            var jsonTextWriter = new JsonTextWriter(new StreamWriter(_stream) { AutoFlush = true });
-
-            _serializer.Serialize(jsonTextWriter, value);
         }
 
         public void Dispose()

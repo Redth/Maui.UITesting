@@ -22,7 +22,7 @@ namespace Microsoft.Maui.Automation
 			var selector = new ObjCRuntime.Selector(propertyName);
 			var getSelector = new ObjCRuntime.Selector("get" + System.Globalization.CultureInfo.InvariantCulture.TextInfo.ToTitleCase(propertyName));
 
-			var element = await FindElementOrThrow(platform, elementId);
+			var element = await Element(platform, elementId);
 
 			if (element is iOSView view)
 			{

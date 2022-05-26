@@ -1,12 +1,15 @@
 ﻿using System.Collections.ObjectModel;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace Microsoft.Maui.Automation.Remote
 {
     public class RemoteElement : Element
     {
-        [JsonConstructor]
-        public RemoteElement(Platform platform = Platform.MAUI)
+		//[JsonConstructor]
+		protected RemoteElement() : base() { }
+
+		[JsonConstructor]
+		public RemoteElement(Platform platform = Platform.MAUI)
             : base(new NullApplication(platform), platform, "")
         { }
 

@@ -2,7 +2,7 @@
 
 namespace Streamer
 {
-    public class DescendantsResponse : Response
+	public class DescendantsResponse : Response
     {
         public DescendantsResponse(RemoteElement[] result)
         {

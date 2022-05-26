@@ -46,7 +46,15 @@ namespace Microsoft.Maui.Automation
 		{
 			var windows = await Dispatch(() =>
 			{
-				return MauiPlatformApplication.Windows.Select(w => new MauiWindow(this, w));
+				var result = new List<MauiWindow>();
+
+				foreach (var window in MauiPlatformApplication.Windows)
+				{
+					var w = new MauiWindow(this, window);
+					result.Add(w);
+				}
+
+				return result;
 			});
 
 			return windows;

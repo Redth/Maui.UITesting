@@ -6,8 +6,6 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Streamer
 {
@@ -17,12 +15,8 @@ namespace Streamer
 
         private bool _isBound;
 
-        private readonly JsonSerializer _serializer;
-
         public ServerChannel()
         {
-            _serializer = new JsonSerializer();
-            _serializer.TypeNameHandling = TypeNameHandling.All;
         }
 
         public IDisposable Bind(params MethodHandler[] methods)
@@ -46,9 +40,6 @@ namespace Streamer
 
                 _callbacks[methodName] = async request =>
                 {
-                    var reqJson = JObject.FromObject(request, _serializer).ToString(Formatting.Indented);
-                    Console.WriteLine(reqJson);
-
                     Response response = new();
                     response.Id = request.Id;
 
@@ -88,11 +79,7 @@ namespace Streamer
             {
                 while (true)
                 {
-                    // REVIEW: This does a blocking read
-                    var reader = new JsonTextReader(new StreamReader(stream));
-                    _serializer.TypeNameHandling = TypeNameHandling.All;
-
-                    var request = _serializer.Deserialize<Request>(reader);
+                    var request = Channel.ReadRequest(stream);
 
                     if (request != null)
                     {
@@ -112,7 +99,7 @@ namespace Streamer
                             };
                         }
 
-                        await WriteAsync(stream, response);
+                        Channel.WriteResponse(stream, response);
                     }
                 }
             }
@@ -120,17 +107,6 @@ namespace Streamer
             {
                 Console.WriteLine(ex.Message);
             }
-        }
-
-        private Task WriteAsync(Stream stream, object value)
-        {
-            var data = JsonConvert.SerializeObject(
-                value,
-                new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All });
-
-            var bytes = Encoding.UTF8.GetBytes(data);
-
-            return stream.WriteAsync(bytes, 0, bytes.Length);
         }
 
         private class DisposableAction : IDisposable

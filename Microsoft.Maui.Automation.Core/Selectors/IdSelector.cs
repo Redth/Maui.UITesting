@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json;
-
-namespace Microsoft.Maui.Automation
+﻿namespace Microsoft.Maui.Automation
 {
     public class IdSelector : IElementSelector
     {
@@ -10,10 +8,8 @@ namespace Microsoft.Maui.Automation
             Comparison = comparison;
         }
 
-        [JsonProperty]
         public string Id { get; protected set; }
 
-        [JsonProperty]
         public StringComparison Comparison { get; protected set; }
 
         public bool Matches(IElement view)

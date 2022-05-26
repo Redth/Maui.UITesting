@@ -19,11 +19,14 @@ while(true)
 try {
     if (input.StartsWith("tree"))
     {
-        foreach (var w in await remote.Children(platform))
+        var children = await remote.Children(platform);
+
+        foreach (var w in children)
         {
             var tree = new Tree(w.ToTable(ConfigureTable));
 
-            foreach (var d in await remote.Descendants(platform, w.Id))
+            var descendants = await remote.Descendants(platform, w.Id);
+            foreach (var d in descendants)
             {
                 //var node = tree.AddNode(d.ToMarkupString(0, 0));
 

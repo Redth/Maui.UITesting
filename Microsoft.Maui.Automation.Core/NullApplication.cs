@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Maui.Automation.Remote
+﻿namespace Microsoft.Maui.Automation
 {
     public class NullApplication : IApplication
     {

@@ -1,16 +1,19 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.Maui.Automation;
 
 namespace Streamer
 {
-    public abstract class Request
+	[System.Text.Json.Serialization.JsonConverter(typeof(PolyJsonConverter))]
+	[JsonKnownType(typeof(ChildrenRequest), nameof(ChildrenRequest))]
+	[JsonKnownType(typeof(DescendantsRequest), nameof(DescendantsRequest))]
+	[JsonKnownType(typeof(ElementRequest), nameof(ElementRequest))]
+	[JsonKnownType(typeof(GetPropertyRequest), nameof(GetPropertyRequest))]
+	[JsonKnownType(typeof(PerformRequest), nameof(PerformRequest))]
+	public abstract class Request
     {
-        [JsonProperty("id")]
         public int Id { get; set; }
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore, PropertyName = "method")]
         public string? Method { get; set; }
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore, PropertyName = "params")]
         public object?[] Args { get; set; }
     }
 }

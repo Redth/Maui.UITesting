@@ -1,8 +1,8 @@
 ﻿using Android.Views;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Text.Json.Serialization;
 
 namespace Microsoft.Maui.Automation
 {
@@ -33,6 +33,7 @@ namespace Microsoft.Maui.Automation
 			Text = platformView.GetText();
 		}
 
+		[Newtonsoft.Json.JsonIgnore]
 		[JsonIgnore]
 		protected Android.Views.View PlatformView { get; set; }
 

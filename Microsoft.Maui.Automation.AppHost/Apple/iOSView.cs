@@ -1,10 +1,10 @@
 ﻿#if IOS || MACCATALYST
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Linq;
+using System.Text.Json.Serialization;
 using UIKit;
 
 namespace Microsoft.Maui.Automation
@@ -36,6 +36,7 @@ namespace Microsoft.Maui.Automation
 			Text = platformView.GetText();
 		}
 
+		[Newtonsoft.Json.JsonIgnore]
 		[JsonIgnore]
 		public UIKit.UIView PlatformView { get; set; }
 

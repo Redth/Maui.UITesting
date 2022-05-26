@@ -29,7 +29,18 @@ namespace Microsoft.Maui.Automation
         }
 
         public async Task<RemoteElement[]> Children(Platform platform)
-            => (await PlatformApp.Children(platform))?.Select(c => new RemoteElement(PlatformApp, c, c.ParentId))?.ToArray() ?? Array.Empty<RemoteElement>();
+        {
+            var results = new List<RemoteElement>();
+            var children = await PlatformApp.Children(platform);
+
+            foreach (var c in children)
+			{
+                var e = new RemoteElement(PlatformApp, c, c.ParentId);
+                results.Add(e);
+			}
+
+            return results.ToArray();
+        }
 
         public Task<IActionResult> Perform(Platform platform, string elementId, IAction action)
             => PlatformApp.Perform(platform, elementId, action);
@@ -64,7 +75,8 @@ namespace Microsoft.Maui.Automation
 
                 ConvertChildren(remoteView, remoteView.Children, selector);
 
-                return remoteView.Children.Cast<RemoteElement>().ToArray();
+                var res= remoteView.Children.Cast<RemoteElement>().ToArray();
+                return res;
             }
             else
             {

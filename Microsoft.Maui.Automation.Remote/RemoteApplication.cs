@@ -53,8 +53,17 @@ namespace Microsoft.Maui.Automation.Remote
 
         public async Task<IEnumerable<IElement>> Children(Platform platform)
         {
-            var response = await Client.InvokeAsync<ChildrenRequest, ChildrenResponse>(new ChildrenRequest(platform));
-            return response?.Result ?? Array.Empty<RemoteElement>();
+            try
+            {
+                var response = await Client.InvokeAsync<ChildrenRequest, ChildrenResponse>(new ChildrenRequest(platform));
+                return response?.Result ?? Array.Empty<RemoteElement>();
+            } catch (Exception ex)
+			{
+
+                Console.WriteLine(ex);
+			}
+
+            return null;
         }
 
         public async Task<IElement?> Element(Platform platform, string elementId)
