@@ -30,6 +30,15 @@ namespace Microsoft.Maui.Automation
 			Width = PlatformView.Width;
 			Height = PlatformView.Height;
 
+			if (view is Microsoft.Maui.IText text)
+				Text = text.Text;
+
+			if (view is Microsoft.Maui.ITextInput input)
+				Text = input.Text;
+
+			if (view is IImage image)
+				Text = image.Source?.ToString();
+
 			Children = view.GetChildren(application, parentId);
 		}
 
