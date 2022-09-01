@@ -23,8 +23,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Microsoft.Maui.Automation.AppHost\Microsoft.Maui.Automation.AppHost.csproj" />
     <ProjectReference Include="..\..\Microsoft.Maui.Automation.Core\Microsoft.Maui.Automation.Core.csproj" />
-    <ProjectReference Include="..\..\Microsoft.Maui.Automation.Remote\Microsoft.Maui.Automation.Remote.csproj" />
-    <ProjectReference Include="..\..\Microsoft.Maui.Automation.Test\Microsoft.Maui.Automation.Test.csproj" />
   </ItemGroup>
 
 </Project>

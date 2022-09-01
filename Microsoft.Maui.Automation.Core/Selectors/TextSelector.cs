@@ -16,7 +16,7 @@ namespace Microsoft.Maui.Automation
 
         public string Text { get; protected set; }
 
-        public bool Matches(IElement view)
+        public bool Matches(Element view)
             => Rule switch
             {
                 TextMatchRule.Contains => view.Text?.Contains(Text, Comparison) ?? false,

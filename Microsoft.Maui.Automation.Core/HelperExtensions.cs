@@ -14,9 +14,9 @@ namespace Microsoft.Maui.Automation
 				st.Push(elem);
 		}
 
-        internal static IEnumerable<IElement> FindDepthFirst(this IEnumerable<IElement> elements, IElementSelector? selector)
+        internal static IEnumerable<Element> FindDepthFirst(this IEnumerable<Element> elements, IElementSelector? selector)
         {
-            var st = new Stack<IElement>();
+            var st = new Stack<Element>();
             st.PushAllReverse(elements);
 
             while (st.Count > 0)
@@ -31,9 +31,9 @@ namespace Microsoft.Maui.Automation
             }
         }
 
-        internal static IEnumerable<IElement> FindBreadthFirst(this IEnumerable<IElement> elements, IElementSelector? selector)
+        internal static IEnumerable<Element> FindBreadthFirst(this IEnumerable<Element> elements, IElementSelector? selector)
         {
-            var q = new Queue<IElement>();
+            var q = new Queue<Element>();
 
             foreach (var e in elements)
                 q.Enqueue(e);
@@ -55,9 +55,9 @@ namespace Microsoft.Maui.Automation
 			return new ReadOnlyCollection<T>(elems.ToList());
 		}
 
-		public static IReadOnlyCollection<IElement> AsReadOnlyCollection(this IElement element)
+		public static IReadOnlyCollection<Element> AsReadOnlyCollection(this Element element)
         {
-			var list = new List<IElement> { element };
+			var list = new List<Element> { element };
 			return list.AsReadOnly();
         }
 	}

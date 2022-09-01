@@ -1,4 +1,5 @@
 ﻿#if IOS || MACCATALYST
+using Foundation;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -10,48 +11,51 @@ namespace Microsoft.Maui.Automation
 {
 	public class iOSApplication : Application
 	{
-		public override Platform DefaultPlatform => Platform.iOS;
+		public override Platform DefaultPlatform => Platform.Ios;
 
-		public override async Task<object> GetProperty(Platform platform, string elementId, string propertyName)
+		public override Task<string> GetProperty(Platform platform, string elementId, string propertyName)
 		{
-			var p = await base.GetProperty(platform, elementId, propertyName);
-
-			if (p != null)
-				return p;
-
 			var selector = new ObjCRuntime.Selector(propertyName);
 			var getSelector = new ObjCRuntime.Selector("get" + System.Globalization.CultureInfo.InvariantCulture.TextInfo.ToTitleCase(propertyName));
 
-			var element = await Element(platform, elementId);
+			var roots = GetRootElements();
 
-			if (element is iOSView view)
+			var element = roots.FindDepthFirst(new IdSelector(elementId))?.FirstOrDefault();
+
+			if (element is not null && element.PlatformElement is NSObject nsobj)
 			{
-				if (view.PlatformView.RespondsToSelector(selector))
+				if (nsobj.RespondsToSelector(selector))
 				{
-					var v = view.PlatformView.PerformSelector(selector)?.ToString();
+					var v = nsobj.PerformSelector(selector)?.ToString();
 					if (v != null)
-						return v;
+						return Task.FromResult(v);
 				}
 
-				if (view.PlatformView.RespondsToSelector(getSelector))
+				if (nsobj.RespondsToSelector(getSelector))
 				{
-					var v = view.PlatformView.PerformSelector(getSelector)?.ToString();
+					var v = nsobj.PerformSelector(getSelector)?.ToString();
 					if (v != null)
-						return v;
+						return Task.FromResult(v);
 				}
 			}
 
-			return Task.FromResult<object>(null);
+			return Task.FromResult<string>(string.Empty);
 		}
 
-		public override Task<IActionResult> Perform(Platform platform, string elementId, IAction action)
+		public override Task<IEnumerable<Element>> GetElements(Platform platform, string elementId = null, int depth = 0)
 		{
-			throw new NotImplementedException();
+			var root = GetRootElements();
+
+			if (string.IsNullOrEmpty(elementId))
+				return Task.FromResult(root);
+
+			return Task.FromResult(root.FindDepthFirst(new IdSelector(elementId)));
 		}
 
-		public override Task<IEnumerable<IElement>> Children(Platform platform)
+
+		IEnumerable<Element> GetRootElements()
 		{
-			var children = new List<IElement>();
+			var children = new List<Element>();
 
 			var scenes = UIApplication.SharedApplication.ConnectedScenes?.ToArray();
 
@@ -65,7 +69,7 @@ namespace Microsoft.Maui.Automation
 					{
 						foreach (var window in windowScene.Windows)
 						{
-							children.Add(new iOSWindow(this, window));
+							children.Add(window.GetElement(this));
 							hadScenes = true;
 						}
 					}
@@ -79,12 +83,12 @@ namespace Microsoft.Maui.Automation
 				{
 					foreach (var window in UIApplication.SharedApplication.Windows)
 					{
-						children.Add(new iOSWindow(this, window));
+						children.Add(window.GetElement(this));
 					}
 				}
 			}
 
-			return Task.FromResult<IEnumerable<IElement>>(children);
+			return children;
 		}
 	}
 }

@@ -26,11 +26,6 @@ namespace Microsoft.Maui.Automation
 
 		AutomationActivityLifecycleContextListener LifecycleListener { get; }
 
-		public override Task<IActionResult> Perform(Platform platform, string elementId, IAction action)
-		{
-			throw new NotImplementedException();
-		}
-
 		//public override Task<IWindow> CurrentWindow()
 		//{
 		//	var activity = LifecycleListener.Activity ?? LifecycleListener.Activities.FirstOrDefault();
@@ -41,11 +36,18 @@ namespace Microsoft.Maui.Automation
 		//	return Task.FromResult<IWindow>(new AndroidWindow(this, activity));
 		//}
 
-		public override Task<IEnumerable<IElement>> Children(Platform platform)
-			=> Task.FromResult<IEnumerable<IElement>>(LifecycleListener.Activities.Select(a => new AndroidWindow(this, a)));
-
 		public bool IsActivityCurrent(Activity activity)
 			=> LifecycleListener.Activity == activity;
+
+		public override Task<string> GetProperty(Platform platform, string elementId, string propertyName)
+		{
+			throw new NotImplementedException();
+		}
+
+		public override Task<IEnumerable<Element>> GetElements(Platform platform, string elementId = null, int depth = 0)
+		{
+			return Task.FromResult(LifecycleListener.Activities.Select(a => a.GetElement(this)));
+		}
 
 		internal class AutomationActivityLifecycleContextListener : Java.Lang.Object, Android.App.Application.IActivityLifecycleCallbacks
 		{

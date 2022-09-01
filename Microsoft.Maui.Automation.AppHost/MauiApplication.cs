@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Maui.Automation
 {
-    public class MauiApplication : Application
+	public class MauiApplication : Application
 	{
 		public MauiApplication(Maui.IApplication? mauiApp = default) : base()
 		{
@@ -17,7 +17,7 @@ namespace Microsoft.Maui.Automation
 		}
 
 		Task<TResult> Dispatch<TResult>(Func<TResult> action)
-        {
+		{
 			var tcs = new TaskCompletionSource<TResult>();
 
 			var dispatcher = MauiPlatformApplication.Handler.MauiContext.Services.GetService<Dispatching.IDispatcher>() ?? throw new Exception("Unable to locate Dispatcher");
@@ -30,27 +30,27 @@ namespace Microsoft.Maui.Automation
 					tcs.TrySetResult(r);
 				}
 				catch (Exception ex)
-                {
+				{
 					tcs.TrySetException(ex);
-                }
+				}
 			});
 
 			return tcs.Task;
-        }
+		}
 
-		public override Platform DefaultPlatform => Platform.MAUI;
+		public override Platform DefaultPlatform => Platform.Maui;
 
-        public readonly Maui.IApplication MauiPlatformApplication;
+		public readonly Maui.IApplication MauiPlatformApplication;
 
-		public override async Task<IEnumerable<IElement>> Children(Platform platform)
+		public override async Task<IEnumerable<Element>> GetElements(Platform platform, string elementId = null, int depth = 0)
 		{
 			var windows = await Dispatch(() =>
 			{
-				var result = new List<MauiWindow>();
+				var result = new List<Element>();
 
 				foreach (var window in MauiPlatformApplication.Windows)
 				{
-					var w = new MauiWindow(this, window);
+					var w = window.GetMauiElement(this);
 					result.Add(w);
 				}
 
@@ -60,10 +60,10 @@ namespace Microsoft.Maui.Automation
 			return windows;
 		}
 
-        public override Task<IActionResult> Perform(Platform platform, string elementId, IAction action)
-        {
-            throw new NotImplementedException();
-        }
-    }
+		public override Task<string> GetProperty(Platform platform, string elementId, string propertyName)
+		{
+			throw new NotImplementedException();
+		}
+	}
 }
 

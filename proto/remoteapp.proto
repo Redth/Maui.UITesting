@@ -1,0 +1,29 @@
+﻿syntax = "proto3";
+import public "types.proto";
+
+option csharp_namespace = "Microsoft.Maui.Automation.RemoteGrpc";
+
+message ElementsRequest {
+	Platform platform = 1;
+	string elementId = 2;
+	optional int32 childDepth = 3;
+}
+
+message ElementsResponse {
+	repeated Element elements = 1;
+}
+
+message PropertyRequest {
+	Platform platform = 1;
+	string elementId = 2;
+	string propertyName = 3;
+}
+
+message PropertyResponse {
+	Platform platform = 1;
+	optional string value = 2;
+}
+
+service RemoteApp {
+	rpc GetElements (ElementsRequest) returns (ElementsResponse);
+}

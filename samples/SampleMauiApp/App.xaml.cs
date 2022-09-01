@@ -11,9 +11,7 @@ namespace SampleMauiApp
 
             MainPage = new MainPage();
 
-            
-
-            this.StartAutomationServiceConnection("127.0.0.1");
+            this.StartAutomationServiceListener();
         }
     }
 }

@@ -22,13 +22,13 @@ namespace Microsoft.Maui.Automation
         public static Platform GetCurrentPlatform()
             =>
 #if IOS || MACCATALYST
-                Platform.iOS;
+                Platform.Ios;
 #elif ANDROID
                 Platform.Android;
 #elif WINDOWS
-                Platform.WinAppSdk;
+                Platform.Winappsdk;
 #else
-                Platform.MAUI;
+                Platform.Maui;
 #endif
 
         public static IApplication CreateForCurrentPlatform
@@ -56,19 +56,19 @@ namespace Microsoft.Maui.Automation
                 st.Push(elem);
         }
 
-        internal static async IAsyncEnumerable<IElement> FindDepthFirst(this IAsyncEnumerable<IElement> elements, IElementSelector? selector)
-        {
-            var list = new List<IElement>();
-            await foreach (var e in elements)
-                list.Add(e);
+        //internal static IEnumerable<Element> FindDepthFirst(this IEnumerable<Element> elements, IElementSelector? selector)
+        //{
+        //    var list = new List<Element>();
+        //    foreach (var e in elements)
+        //        list.Add(e);
 
-            await foreach (var e in FindDepthFirst(list, selector))
-                yield return e;
-        }
+        //    foreach (var e in FindDepthFirst(list, selector))
+        //        yield return e;
+        //}
 
-        internal static async IAsyncEnumerable<IElement> FindDepthFirst(this IEnumerable<IElement> elements, IElementSelector? selector)
+        internal static IEnumerable<Element> FindDepthFirst(this IEnumerable<Element> elements, IElementSelector? selector)
         {
-            var st = new Stack<IElement>();
+            var st = new Stack<Element>();
             st.PushAllReverse(elements);
 
             while (st.Count > 0)
@@ -83,19 +83,19 @@ namespace Microsoft.Maui.Automation
             }
         }
 
-        internal static async IAsyncEnumerable<IElement> FindBreadthFirst(this IAsyncEnumerable<IElement> elements, IElementSelector? selector)
-        {
-            var list = new List<IElement>();
-            await foreach (var e in elements)
-                list.Add(e);
+        //internal static IEnumerable<Element> FindBreadthFirst(this IEnumerable<Element> elements, IElementSelector? selector)
+        //{
+        //    var list = new List<Element>();
+        //    foreach (var e in elements)
+        //        list.Add(e);
 
-            await foreach (var e in FindBreadthFirst(list, selector))
-                yield return e;
-        }
+        //    foreach (var e in FindBreadthFirst(list, selector))
+        //        yield return e;
+        //}
 
-        internal static async IAsyncEnumerable<IElement> FindBreadthFirst(this IEnumerable<IElement> elements, IElementSelector? selector)
+        internal static IEnumerable<Element> FindBreadthFirst(this IEnumerable<Element> elements, IElementSelector? selector)
         {
-            var q = new Queue<IElement>();
+            var q = new Queue<Element>();
 
             foreach (var e in elements)
                 q.Enqueue(e);
@@ -117,9 +117,9 @@ namespace Microsoft.Maui.Automation
             return new ReadOnlyCollection<T>(elems.ToList());
         }
 
-        public static IReadOnlyCollection<IElement> AsReadOnlyCollection(this IElement element)
+        public static IReadOnlyCollection<Element> AsReadOnlyCollection(this Element element)
         {
-            var list = new List<IElement> { element };
+            var list = new List<Element> { element };
             return list.AsReadOnly();
         }
     }

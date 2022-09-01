@@ -8,7 +8,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.Maui.Automation.Core\Microsoft.Maui.Automation.Core.csproj" />
-    <ProjectReference Include="..\Microsoft.Maui.Automation.Remote\Microsoft.Maui.Automation.Remote.csproj" />
   </ItemGroup>
 
 </Project>

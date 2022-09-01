@@ -3,19 +3,21 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31724.407
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Maui.Automation.Test", "Microsoft.Maui.Automation.Test\Microsoft.Maui.Automation.Test.csproj", "{6F1E7A5E-B716-4D12-AF3C-FEF4BE0834E1}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Maui.Automation.Core", "Microsoft.Maui.Automation.Core\Microsoft.Maui.Automation.Core.csproj", "{BBBCB071-A745-4746-ADB7-59B57983718A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Maui.Automation.AppHost", "Microsoft.Maui.Automation.AppHost\Microsoft.Maui.Automation.AppHost.csproj", "{6D8AD0FF-33A3-46B3-BF24-C87332B6C281}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Maui.Automation.Remote", "Microsoft.Maui.Automation.Remote\Microsoft.Maui.Automation.Remote.csproj", "{426EE334-FFB2-4185-A222-58CB629E5654}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RemoteAutomationTests", "tests\RemoteAutomationTests\RemoteAutomationTests.csproj", "{878A4A30-E88E-4C91-9C41-EDF7AB4D1320}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemoteAutomationTests", "tests\RemoteAutomationTests\RemoteAutomationTests.csproj", "{878A4A30-E88E-4C91-9C41-EDF7AB4D1320}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SampleMauiApp", "samples\SampleMauiApp\SampleMauiApp.csproj", "{AFB868DD-DAA2-4002-A9FE-A2781E915A95}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleMauiApp", "samples\SampleMauiApp\SampleMauiApp.csproj", "{AFB868DD-DAA2-4002-A9FE-A2781E915A95}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Maui.Automation.Repl", "Microsoft.Maui.Automation.Repl\Microsoft.Maui.Automation.Repl.csproj", "{3B96F274-BD40-44B4-8CC3-C487D278F95F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Maui.Automation.Repl", "Microsoft.Maui.Automation.Repl\Microsoft.Maui.Automation.Repl.csproj", "{3B96F274-BD40-44B4-8CC3-C487D278F95F}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Proto", "Proto", "{99757F39-4185-4511-9D9C-527D2D35B37C}"
+	ProjectSection(SolutionItems) = preProject
+		proto\remoteapp.proto = proto\remoteapp.proto
+		proto\types.proto = proto\types.proto
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,10 +25,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{6F1E7A5E-B716-4D12-AF3C-FEF4BE0834E1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6F1E7A5E-B716-4D12-AF3C-FEF4BE0834E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6F1E7A5E-B716-4D12-AF3C-FEF4BE0834E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6F1E7A5E-B716-4D12-AF3C-FEF4BE0834E1}.Release|Any CPU.Build.0 = Release|Any CPU
 		{BBBCB071-A745-4746-ADB7-59B57983718A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{BBBCB071-A745-4746-ADB7-59B57983718A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BBBCB071-A745-4746-ADB7-59B57983718A}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -35,10 +33,6 @@ Global
 		{6D8AD0FF-33A3-46B3-BF24-C87332B6C281}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6D8AD0FF-33A3-46B3-BF24-C87332B6C281}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6D8AD0FF-33A3-46B3-BF24-C87332B6C281}.Release|Any CPU.Build.0 = Release|Any CPU
-		{426EE334-FFB2-4185-A222-58CB629E5654}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{426EE334-FFB2-4185-A222-58CB629E5654}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{426EE334-FFB2-4185-A222-58CB629E5654}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{426EE334-FFB2-4185-A222-58CB629E5654}.Release|Any CPU.Build.0 = Release|Any CPU
 		{878A4A30-E88E-4C91-9C41-EDF7AB4D1320}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{878A4A30-E88E-4C91-9C41-EDF7AB4D1320}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{878A4A30-E88E-4C91-9C41-EDF7AB4D1320}.Release|Any CPU.ActiveCfg = Release|Any CPU

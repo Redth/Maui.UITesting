@@ -17,7 +17,7 @@ namespace Microsoft.Maui.Automation
 
         public Regex Rx { get; protected set; }
 
-        public bool Matches(IElement view)
+        public bool Matches(Element view)
             => view.Text != null && Rx.IsMatch(view.Text);
     }
 }

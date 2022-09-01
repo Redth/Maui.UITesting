@@ -21,7 +21,7 @@
 
         public bool FullName { get; protected set; }
 
-        public bool Matches(IElement element)
+        public bool Matches(Element element)
             => element.Type.Equals(TypeName);
     }
 }

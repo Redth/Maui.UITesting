@@ -6,7 +6,7 @@
         {
         }
 
-        public bool Matches(IElement view)
+        public bool Matches(Element view)
             => true;
     }
 }

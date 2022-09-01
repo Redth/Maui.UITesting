@@ -12,7 +12,7 @@
 
         public bool Any { get; protected set; }
 
-        public bool Matches(IElement element)
+        public bool Matches(Element element)
         {
             foreach (var s in Selectors)
             {

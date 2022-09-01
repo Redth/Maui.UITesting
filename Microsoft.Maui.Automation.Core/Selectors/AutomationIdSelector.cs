@@ -14,7 +14,7 @@ namespace Microsoft.Maui.Automation
 
         public StringComparison Comparison { get; protected set; }
 
-        public bool Matches(IElement view)
+        public bool Matches(Element view)
             => view?.AutomationId?.Equals(AutomationId, Comparison) ?? false;
     }
 }

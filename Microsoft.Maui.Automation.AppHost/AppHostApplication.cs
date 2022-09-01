@@ -14,7 +14,7 @@ namespace Microsoft.Maui.Automation
 #endif
 			)
 			: base(defaultPlatform, new[] { 
-				( Platform.MAUI, new MauiApplication() ),
+				( Platform.Maui, new MauiApplication() ),
 				( App.GetCurrentPlatform(), App.CreateForCurrentPlatform(
 #if ANDROID
 												application

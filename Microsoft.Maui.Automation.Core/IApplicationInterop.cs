@@ -4,14 +4,8 @@
     {
         public Platform DefaultPlatform { get; }
 
-        public Task<IEnumerable<IElement>> Children(Platform platform);
+        public Task<IEnumerable<Element>> GetElements(Platform platform, string? elementId = null, int childDepth = 0);
 
-        public Task<IElement?> Element(Platform platform, string elementId);
-
-        public Task<IEnumerable<IElement>> Descendants(Platform platform, string? ofElementId = null, IElementSelector? selector = null);
-
-        public Task<IActionResult> Perform(Platform platform, string elementId, IAction action);
-
-        public Task<object?> GetProperty(Platform platform, string elementId, string propertyName);
+        public Task<string> GetProperty(Platform platform, string elementId, string propertyName);
     }
 }

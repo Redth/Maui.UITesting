@@ -7,27 +7,7 @@ namespace Microsoft.Maui.Automation
 {
     public class WindowsAppSdkApplication : Application
     {
-        public override Platform DefaultPlatform => Platform.WinAppSdk;
-
-        public override Task<IActionResult> Perform(Platform platform, string elementId, IAction action)
-            => RunOnMainThreadAsync(() =>
-            {
-                // TODO: Handle platform specific actions
-                return Task.FromResult<IActionResult>(new ActionResult(ActionResultStatus.Unknown));
-            });
-
-        public override async Task<IEnumerable<IElement>> Children(Platform platform)
-            => new List<IElement>() { await RunOnMainThreadAsync(() => Task.FromResult(new WindowsAppSdkWindow(this, UI.Xaml.Window.Current))) };
-
-        public override Task<IEnumerable<IElement>> Descendants(Platform platform, string ofElementId = null, IElementSelector selector = null)
-            => RunOnMainThreadAsync(() => base.Descendants(platform, ofElementId, selector));
-
-
-        public override Task<object> GetProperty(Platform platform, string elementId, string propertyName)
-            => RunOnMainThreadAsync(() => base.GetProperty(platform, elementId, propertyName));
-
-        public override Task<IElement> Element(Platform platform, string elementId)
-            => RunOnMainThreadAsync(() => base.Element(platform, elementId));
+        public override Platform DefaultPlatform => Platform.Winappsdk;
 
         async Task<T> RunOnMainThreadAsync<T>(Func<Task<T>> action)
         {
@@ -50,7 +30,29 @@ namespace Microsoft.Maui.Automation
             return await tcs.Task;
         }
 
+        public override async Task<IEnumerable<Element>> GetElements(Platform platform, string elementId = null, int depth = 0)
+        {
+            var root = await GetRootElements();
 
+            if (string.IsNullOrEmpty(elementId))
+                return root;
 
+            return root.FindDepthFirst(new IdSelector(elementId));
+        }
+
+        public override async Task<string> GetProperty(Platform platform, string elementId, string propertyName)
+        {
+            var roots = await GetRootElements();
+
+            var element = roots.FindDepthFirst(new IdSelector(elementId))?.FirstOrDefault();
+
+            return element.GetType().GetProperty(propertyName)?.GetValue(element)?.ToString() ?? string.Empty;
+        }
+
+        async Task<IEnumerable<Element>> GetRootElements()
+        {
+            var e = await RunOnMainThreadAsync(() => Task.FromResult(UI.Xaml.Window.Current.GetElement(this)));
+            return new[] { e };
+        }
     }
 }

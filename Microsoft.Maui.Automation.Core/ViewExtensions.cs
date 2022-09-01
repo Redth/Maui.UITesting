@@ -2,11 +2,11 @@
 {
     public static class ViewExtensions
     {
-        public static bool IsTopLevel(this IElement element)
+        public static bool IsTopLevel(this Element element)
             => element?.ParentId == element?.Id;
 
 
-        public static string ToString(this IElement element, int depth, int indentSpaces = 2)
+        public static string ToString(this Element element, int depth, int indentSpaces = 2)
         {
             var v = element;
             var t = element.IsTopLevel() ? "window" : "view";

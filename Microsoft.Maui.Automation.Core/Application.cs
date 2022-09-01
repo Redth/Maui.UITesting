@@ -56,55 +56,8 @@ namespace Microsoft.Maui.Automation
 
         public abstract Platform DefaultPlatform { get; }
 
-        public abstract Task<IEnumerable<IElement>> Children(Platform platform);
+        public abstract Task<string> GetProperty(Platform platform, string elementId, string propertyName);
 
-        public abstract Task<IActionResult> Perform(Platform platform, string elementId, IAction action);
-
-        public virtual async Task<object?> GetProperty(Platform platform, string elementId, string propertyName)
-        {
-            var element = await Element(platform, elementId);
-
-            var t = element?.PlatformElement?.GetType();
-
-            if (t != null)
-            {
-                var prop = t.GetProperty(propertyName, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
-
-                if (prop != null)
-                {
-                    return Task.FromResult(prop.GetValue(element?.PlatformElement));
-                }
-            }
-
-            return Task.FromResult<object?>(null);
-        }
-
-        public virtual async Task<IElement?> Element(Platform platform, string elementId)
-        {
-            return (await Children(platform)).FindDepthFirst(new IdSelector(elementId))?.FirstOrDefault();
-        }
-
-        public virtual async Task<IEnumerable<IElement>> Descendants(Platform platform, string? ofElementId = null, IElementSelector? selector = null)
-        {
-            var descendants = new List<IElement>();
-
-            if (string.IsNullOrEmpty(ofElementId))
-            {
-                var children = (await Children(platform))?.FindBreadthFirst(selector);
-
-                if (children is not null && children.Any())
-                    descendants.AddRange(children);
-            }
-            else
-            {
-                var element = await Element(platform, ofElementId);
-
-                var children = element?.Children?.FindBreadthFirst(selector);
-                if (children is not null && children.Any())
-                    descendants.AddRange(children);
-            }
-
-            return descendants;
-        }
+        public abstract Task<IEnumerable<Element>> GetElements(Platform platform, string? elementId = null, int depth = 0);
     }
 }
