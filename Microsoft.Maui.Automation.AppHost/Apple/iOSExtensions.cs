@@ -49,7 +49,7 @@ internal static class iOSExtensions
 		return ti.TextInRange(range);
 	}
 
-	public static Element GetElement(this UIKit.UIView uiView, IApplication application, string parentId = "")
+	public static Element GetElement(this UIKit.UIView uiView, IApplication application, string parentId = "", int currentDepth = -1, int maxDepth = -1)
 	{
 		var e = new Element(application, Platform.Ios, uiView.Handle.ToString(), uiView, parentId)
 		{
@@ -66,13 +66,17 @@ internal static class iOSExtensions
 			Text = uiView.GetText()
 		};
 
-		var children = uiView.Subviews?.Select(s => s.GetElement(application, e.Id))?.ToList<Element>() ?? new List<Element>();
+		if (maxDepth <= 0 || (currentDepth + 1 <= maxDepth))
+		{
+			var children = uiView.Subviews?.Select(s => s.GetElement(application, e.Id, currentDepth + 1, maxDepth))
+					?.ToList() ?? new List<Element>();
 
-		e.Children.AddRange(children);
+			e.Children.AddRange(children);
+		}
 		return e;
 	}
 
-	public static Element GetElement(this UIWindow window, IApplication application)
+	public static Element GetElement(this UIWindow window, IApplication application, int currentDepth = -1, int maxDepth = -1)
 	{
 		var e = new Element(application, Platform.Ios, window.Handle.ToString(), window)
 		{
@@ -82,9 +86,12 @@ internal static class iOSExtensions
 			Text = string.Empty
 		};
 
-		var children = window.Subviews?.Select(s => s.GetElement(application, e.Id))?.ToList<Element>() ?? new List<Element>();
+		if (maxDepth <= 0 || (currentDepth + 1 <= maxDepth))
+		{
+			var children = window.Subviews?.Select(s => s.GetElement(application, e.Id, currentDepth + 1, maxDepth))?.ToList() ?? new List<Element>();
 
-		e.Children.AddRange(children);
+			e.Children.AddRange(children);
+		}
 		return e;
 	}
 }

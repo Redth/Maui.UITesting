@@ -1,4 +1,7 @@
-﻿using System;
+﻿using Microsoft.Maui.Controls;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,50 +12,54 @@ namespace Microsoft.Maui.Automation
     {
         public override Platform DefaultPlatform => Platform.Winappsdk;
 
-        async Task<T> RunOnMainThreadAsync<T>(Func<Task<T>> action)
-        {
-            var tcs = new TaskCompletionSource<T>();
 
-#pragma warning disable VSTHRD101 // Avoid unsupported async delegates
-            _ = UI.Xaml.Window.Current.Dispatcher.RunAsync(global::Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
-            {
-                try
-                {
-                    tcs.TrySetResult(await action());
-                }
-                catch (Exception ex)
-                {
-                    tcs.TrySetException(ex);
-                }
-            });
-#pragma warning restore VSTHRD101 // Avoid unsupported async delegates
-
-            return await tcs.Task;
-        }
-
-        public override async Task<IEnumerable<Element>> GetElements(Platform platform, string elementId = null, int depth = 0)
-        {
-            var root = await GetRootElements();
-
-            if (string.IsNullOrEmpty(elementId))
-                return root;
-
-            return root.FindDepthFirst(new IdSelector(elementId));
-        }
+        public override Task<IEnumerable<Element>> GetElements(Platform platform)
+            => Task.FromResult<IEnumerable<Element>>(new[] { UI.Xaml.Window.Current.GetElement(this, 1, -1) });
 
         public override async Task<string> GetProperty(Platform platform, string elementId, string propertyName)
         {
-            var roots = await GetRootElements();
+            var matches = await FindElements(platform, e => e.Id?.Equals(elementId) ?? false);
 
-            var element = roots.FindDepthFirst(new IdSelector(elementId))?.FirstOrDefault();
+            var match = matches?.FirstOrDefault();
 
-            return element.GetType().GetProperty(propertyName)?.GetValue(element)?.ToString() ?? string.Empty;
+            if (match is null)
+                return "";
+
+            return match.GetType().GetProperty(propertyName)?.GetValue(match)?.ToString() ?? string.Empty;
         }
 
-        async Task<IEnumerable<Element>> GetRootElements()
+
+        public override async Task<IEnumerable<Element>> FindElements(Platform platform, Func<Element, bool> matcher)
         {
-            var e = await RunOnMainThreadAsync(() => Task.FromResult(UI.Xaml.Window.Current.GetElement(this)));
-            return new[] { e };
+            var windows = new[] { UI.Xaml.Window.Current.GetElement(this, 1, 1) };
+
+            var matches = new List<Element>();
+            
+            await Traverse(platform, windows, matches, matcher);
+
+            return matches;
+        }
+
+        async Task Traverse(Platform platform, IEnumerable<Element> elements, IList<Element> matches, Func<Element, bool> matcher)
+        {
+            foreach (var e in elements)
+            {
+                if (matcher(e))
+                    matches.Add(e);
+
+                if (e.PlatformElement is UIElement uiElement)
+                {
+                    var children = new List<Element>();
+
+                    foreach (var child in (uiElement as Panel)?.Children ?? Enumerable.Empty<UIElement>())
+                    {
+                        var c = child.GetElement(this, e.Id, 1, 1);
+                        children.Add(c);
+                    }
+
+                    await Traverse(platform, children, matches, matcher);
+                }
+            }
         }
     }
 }

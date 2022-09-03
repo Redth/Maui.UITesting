@@ -13,9 +13,9 @@ namespace Microsoft.Maui.Automation;
 
 internal static class WindowsExtensions
 {
-	public static Element GetElement(this UIElement uiElement, IApplication application, string parentId = "")
+	public static Element GetElement(this UIElement uiElement, IApplication application, string parentId = "", int currentDepth = -1, int maxDepth = -1)
 	{
-		var e = new Element(application, Platform.Winappsdk, uiElement.GetHashCode().ToString(), uiElement, parentId)
+		var element = new Element(application, Platform.Winappsdk, uiElement.GetHashCode().ToString(), uiElement, parentId)
 		{
 			AutomationId = uiElement.GetType().Name,
 			Visible = uiElement.Visibility == UI.Xaml.Visibility.Visible,
@@ -27,15 +27,21 @@ internal static class WindowsExtensions
 			Height = (int)uiElement.ActualSize.Y
 		};
 
-		var children = (uiElement as Panel)?.Children?.Select(c => c.GetElement(application, e.Id))?.ToList() ?? new List<Element>();
-		e.Children.AddRange(children);
+		if (maxDepth <= 0 || (currentDepth + 1 <= maxDepth))
+		{
+			foreach (var child in (uiElement as Panel)?.Children ?? Enumerable.Empty<UIElement>())
+			{
+				var c = child.GetElement(application, element.Id, currentDepth + 1, maxDepth);
+					element.Children.Add(c);
+			}
+		}
 
-		return e;
+		return element;
 	}
 
-	public static Element GetElement(this Microsoft.UI.Xaml.Window window, IApplication application, string parentId = "")
+	public static Element GetElement(this Microsoft.UI.Xaml.Window window, IApplication application, int currentDepth = -1, int maxDepth = -1)
 	{
-		var e = new Element(application, Platform.Winappsdk, window.GetHashCode().ToString(), window, parentId)
+		var element = new Element(application, Platform.Winappsdk, window.GetHashCode().ToString(), window)
 		{
 			PlatformElement = window,
 			AutomationId = window.GetType().Name,
@@ -47,8 +53,12 @@ internal static class WindowsExtensions
 
 		};
 
-		e.Children.Add(window.Content.GetElement(application, e.Id));
+		if (maxDepth <= 0 || (currentDepth + 1 <= maxDepth))
+		{
+			var c = window.Content.GetElement(application, element.Id, currentDepth + 1, maxDepth);
+			element.Children.Add(c);
+		}
 
-		return e;
+		return element;
 	}
 }

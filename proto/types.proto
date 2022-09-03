@@ -22,7 +22,6 @@ message Element {
 	int32 width = 13;
 	int32 height = 14;
 
-	optional Element parent = 15;
 	repeated Element children = 16;
 }
 

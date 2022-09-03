@@ -4,13 +4,23 @@ import public "types.proto";
 option csharp_namespace = "Microsoft.Maui.Automation.RemoteGrpc";
 
 message ElementsRequest {
-	Platform platform = 1;
-	string elementId = 2;
-	optional int32 childDepth = 3;
+	string requestId = 1;
+	Platform platform = 2;
 }
 
 message ElementsResponse {
-	repeated Element elements = 1;
+	string requestId = 1;
+	repeated Element elements = 2;
+}
+
+
+message FindElementsRequest {
+	string requestId = 1;
+	Platform platform = 2;
+	string propertyName = 3;
+	string pattern = 4;
+	optional bool isExpression = 5;
+	optional string ancestorId = 6;
 }
 
 message PropertyRequest {
@@ -24,6 +34,11 @@ message PropertyResponse {
 	optional string value = 2;
 }
 
+
 service RemoteApp {
-	rpc GetElements (ElementsRequest) returns (ElementsResponse);
+
+	// Client calls and reads request objects and streams response objects
+	rpc GetElementsRoute(stream ElementsResponse) returns (stream ElementsRequest) {}
+	rpc FindElementsRoute(stream ElementsResponse) returns (stream FindElementsRequest) {}
+
 }

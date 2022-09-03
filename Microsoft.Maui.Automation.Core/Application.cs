@@ -7,57 +7,61 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Maui.Automation
 {
-    public class ElementNotFoundException : Exception
-    {
-        public ElementNotFoundException(string elementId)
-            : base($"Element with the ID: '{elementId}' was not found.")
-        {
-            ElementId = elementId;
-        }
+	public class ElementNotFoundException : Exception
+	{
+		public ElementNotFoundException(string elementId)
+			: base($"Element with the ID: '{elementId}' was not found.")
+		{
+			ElementId = elementId;
+		}
 
-        public readonly string ElementId;
-    }
+		public readonly string ElementId;
+	}
 
-    public abstract class Application : IApplication
-    {
-        public virtual void Close()
-        {
-        }
+	public abstract class Application : IApplication
+	{
+		public virtual void Close()
+		{
+		}
 
-        ~Application()
-        {
-            Dispose(false);
-        }
+		~Application()
+		{
+			Dispose(false);
+		}
 
-        public virtual void Dispose()
-        {
-            Dispose(true);
-        }
+		public virtual void Dispose()
+		{
+			Dispose(true);
+		}
 
-        bool disposed;
-        void Dispose(bool disposing)
-        {
-            if (!disposed)
-            {
-                if (disposing)
-                    DisposeManagedResources();
-                DisposeUnmanagedResources();
-                disposed = true;
-            }
-        }
+		bool disposed;
+		void Dispose(bool disposing)
+		{
+			if (!disposed)
+			{
+				if (disposing)
+					DisposeManagedResources();
+				DisposeUnmanagedResources();
+				disposed = true;
+			}
+		}
 
-        protected virtual void DisposeManagedResources()
-        {
-        }
+		protected virtual void DisposeManagedResources()
+		{
+		}
 
-        protected virtual void DisposeUnmanagedResources()
-        {
-        }
+		protected virtual void DisposeUnmanagedResources()
+		{
+		}
 
-        public abstract Platform DefaultPlatform { get; }
+		public abstract Platform DefaultPlatform { get; }
 
-        public abstract Task<string> GetProperty(Platform platform, string elementId, string propertyName);
+		public abstract Task<string> GetProperty(Platform platform, string elementId, string propertyName);
 
-        public abstract Task<IEnumerable<Element>> GetElements(Platform platform, string? elementId = null, int depth = 0);
-    }
+		public abstract Task<IEnumerable<Element>> GetElements(Platform platform);
+
+		public abstract Task<IEnumerable<Element>> FindElements(Platform platform, Func<Element, bool> matcher);
+
+
+	}
 }

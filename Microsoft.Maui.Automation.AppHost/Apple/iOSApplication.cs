@@ -13,14 +13,12 @@ namespace Microsoft.Maui.Automation
 	{
 		public override Platform DefaultPlatform => Platform.Ios;
 
-		public override Task<string> GetProperty(Platform platform, string elementId, string propertyName)
+		public override async Task<string> GetProperty(Platform platform, string elementId, string propertyName)
 		{
 			var selector = new ObjCRuntime.Selector(propertyName);
 			var getSelector = new ObjCRuntime.Selector("get" + System.Globalization.CultureInfo.InvariantCulture.TextInfo.ToTitleCase(propertyName));
 
-			var roots = GetRootElements();
-
-			var element = roots.FindDepthFirst(new IdSelector(elementId))?.FirstOrDefault();
+			var element = (await FindElements(platform, e => e.Id?.Equals(elementId) ?? false))?.FirstOrDefault();
 
 			if (element is not null && element.PlatformElement is NSObject nsobj)
 			{
@@ -28,32 +26,29 @@ namespace Microsoft.Maui.Automation
 				{
 					var v = nsobj.PerformSelector(selector)?.ToString();
 					if (v != null)
-						return Task.FromResult(v);
+						return v;
 				}
 
 				if (nsobj.RespondsToSelector(getSelector))
 				{
 					var v = nsobj.PerformSelector(getSelector)?.ToString();
 					if (v != null)
-						return Task.FromResult(v);
+						return v;
 				}
 			}
 
-			return Task.FromResult<string>(string.Empty);
+			return string.Empty;
 		}
 
-		public override Task<IEnumerable<Element>> GetElements(Platform platform, string elementId = null, int depth = 0)
+		public override Task<IEnumerable<Element>> GetElements(Platform platform)
 		{
-			var root = GetRootElements();
+			var root = GetRootElements(-1);
 
-			if (string.IsNullOrEmpty(elementId))
-				return Task.FromResult(root);
-
-			return Task.FromResult(root.FindDepthFirst(new IdSelector(elementId)));
+			return Task.FromResult(root);
 		}
 
 
-		IEnumerable<Element> GetRootElements()
+		IEnumerable<Element> GetRootElements(int depth)
 		{
 			var children = new List<Element>();
 
@@ -69,7 +64,7 @@ namespace Microsoft.Maui.Automation
 					{
 						foreach (var window in windowScene.Windows)
 						{
-							children.Add(window.GetElement(this));
+							children.Add(window.GetElement(this, 1, depth));
 							hadScenes = true;
 						}
 					}
@@ -83,12 +78,38 @@ namespace Microsoft.Maui.Automation
 				{
 					foreach (var window in UIApplication.SharedApplication.Windows)
 					{
-						children.Add(window.GetElement(this));
+						children.Add(window.GetElement(this, 1, depth));
 					}
 				}
 			}
 
 			return children;
+		}
+
+		public override Task<IEnumerable<Element>> FindElements(Platform platform, Func<Element, bool> matcher)
+		{
+			var windows = GetRootElements(-1);
+
+			var matches = new List<Element>();
+			Traverse(platform, windows, matches, matcher);
+
+			return Task.FromResult<IEnumerable<Element>>(matches);
+		}
+
+		void Traverse(Platform platform, IEnumerable<Element> elements, IList<Element> matches, Func<Element, bool> matcher)
+		{
+			foreach (var e in elements)
+			{
+				if (matcher(e))
+					matches.Add(e);
+
+				if (e.PlatformElement is UIView uiView)
+				{
+					var children = uiView.Subviews?.Select(s => s.GetElement(this, e.Id, 1, 1))
+						?.ToList() ?? new List<Element>();
+					Traverse(platform, children, matches, matcher);
+				}
+			}
 		}
 	}
 }

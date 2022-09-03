@@ -34,6 +34,7 @@
                 Text="Click me"
                 FontAttributes="Bold"
                 Grid.Row="3"
+                AutomationId="buttonOne"
                 SemanticProperties.Hint="Counts the number of times you click"
                 Clicked="OnCounterClicked"
                 HorizontalOptions="Center" />

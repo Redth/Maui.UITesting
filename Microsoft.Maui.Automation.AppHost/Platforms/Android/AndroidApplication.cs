@@ -1,6 +1,7 @@
 ﻿using Android.App;
 using Android.Content;
 using Android.OS;
+using Android.Views;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -44,9 +45,34 @@ namespace Microsoft.Maui.Automation
 			throw new NotImplementedException();
 		}
 
-		public override Task<IEnumerable<Element>> GetElements(Platform platform, string elementId = null, int depth = 0)
+		public override Task<IEnumerable<Element>> GetElements(Platform platform)
 		{
-			return Task.FromResult(LifecycleListener.Activities.Select(a => a.GetElement(this)));
+			return Task.FromResult(LifecycleListener.Activities.Select(a => a.GetElement(this, 1, -1)));
+		}
+
+		public override Task<IEnumerable<Element>> FindElements(Platform platform, Func<Element, bool> matcher)
+		{
+			var windows = LifecycleListener.Activities.Select(a => a.GetElement(this, 1, 1));
+
+			var matches = new List<Element>();
+			Traverse(platform, windows, matches, matcher);
+
+			return Task.FromResult<IEnumerable<Element>>(matches);
+		}
+
+		void Traverse(Platform platform, IEnumerable<Element> elements, IList<Element> matches, Func<Element, bool> matcher)
+		{
+			foreach (var e in elements)
+			{
+				if (matcher(e))
+					matches.Add(e);
+
+				if (e.PlatformElement is View view)
+				{
+					var children = view.GetChildren(this, e.Id, 1, 1);
+					Traverse(platform, children, matches, matcher);
+				}
+			}
 		}
 
 		internal class AutomationActivityLifecycleContextListener : Java.Lang.Object, Android.App.Application.IActivityLifecycleCallbacks

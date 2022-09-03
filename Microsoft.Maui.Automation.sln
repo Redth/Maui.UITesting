@@ -19,6 +19,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Proto", "Proto", "{99757F39
 		proto\types.proto = proto\types.proto
 	EndProjectSection
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Maui.Automation.Driver", "Microsoft.Maui.Automation.Driver\Microsoft.Maui.Automation.Driver.csproj", "{E3CDFDA8-413A-4F0F-B41D-BC8120C637E6}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Maui.Automation.Test", "Microsoft.Maui.Automation.Test\Microsoft.Maui.Automation.Test.csproj", "{4CFC183A-CA27-4031-881A-5DAC825D8F67}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestProject1", "TestProject1\TestProject1.csproj", "{1837172F-AB3A-42D2-AC35-79D762ED2554}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -47,6 +53,18 @@ Global
 		{3B96F274-BD40-44B4-8CC3-C487D278F95F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3B96F274-BD40-44B4-8CC3-C487D278F95F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3B96F274-BD40-44B4-8CC3-C487D278F95F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E3CDFDA8-413A-4F0F-B41D-BC8120C637E6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E3CDFDA8-413A-4F0F-B41D-BC8120C637E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E3CDFDA8-413A-4F0F-B41D-BC8120C637E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E3CDFDA8-413A-4F0F-B41D-BC8120C637E6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4CFC183A-CA27-4031-881A-5DAC825D8F67}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4CFC183A-CA27-4031-881A-5DAC825D8F67}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4CFC183A-CA27-4031-881A-5DAC825D8F67}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4CFC183A-CA27-4031-881A-5DAC825D8F67}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1837172F-AB3A-42D2-AC35-79D762ED2554}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1837172F-AB3A-42D2-AC35-79D762ED2554}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1837172F-AB3A-42D2-AC35-79D762ED2554}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1837172F-AB3A-42D2-AC35-79D762ED2554}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -20,6 +20,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\Microsoft.Maui.Automation.Core\Microsoft.Maui.Automation.Core.csproj" />
+		<ProjectReference Include="..\Microsoft.Maui.Automation.Driver\Microsoft.Maui.Automation.Driver.csproj" />
 	</ItemGroup>
 
 </Project>

@@ -1,5 +1,6 @@
 ﻿using Grpc.Net.Client;
 using Microsoft.Maui.Automation;
+using Microsoft.Maui.Automation.Remote;
 using Spectre.Console;
 using System.Net;
 
@@ -8,12 +9,7 @@ var address = "http://localhost:10882";
 Console.WriteLine($"REPL> Connecting to {address}...");
 var platform = Platform.Maui;
 
-
-
-var grpc = GrpcChannel.ForAddress(address);
-
-var client = new Microsoft.Maui.Automation.RemoteGrpc.RemoteApp.RemoteAppClient(grpc);
-
+var grpc = new GrpcRemoteAppClient();
 
 Console.WriteLine("Connected.");
 
@@ -26,9 +22,9 @@ while (true)
 	{
 		if (input.StartsWith("tree"))
 		{
-			var children = await client.GetElementsAsync(new Microsoft.Maui.Automation.RemoteGrpc.ElementsRequest());
+			var children = await grpc.GetElements(platform);
 
-			foreach (var w in children.Elements)
+			foreach (var w in children)
 			{
 				var tree = new Tree(w.ToTable(ConfigureTable));
 
@@ -44,9 +40,9 @@ while (true)
 		}
 		else if (input.StartsWith("windows"))
 		{
-			var children = await client.GetElementsAsync(new Microsoft.Maui.Automation.RemoteGrpc.ElementsRequest());
+			var children = await grpc.GetElements(platform);
 
-			foreach (var w in children.Elements)
+			foreach (var w in children)
 			{
 				var tree = new Tree(w.ToTable(ConfigureTable));
 
@@ -55,11 +51,10 @@ while (true)
 		}
 		else if (input.StartsWith("test"))
 		{
-			var children = await client.GetElementsAsync(new Microsoft.Maui.Automation.RemoteGrpc.ElementsRequest());
-
-			foreach (var w in children.Elements)
+			var elements = await grpc.FindElements(platform, "AutomationId", "buttonOne");
+			
+			foreach (var w in elements)
 			{
-
 				var tree = new Tree(w.ToTable(ConfigureTable));
 
 				AnsiConsole.Write(tree);
@@ -76,6 +71,8 @@ while (true)
 		|| input.Equals("exit", StringComparison.OrdinalIgnoreCase)))
 		break;
 }
+
+await grpc.Shutdown();
 
 
 void PrintTree(IHasTreeNodes node, Element element, int depth)

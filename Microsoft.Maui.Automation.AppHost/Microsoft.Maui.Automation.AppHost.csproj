@@ -23,7 +23,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Grpc.Core.Xamarin" Version="2.44.0" />
 		<PackageReference Include="Google.Protobuf" Version="3.21.5" />
 		<PackageReference Include="Grpc.Tools" Version="2.48.0">
 			<PrivateAssets>all</PrivateAssets>

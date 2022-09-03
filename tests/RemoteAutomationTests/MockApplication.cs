@@ -14,7 +14,7 @@ namespace RemoteAutomationTests
             DefaultPlatform = defaultPlatform;
         }
 
-        public readonly List<Element> MockWindows = new ();
+        public readonly List<Element> MockWindows = new();
 
         public Element? CurrentMockWindow { get; set; }
 
@@ -30,15 +30,36 @@ namespace RemoteAutomationTests
         //    }
 
         //    return Task.FromResult<IActionResult>(new ActionResult(ActionResultStatus.Error, "No Handler specified."));
-            
+
         //}
 
-        public override Task<string?> GetProperty(Platform platform, string elementId, string propertyName)
+        public override Task<string> GetProperty(Platform platform, string elementId, string propertyName)
         {
             throw new NotImplementedException();
         }
 
-        public override Task<IEnumerable<Element>> GetElements(Platform platform, string? elementId = null, int depth = 0)
+        public override Task<IEnumerable<Element>> GetElements(Platform platform)
             => Task.FromResult<IEnumerable<Element>>(MockWindows);
+
+        public override Task<IEnumerable<Element>> FindElements(Platform platform, Func<Element, bool> matcher)
+        {
+            var windows = MockWindows;
+
+            var matches = new List<Element>();
+            Traverse(platform, windows, matches, matcher);
+
+            return Task.FromResult<IEnumerable<Element>>(matches);
+        }
+
+        void Traverse(Platform platform, IEnumerable<Element> elements, IList<Element> matches, Func<Element, bool> matcher)
+        {
+            foreach (var e in elements)
+            {
+                if (matcher(e))
+                    matches.Add(e);
+
+                Traverse(platform, e.Children, matches, matcher);
+            }
+        }
     }
 }

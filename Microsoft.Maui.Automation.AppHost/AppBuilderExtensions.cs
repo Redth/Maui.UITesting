@@ -7,14 +7,13 @@ using System.Threading.Tasks;
 using Microsoft.Maui.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using System.Net;
-using Microsoft.Maui.Automation.Remote;
 using Grpc.Core;
 
 namespace Microsoft.Maui.Automation
 {
     public static class AutomationAppBuilderExtensions
     {
-        static GrpcRemoteAppHost host;
+        static GrpcRemoteAppAgent client;
 
         static IApplication CreateApp(
             Maui.IApplication app
@@ -42,10 +41,8 @@ namespace Microsoft.Maui.Automation
             return multiApp;
         }
 
-        public static void StartAutomationServiceListener(this Maui.IApplication mauiApplication, int port = 10882)
+        public static void StartAutomationServiceListener(this Maui.IApplication mauiApplication, string address)
         {
-            var address = IPAddress.Any;
-
             var multiApp = CreateApp(mauiApplication
 #if ANDROID
                 , (Android.App.Application.Context as Android.App.Application)
@@ -53,15 +50,8 @@ namespace Microsoft.Maui.Automation
 #endif
                 );
 
-            host = new GrpcRemoteAppHost(multiApp);
-
-            var server = new Server
-            {
-                Services = { RemoteGrpc.RemoteApp.BindService(host) },
-                Ports = { new ServerPort(address.ToString(), port, ServerCredentials.Insecure) }
-            };
-
-            server.Start();
+            client = new GrpcRemoteAppAgent(multiApp, address);
         }
-    }
+
+	}
 }

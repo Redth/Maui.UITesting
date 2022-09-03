@@ -11,7 +11,7 @@ namespace SampleMauiApp
 
             MainPage = new MainPage();
 
-            this.StartAutomationServiceListener();
+            this.StartAutomationServiceListener("http://127.0.0.1:10882");
         }
     }
 }
