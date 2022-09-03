@@ -1,20 +1,19 @@
-# .NET MAUI / Xamarin WebDriver
+# .NET MAUI UI Testing
 
-What if we had a Selenium/Appium WebDriver implementation for .NET MAUI / Xamarin written directly against the C# view API's?  What if this also included a WebDriver that had knowledge of MAUI API's as well?
+.NET MAUI is the evolution of Xamarin.Forms, now it's time for the evolution of UI Testing .NET apps.
 
-This is a brief experiment to see what the effort involved might be to create these drivers.
+This project aims to bring an existing UI Testing spike and idea closer to a usable tool for creating UI Automation Tests for .NET MAUI apps. It is a simpler architecture than its predecessor Xamarin.UITest, and has a much cleaner integration than Appium, built with .NET MAUI apps first in mind.
+
+## Goals / Features
+- gRPC communication channel between Driver and AppHost
+- .NET MAUI first view tree inspection and querying
+- Android - ADB integrations for advanced test manipulation
+- iOS - idb_companion for advanced test manipulation
+- Fluent Driver API for view querying/actions
+- CLI REPL for quickly navigating/testing/inspecting apps
+- YAML test syntax as an alternative approach to writing tests and rapidly iterating on them with file watching / 'hot reload' of tests
 
 ## So far
-
-- IPlatformElement - an extension of IWebElement with a bit more info
-- AndroidElement / iOSElement / MauiElement - Implementations of IPlatformElement which map to 'native' view data
-- PlatformDriverBase - an abstract driver that knows how to query for IPlatformElement's
-- AndroidDriver / iOSDriver / MauiDriver - implementations of the base driver providing a root to the visual element tree
-
-## Todo
-
-- WebDriver host HTTP Server - to run within the app, for the remote driver to connect to, which implements the necessary HTTP endpoints and proxies them to the correct AndroidDriver / iOSDriver / MauiDriver
-- Remote Drivers for Android/iOS/Maui - Create a subclass of RemoteWebDriver to connect to the platform specific HTTP servers
-- MacCatalyst
-- Windows
-
+- [x] gRPC communication channel between driver and app host
+- [x] Basic Android Driver functions with ADB
+- [x] Simple REPL with hard coded commands for printing a tree
