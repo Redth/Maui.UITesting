@@ -1,17 +1,16 @@
-﻿namespace Microsoft.Maui.Automation
+﻿using Grpc.Core;
+using Microsoft.Maui.Automation.RemoteGrpc;
+
+namespace Microsoft.Maui.Automation
 {
     public interface IApplication
     {
         public Platform DefaultPlatform { get; }
 
-        public Task<IEnumerable<IElement>> Children(Platform platform);
+        public Task<IEnumerable<Element>> GetElements(Platform platform);
 
-        public Task<IElement?> Element(Platform platform, string elementId);
-
-        public Task<IEnumerable<IElement>> Descendants(Platform platform, string? ofElementId = null, IElementSelector? selector = null);
-
-        public Task<IActionResult> Perform(Platform platform, string elementId, IAction action);
-
-        public Task<object?> GetProperty(Platform platform, string elementId, string propertyName);
+        public Task<IEnumerable<Element>> FindElements(Platform platform, Func<Element, bool> matcher);
+        
+        public Task<string> GetProperty(Platform platform, string elementId, string propertyName);
     }
 }

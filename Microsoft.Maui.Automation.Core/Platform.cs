@@ -3,30 +3,29 @@ using System.Text.Json.Serialization;
 
 namespace Microsoft.Maui.Automation
 {
-    [JsonConverter(typeof(JsonStringEnumConverter))]
-    public enum Platform
-    {
-        [EnumMember(Value = "MAUI")]
-		MAUI = 0,
+  //  public enum Platform
+  //  {
+  //      [EnumMember(Value = "MAUI")]
+		//MAUI = 0,
         
-        [EnumMember(Value = "iOS")]
-        iOS = 1,
+  //      [EnumMember(Value = "iOS")]
+  //      iOS = 100,
         
-        [EnumMember(Value = "MacCatalyst")]
-        MacCatalyst = 2,
+  //      [EnumMember(Value = "MacCatalyst")]
+  //      MacCatalyst = 200,
 
-        [EnumMember(Value = "macOS")]
-        MacOS = 3,
+  //      [EnumMember(Value = "macOS")]
+  //      MacOS = 210,
 
-        [EnumMember(Value = "tvOS")]
-        tvOS = 4,
+  //      [EnumMember(Value = "tvOS")]
+  //      tvOS = 300,
 
-        [EnumMember(Value = "Android")]
-        Android = 10,
+  //      [EnumMember(Value = "Android")]
+  //      Android = 400,
 
-        [EnumMember(Value = "WindowsAppSdk")]
-        WinAppSdk = 20
-    }
+  //      [EnumMember(Value = "WindowsAppSdk")]
+  //      WinAppSdk = 500
+  //  }
 
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum ActionResultStatus

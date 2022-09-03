@@ -14,13 +14,12 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\Microsoft.Maui.Automation.Core\Microsoft.Maui.Automation.Core.csproj" />
-	  <ProjectReference Include="..\Microsoft.Maui.Automation.Remote\Microsoft.Maui.Automation.Remote.csproj" />
+		<ProjectReference Include="..\Microsoft.Maui.Automation.Core\Microsoft.Maui.Automation.Core.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Platforms\iOS\" />
-	  <Folder Include="Platforms\MacCatalyst\" />
+		<Folder Include="Platforms\iOS\" />
+		<Folder Include="Platforms\MacCatalyst\" />
 	</ItemGroup>
 
 </Project>

@@ -1,6 +1,7 @@
 ﻿using Android.App;
 using Android.Content;
 using Android.OS;
+using Android.Views;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -26,11 +27,6 @@ namespace Microsoft.Maui.Automation
 
 		AutomationActivityLifecycleContextListener LifecycleListener { get; }
 
-		public override Task<IActionResult> Perform(Platform platform, string elementId, IAction action)
-		{
-			throw new NotImplementedException();
-		}
-
 		//public override Task<IWindow> CurrentWindow()
 		//{
 		//	var activity = LifecycleListener.Activity ?? LifecycleListener.Activities.FirstOrDefault();
@@ -41,11 +37,43 @@ namespace Microsoft.Maui.Automation
 		//	return Task.FromResult<IWindow>(new AndroidWindow(this, activity));
 		//}
 
-		public override Task<IEnumerable<IElement>> Children(Platform platform)
-			=> Task.FromResult<IEnumerable<IElement>>(LifecycleListener.Activities.Select(a => new AndroidWindow(this, a)));
-
 		public bool IsActivityCurrent(Activity activity)
 			=> LifecycleListener.Activity == activity;
+
+		public override Task<string> GetProperty(Platform platform, string elementId, string propertyName)
+		{
+			throw new NotImplementedException();
+		}
+
+		public override Task<IEnumerable<Element>> GetElements(Platform platform)
+		{
+			return Task.FromResult(LifecycleListener.Activities.Select(a => a.GetElement(this, 1, -1)));
+		}
+
+		public override Task<IEnumerable<Element>> FindElements(Platform platform, Func<Element, bool> matcher)
+		{
+			var windows = LifecycleListener.Activities.Select(a => a.GetElement(this, 1, 1));
+
+			var matches = new List<Element>();
+			Traverse(platform, windows, matches, matcher);
+
+			return Task.FromResult<IEnumerable<Element>>(matches);
+		}
+
+		void Traverse(Platform platform, IEnumerable<Element> elements, IList<Element> matches, Func<Element, bool> matcher)
+		{
+			foreach (var e in elements)
+			{
+				if (matcher(e))
+					matches.Add(e);
+
+				if (e.PlatformElement is View view)
+				{
+					var children = view.GetChildren(this, e.Id, 1, 1);
+					Traverse(platform, children, matches, matcher);
+				}
+			}
+		}
 
 		internal class AutomationActivityLifecycleContextListener : Java.Lang.Object, Android.App.Application.IActivityLifecycleCallbacks
 		{

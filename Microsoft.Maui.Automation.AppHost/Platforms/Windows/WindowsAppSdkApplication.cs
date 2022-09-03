@@ -1,4 +1,7 @@
-﻿using System;
+﻿using Microsoft.Maui.Controls;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -7,50 +10,56 @@ namespace Microsoft.Maui.Automation
 {
     public class WindowsAppSdkApplication : Application
     {
-        public override Platform DefaultPlatform => Platform.WinAppSdk;
-
-        public override Task<IActionResult> Perform(Platform platform, string elementId, IAction action)
-            => RunOnMainThreadAsync(() =>
-            {
-                // TODO: Handle platform specific actions
-                return Task.FromResult<IActionResult>(new ActionResult(ActionResultStatus.Unknown));
-            });
-
-        public override async Task<IEnumerable<IElement>> Children(Platform platform)
-            => new List<IElement>() { await RunOnMainThreadAsync(() => Task.FromResult(new WindowsAppSdkWindow(this, UI.Xaml.Window.Current))) };
-
-        public override Task<IEnumerable<IElement>> Descendants(Platform platform, string ofElementId = null, IElementSelector selector = null)
-            => RunOnMainThreadAsync(() => base.Descendants(platform, ofElementId, selector));
+        public override Platform DefaultPlatform => Platform.Winappsdk;
 
 
-        public override Task<object> GetProperty(Platform platform, string elementId, string propertyName)
-            => RunOnMainThreadAsync(() => base.GetProperty(platform, elementId, propertyName));
+        public override Task<IEnumerable<Element>> GetElements(Platform platform)
+            => Task.FromResult<IEnumerable<Element>>(new[] { UI.Xaml.Window.Current.GetElement(this, 1, -1) });
 
-        public override Task<IElement> Element(Platform platform, string elementId)
-            => RunOnMainThreadAsync(() => base.Element(platform, elementId));
-
-        async Task<T> RunOnMainThreadAsync<T>(Func<Task<T>> action)
+        public override async Task<string> GetProperty(Platform platform, string elementId, string propertyName)
         {
-            var tcs = new TaskCompletionSource<T>();
+            var matches = await FindElements(platform, e => e.Id?.Equals(elementId) ?? false);
 
-#pragma warning disable VSTHRD101 // Avoid unsupported async delegates
-            _ = UI.Xaml.Window.Current.Dispatcher.RunAsync(global::Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
-            {
-                try
-                {
-                    tcs.TrySetResult(await action());
-                }
-                catch (Exception ex)
-                {
-                    tcs.TrySetException(ex);
-                }
-            });
-#pragma warning restore VSTHRD101 // Avoid unsupported async delegates
+            var match = matches?.FirstOrDefault();
 
-            return await tcs.Task;
+            if (match is null)
+                return "";
+
+            return match.GetType().GetProperty(propertyName)?.GetValue(match)?.ToString() ?? string.Empty;
         }
 
 
+        public override async Task<IEnumerable<Element>> FindElements(Platform platform, Func<Element, bool> matcher)
+        {
+            var windows = new[] { UI.Xaml.Window.Current.GetElement(this, 1, 1) };
 
+            var matches = new List<Element>();
+            
+            await Traverse(platform, windows, matches, matcher);
+
+            return matches;
+        }
+
+        async Task Traverse(Platform platform, IEnumerable<Element> elements, IList<Element> matches, Func<Element, bool> matcher)
+        {
+            foreach (var e in elements)
+            {
+                if (matcher(e))
+                    matches.Add(e);
+
+                if (e.PlatformElement is UIElement uiElement)
+                {
+                    var children = new List<Element>();
+
+                    foreach (var child in (uiElement as Panel)?.Children ?? Enumerable.Empty<UIElement>())
+                    {
+                        var c = child.GetElement(this, e.Id, 1, 1);
+                        children.Add(c);
+                    }
+
+                    await Traverse(platform, children, matches, matcher);
+                }
+            }
+        }
     }
 }
