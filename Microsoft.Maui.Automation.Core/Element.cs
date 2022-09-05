@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 
 namespace Microsoft.Maui.Automation;
+
 public partial class Element
 {
 	public Element(IApplication application, Platform platform, string id, object platformElement, string parentId = "")

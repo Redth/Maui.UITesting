@@ -60,7 +60,32 @@ namespace Microsoft.Maui.Automation
 			return Task.FromResult<IEnumerable<Element>>(matches);
 		}
 
-		void Traverse(Platform platform, IEnumerable<Element> elements, IList<Element> matches, Func<Element, bool> matcher)
+        public override async Task<PerformActionResult> PerformAction(Platform platform, string action, string elementId, params string[] arguments)
+        {
+            if (action == Actions.Tap)
+			{
+				if (!string.IsNullOrEmpty(elementId))
+				{
+					var element = await this.FirstById(elementId);
+					if (element.PlatformElement is View androidView)
+					{
+						var r = androidView.PerformClick();
+						return PerformActionResult.Ok();
+					}
+				}
+				else if (arguments is not null
+					&& arguments.Length == 2
+					&& ulong.TryParse(arguments[0], out var x)
+					&& ulong.TryParse(arguments[1], out var y))
+				{
+					// tap x and y
+				}
+			}
+
+			return PerformActionResult.Error($"Unrecognized action: {action}");
+        }
+
+        void Traverse(Platform platform, IEnumerable<Element> elements, IList<Element> matches, Func<Element, bool> matcher)
 		{
 			foreach (var e in elements)
 			{

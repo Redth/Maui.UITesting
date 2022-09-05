@@ -24,14 +24,32 @@ message FindElementsRequest {
 }
 
 message PropertyRequest {
-	Platform platform = 1;
-	string elementId = 2;
-	string propertyName = 3;
+	string requestId = 1;
+	Platform platform = 2;
+	string elementId = 3;
+	string propertyName = 4;
 }
 
 message PropertyResponse {
-	Platform platform = 1;
-	optional string value = 2;
+	string requestId = 1;
+	Platform platform = 2;
+	optional string value = 3;
+}
+
+
+message PerformActionRequest {
+	string requestId = 1;
+	Platform platform = 2;
+	optional string elementId = 3;
+	string action = 4;
+	repeated string arguments = 5;
+}
+
+message PerformActionResponse {
+	string requestId = 1;
+	Platform platform = 2;
+	int32 status = 3;
+	string result = 4;
 }
 
 
@@ -41,4 +59,7 @@ service RemoteApp {
 	rpc GetElementsRoute(stream ElementsResponse) returns (stream ElementsRequest) {}
 	rpc FindElementsRoute(stream ElementsResponse) returns (stream FindElementsRequest) {}
 
+	rpc GetPropertyRoute(stream PropertyResponse) returns (stream PropertyRequest) {}
+
+	rpc PerformActionRoute(stream PerformActionResponse) returns (stream PerformActionRequest) {}
 }

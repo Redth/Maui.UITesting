@@ -96,7 +96,10 @@ namespace Microsoft.Maui.Automation
 			return Task.FromResult<IEnumerable<Element>>(matches);
 		}
 
-		void Traverse(Platform platform, IEnumerable<Element> elements, IList<Element> matches, Func<Element, bool> matcher)
+        public override Task<PerformActionResult> PerformAction(Platform platform, string action, string elementId, params string[] arguments)
+			=> Task.FromResult(new PerformActionResult { Result = String.Empty, Status = -1 });
+
+        void Traverse(Platform platform, IEnumerable<Element> elements, IList<Element> matches, Func<Element, bool> matcher)
 		{
 			foreach (var e in elements)
 			{

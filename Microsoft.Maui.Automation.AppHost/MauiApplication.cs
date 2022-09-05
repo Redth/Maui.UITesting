@@ -84,6 +84,11 @@ namespace Microsoft.Maui.Automation
 		{
 			throw new NotImplementedException();
 		}
-	}
+
+        public override Task<PerformActionResult> PerformAction(Platform platform, string action, string elementId, params string[] arguments)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }
 

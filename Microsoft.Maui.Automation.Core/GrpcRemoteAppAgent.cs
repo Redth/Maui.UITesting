@@ -18,10 +18,15 @@ namespace Microsoft.Maui.Automation
 
 		readonly AsyncDuplexStreamingCall<ElementsResponse, ElementsRequest> elementsCall;
 		readonly AsyncDuplexStreamingCall<ElementsResponse, FindElementsRequest> findElementsCall;
+        readonly AsyncDuplexStreamingCall<PropertyResponse, PropertyRequest> getPropertyCall;
+        readonly AsyncDuplexStreamingCall<PerformActionResponse, PerformActionRequest> performActionCall;
 
-		readonly Task elementsCallTask;
+        readonly Task elementsCallTask;
 		readonly Task findElementsCallTask;
-		private bool disposedValue;
+        readonly Task getPropertyCallTask;
+        readonly Task performActionCallTask;
+
+        private bool disposedValue;
 
 		public GrpcRemoteAppAgent(IApplication application, string address)
 		{
@@ -32,8 +37,10 @@ namespace Microsoft.Maui.Automation
 
 			elementsCall = client.GetElementsRoute();
 			findElementsCall = client.FindElementsRoute();
+			getPropertyCall = client.GetPropertyRoute();
+			performActionCall = client.PerformActionRoute();
 
-			elementsCallTask = Task.Run(async () =>
+            elementsCallTask = Task.Run(async () =>
 			{
 				while (await elementsCall.ResponseStream.MoveNext())
 				{
@@ -50,7 +57,25 @@ namespace Microsoft.Maui.Automation
 					await findElementsCall.RequestStream.WriteAsync(response);
 				}
 			});
-		}
+
+            getPropertyCallTask = Task.Run(async () =>
+            {
+                while (await getPropertyCall.ResponseStream.MoveNext())
+                {
+                    var response = await HandleGetPropertyRequest(getPropertyCall.ResponseStream.Current);
+                    await getPropertyCall.RequestStream.WriteAsync(response);
+                }
+            });
+
+            performActionCallTask = Task.Run(async () =>
+            {
+                while (await performActionCall.ResponseStream.MoveNext())
+                {
+                    var response = await HandlePerformActionRequest(performActionCall.ResponseStream.Current);
+                    await performActionCall.RequestStream.WriteAsync(response);
+                }
+            });
+        }
 
 		async Task<ElementsResponse> HandleElementsRequest(ElementsRequest request)
 		{
@@ -68,22 +93,7 @@ namespace Microsoft.Maui.Automation
 		{
 			// Get the elements from the running app host
 			var elements = await Application.FindElements(request.Platform, e =>
-			{
-				var value =
-					request.PropertyName.ToLowerInvariant() switch
-					{
-						"id" => e.Id,
-						"automationid" => e.AutomationId,
-						"text" => e.Text,
-						"type" => e.Type,
-						"fulltype" => e.FullType,
-						_ => string.Empty
-					} ?? string.Empty;
-
-				return request.IsExpression
-					? Regex.IsMatch(value, request.Pattern)
-					: request.Pattern.Equals(value);
-			});
+				e.Matches(request.PropertyName, request.Pattern, request.IsExpression));
 
 			var response = new ElementsResponse();
 			response.RequestId = request.RequestId;
@@ -92,7 +102,34 @@ namespace Microsoft.Maui.Automation
 			return response;
 		}
 
-		protected virtual void Dispose(bool disposing)
+        async Task<PropertyResponse> HandleGetPropertyRequest(PropertyRequest request)
+        {
+            // Get the elements from the running app host
+            var v = await Application.GetProperty(request.Platform, request.ElementId, request.PropertyName);
+
+            var response = new PropertyResponse();
+			response.Platform = request.Platform;
+            response.RequestId = request.RequestId;
+			response.Value = v;
+
+            return response;
+        }
+
+        async Task<PerformActionResponse> HandlePerformActionRequest(PerformActionRequest request)
+        {
+            // Get the elements from the running app host
+            var result = await Application.PerformAction(request.Platform, request.Action, request.ElementId, request.Arguments.ToArray());
+
+            var response = new PerformActionResponse();
+            response.Platform = request.Platform;
+            response.RequestId = request.RequestId;
+			response.Status = result.Status;
+			response.Result = result.Result;
+
+            return response;
+        }
+
+        protected virtual void Dispose(bool disposing)
 		{
 			if (!disposedValue)
 			{

@@ -19,6 +19,7 @@
 	<ItemGroup>
 		<Protobuf Include="..\proto\types.proto" />
 		<Protobuf Include="..\proto\remoteapp.proto" />
+		<Protobuf Include="..\proto\idb.proto" />
 	</ItemGroup>
 
 </Project>

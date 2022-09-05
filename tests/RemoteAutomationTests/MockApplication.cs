@@ -20,8 +20,7 @@ namespace RemoteAutomationTests
 
         public override Platform DefaultPlatform { get; }
 
-        public Func<Platform, string, IAction, Task<IActionResult>>? PerformHandler { get; set; }
-
+        
         //public override Task<IActionResult> Perform(Platform platform, string elementId, IAction action)
         //{
         //    if (PerformHandler is not null)
@@ -34,6 +33,11 @@ namespace RemoteAutomationTests
         //}
 
         public override Task<string> GetProperty(Platform platform, string elementId, string propertyName)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task<PerformActionResult> PerformAction(Platform platform, string action, string elementId, params string[] arguments)
         {
             throw new NotImplementedException();
         }

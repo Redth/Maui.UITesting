@@ -37,6 +37,11 @@ namespace Microsoft.Maui.Automation
 
 		public override Task<IEnumerable<Element>> FindElements(Platform platform, Func<Element, bool> matcher)
 			=> GetApp(platform).FindElements(platform, matcher);
-	}
+
+
+		public override Task<PerformActionResult> PerformAction(Platform platform, string action, string elementId, params string[] arguments)
+			=> GetApp(platform).PerformAction(platform, action, elementId, arguments);
+
+    }
 }
 

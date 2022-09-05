@@ -12,5 +12,8 @@ namespace Microsoft.Maui.Automation
         public Task<IEnumerable<Element>> FindElements(Platform platform, Func<Element, bool> matcher);
         
         public Task<string> GetProperty(Platform platform, string elementId, string propertyName);
+
+        public Task<PerformActionResult> PerformAction(Platform platform, string action, string elementId, params string[] arguments);
+        public Task<PerformActionResult> PerformAction(Platform platform, string action, params string[] arguments);
     }
 }

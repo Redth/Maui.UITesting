@@ -17,6 +17,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Proto", "Proto", "{99757F39
 	ProjectSection(SolutionItems) = preProject
 		proto\remoteapp.proto = proto\remoteapp.proto
 		proto\types.proto = proto\types.proto
+		proto\idb.proto = proto\idb.proto
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Maui.Automation.Driver", "Microsoft.Maui.Automation.Driver\Microsoft.Maui.Automation.Driver.csproj", "{E3CDFDA8-413A-4F0F-B41D-BC8120C637E6}"

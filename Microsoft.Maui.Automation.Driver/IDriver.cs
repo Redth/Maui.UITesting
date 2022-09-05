@@ -18,9 +18,7 @@
 
 		Task LongPress(int x, int y);
 
-		Task KeyPress(string keyCode);
-
-		Task Scroll();
+		Task KeyPress(char keyCode);
 
 		Task Swipe((int x, int y) start, (int x, int y) end);
 
