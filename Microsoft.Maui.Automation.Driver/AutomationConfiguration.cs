@@ -5,6 +5,16 @@ namespace Microsoft.Maui.Automation.Driver
 {
     public class AutomationConfiguration : Dictionary<string, object>, IAutomationConfiguration
     {
+        public static AutomationConfiguration FromYaml(string yamlFilename)
+        {
+            var serializer = new SharpYaml.Serialization.Serializer();
+
+            using var yaml = File.OpenRead(yamlFilename);
+
+            return serializer.Deserialize<AutomationConfiguration>(yaml)
+                ?? throw new InvalidDataException($"Failed to load YAML configuration from: {yamlFilename}");
+        }
+
         public AutomationConfiguration()
             : base()
         {
