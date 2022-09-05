@@ -19,7 +19,7 @@ namespace Microsoft.Maui.Automation.Driver
 
         public readonly IDriver Driver;
 
-        public IAutomationConfiguration Configuration => Driver.Configuration;
+        public IAutomationConfiguration Configuration => Driver!.Configuration;
 
         public string Name => Driver.Name;
 
