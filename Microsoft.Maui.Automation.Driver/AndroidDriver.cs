@@ -1,5 +1,6 @@
 ﻿using AndroidSdk;
 using Grpc.Net.Client;
+using Idb;
 using Microsoft.Maui.Automation.Remote;
 using Spectre.Console.Cli;
 using System;
@@ -14,10 +15,13 @@ namespace Microsoft.Maui.Automation.Driver;
 
 public class AndroidDriver : IDriver
 {
-	public AndroidDriver(string adbDeviceSerial)
+	public AndroidDriver(IAutomationConfiguration configuration)
 	{
+		Configuration = configuration;
+
 		int port = 10882;
 		var address = IPAddress.Any.ToString();
+		var adbDeviceSerial = configuration.Device;
 
 		androidSdkManager = new AndroidSdk.AndroidSdkManager();
 		Adb = androidSdkManager.Adb;
@@ -50,7 +54,9 @@ public class AndroidDriver : IDriver
 	readonly AndroidSdk.AndroidSdkManager androidSdkManager;
 	protected readonly string Device;
 
-	public string Name { get; }
+    public IAutomationConfiguration Configuration { get; }
+
+    public string Name { get; }
 
 	public Task Back()
 	{
@@ -69,7 +75,7 @@ public class AndroidDriver : IDriver
 
 	public Task InstallApp(string file, string appId)
 	{
-		Adb.Install(new FileInfo(file), Device);
+		Adb.Install(new System.IO.FileInfo(file), Device);
 		return Task.CompletedTask;
 	}
 
@@ -152,7 +158,19 @@ public class AndroidDriver : IDriver
 		return Task.CompletedTask;
 	}
 
-	public Task Swipe((int x, int y) start, (int x, int y) end)
+	public Task PushFile(string appId, string localFile, string destinationDirectory)
+	{
+		Adb.Push(new System.IO.FileInfo(localFile), new System.IO.DirectoryInfo(destinationDirectory), Device);
+		return Task.CompletedTask;
+	}
+
+	public Task PullFile(string appId, string remoteFile, string localDirectory)
+	{
+        Adb.Pull(new System.IO.FileInfo(remoteFile), new System.IO.DirectoryInfo(localDirectory), Device);
+        return Task.CompletedTask;
+    }
+
+    public Task Swipe((int x, int y) start, (int x, int y) end)
 	{
 		Adb.Shell($"input swipe {start.x} {start.y} {end.x} {end.y} 2000", Device);
 		return Task.CompletedTask;

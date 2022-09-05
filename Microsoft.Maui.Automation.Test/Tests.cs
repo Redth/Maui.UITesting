@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Maui.Automation.Driver;
 using Xunit;
 
 namespace Microsoft.Maui.Automation.Test
@@ -11,7 +12,7 @@ namespace Microsoft.Maui.Automation.Test
 	{
 		public Tests()
 		{
-			driver = new Driver.AndroidDriver(null);
+			driver = new Driver.AndroidDriver(new AutomationConfiguration());
 		}
 
 		readonly Microsoft.Maui.Automation.Driver.AndroidDriver driver;

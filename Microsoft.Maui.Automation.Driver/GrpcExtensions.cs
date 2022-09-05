@@ -48,4 +48,13 @@ public static class GrpcExtensions
 
         return await call.ResponseAsync;
     }
+
+
+    public static async Task ReceiveStream<TResponse>(this AsyncServerStreamingCall<TResponse> call, Action<TResponse> callback)
+    {
+        while (await call.ResponseStream.MoveNext(CancellationToken.None))
+        {
+            callback?.Invoke(call.ResponseStream.Current);
+        }
+    }
 }

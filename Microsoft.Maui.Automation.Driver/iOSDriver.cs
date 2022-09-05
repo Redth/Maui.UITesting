@@ -20,16 +20,16 @@ namespace Microsoft.Maui.Automation.Driver;
 
 public class iOSDriver : IDriver
 {
-    public iOSDriver(string device)
+    public iOSDriver(IAutomationConfiguration configuration)
     {
-        int port = 10882;
-        var address = IPAddress.Any.ToString();
+        Configuration = configuration;
 
-        Device = device;
+        var port = configuration.AppAgentPort;
+        var address = configuration.AppAgentAddress;
 
-        ArgumentNullException.ThrowIfNull(device);
+        ArgumentNullException.ThrowIfNull(configuration.Device);
 
-        Name = $"iOS ({device})";
+        Name = $"iOS ({configuration.Device})";
 
         var channel = GrpcChannel.ForAddress($"http://{address}:{port}");
         idb = new Idb.CompanionService.CompanionServiceClient(channel);
@@ -38,7 +38,7 @@ public class iOSDriver : IDriver
         var connectResponse = idb.connect(new Idb.ConnectRequest());
         Udid = connectResponse.Companion.Udid;
 
-        Name = $"iOS ({device} [{Udid}])";
+        Name = $"iOS ({configuration.Device} [{Udid}])";
     }
 
     public readonly string Udid;
@@ -46,9 +46,9 @@ public class iOSDriver : IDriver
     readonly CompanionService.CompanionServiceClient idb;
     readonly GrpcRemoteAppClient grpc;
 
-    protected readonly string Device;
-
     public string Name { get; }
+
+    public IAutomationConfiguration Configuration { get; }
 
     public async Task ClearAppState(string appId)
     {
@@ -128,6 +128,37 @@ public class iOSDriver : IDriver
         {
             Url = uri
         }).ResponseAsync;
+
+
+    public Task PushFile(string appId, string localFile, string destinationDirectory)
+        => idb.push().SendStream(new PushRequest
+        {
+            Inner = new PushRequest.Types.Inner
+            {
+                Container = new FileContainer
+                {
+                    BundleId = appId,
+                    Kind = FileContainer.Types.Kind.Application
+                },
+                DstPath = destinationDirectory
+            }
+        });
+
+    public Task PullFile(string appId, string remoteFile, string localDirectory)
+        => idb.pull(new PullRequest
+        {
+            Container = new FileContainer
+            {
+                BundleId = appId,
+                Kind = FileContainer.Types.Kind.Application
+            },
+            DstPath = localDirectory,
+            SrcPath = remoteFile
+        }).ReceiveStream<PullResponse>(r =>
+        {
+            Console.WriteLine($"{r.Payload.FilePath}");
+        });
+
 
     public Task InputText(string text)
         => idb.hid().SendStream<HIDEvent, HIDResponse>(text.AsHidEvents().ToArray());

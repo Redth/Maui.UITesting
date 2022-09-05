@@ -4,6 +4,8 @@
 	{
 		string Name { get; }
 
+		IAutomationConfiguration Configuration { get; }
+
 		Task<IDeviceInfo> GetDeviceInfo();
 
 		Task InstallApp(string file, string appId);
@@ -14,7 +16,10 @@
 
 		Task ClearAppState(string appId);
 
-		Task Tap(int x, int y);
+		Task PushFile(string appId, string localFile, string destinationDirectory);
+        Task PullFile(string appId, string remoteFile, string localDirectory);
+
+        Task Tap(int x, int y);
 
 		Task LongPress(int x, int y);
 
