@@ -43,10 +43,10 @@ public class AndroidDriver : IDriver
 		var forwardResult = Adb.RunCommand("reverse", $"tcp:{port}", $"tcp:{port}")?.GetAllOutput();
 		Console.WriteLine(forwardResult);
 
-		grpc = new GrpcRemoteAppClient();
+		grpc = new GrpcHost();
 	}
 
-	readonly GrpcRemoteAppClient grpc;
+	readonly GrpcHost grpc;
 
 	protected readonly AndroidSdk.Adb Adb;
 	protected readonly AndroidSdk.PackageManager Pm;
@@ -176,19 +176,19 @@ public class AndroidDriver : IDriver
 		return Task.CompletedTask;
 	}
 
-	public Task Tap(int x, int y)
-		=> grpc.PerformAction(Platform.Android, Actions.Tap, string.Empty, x.ToString(), y.ToString());
+	public async Task Tap(int x, int y)
+		=> await (await grpc.CurrentClient).PerformAction(Platform.Android, Actions.Tap, string.Empty, x.ToString(), y.ToString());
 
 	bool IsAppInstalled(string appId)
 		=> androidSdkManager.PackageManager.ListPackages()
 			.Any(p => p.PackageName?.Equals(appId, StringComparison.OrdinalIgnoreCase) ?? false);
 
-	public Task<string> GetProperty(Platform platform, string elementId, string propertyName)
-		=> grpc.GetProperty(platform, elementId, propertyName);
+    public async Task<string> GetProperty(Platform platform, string elementId, string propertyName)
+        => await (await grpc.CurrentClient).GetProperty(platform, elementId, propertyName);
 
-	public Task<IEnumerable<Element>> GetElements(Platform platform)
-		=> grpc.GetElements(platform);
-		
-	public Task<IEnumerable<Element>> FindElements(Platform platform, string propertyName, string pattern, bool isExpression = false, string ancestorId = "")
-		=> grpc.FindElements(platform, propertyName, pattern, isExpression, ancestorId);
+    public async Task<IEnumerable<Element>> GetElements(Platform platform)
+        => await (await grpc.CurrentClient).GetElements(platform);
+
+    public async Task<IEnumerable<Element>> FindElements(Platform platform, string propertyName, string pattern, bool isExpression = false, string ancestorId = "")
+        => await (await grpc.CurrentClient).FindElements(platform, propertyName, pattern, isExpression, ancestorId);
 }

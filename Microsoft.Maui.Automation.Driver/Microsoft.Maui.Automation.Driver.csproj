@@ -8,7 +8,6 @@
 
   <ItemGroup>
     <PackageReference Include="AndroidSdk" Version="0.5.2" />
-    <PackageReference Include="Grpc.Core" Version="2.46.3" />
     <PackageReference Include="Grpc.Net.Client" Version="2.48.0" />
     <PackageReference Include="Spectre.Console" Version="0.44.0" />
     <PackageReference Include="Google.Protobuf" Version="3.21.5" />
@@ -17,6 +16,8 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="SharpYaml" Version="2.1.0" />
+    <PackageReference Include="SharpCompress" Version="0.32.2" />
+    <PackageReference Include="Grpc.AspNetCore.Server" Version="2.49.0-pre1" />
   </ItemGroup>
 
   <ItemGroup>
@@ -24,6 +25,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="SharpYaml" />
+    <EmbeddedResource Include="..\external\idb-companion.universal.tar.gz">
+        <LogicalName>idb-companion.tar.gz</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="Xamarin.LibZipSharp" />
+    <None Remove="SharpCompress" />
+    <None Remove="Grpc.AspNetCore.Server" />
   </ItemGroup>
 </Project>

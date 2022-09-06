@@ -12,14 +12,22 @@ public static class GrpcExtensions
 
         var statusTask = Task.Run(async () =>
         {
-            while (await call.ResponseStream.MoveNext(CancellationToken.None))
+            try
             {
-                var c = call.ResponseStream.Current;
+                while (await call.ResponseStream.MoveNext(CancellationToken.None))
+                {
+                    var c = call.ResponseStream.Current;
 
-                callback?.Invoke(c);
+                    callback?.Invoke(c);
+                }
+
+                tcsComplete.TrySetResult(true);
             }
-
-            tcsComplete.TrySetResult(true);
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                tcsComplete.TrySetException(ex);
+            }
         });
 
         await call.RequestStream.CompleteAsync();

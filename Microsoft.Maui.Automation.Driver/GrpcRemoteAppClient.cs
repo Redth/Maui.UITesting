@@ -10,17 +10,13 @@ namespace Microsoft.Maui.Automation.Remote
 {
 	public class GrpcRemoteAppClient : RemoteGrpc.RemoteApp.RemoteAppBase
 	{
-		public GrpcRemoteAppClient()
+		public GrpcRemoteAppClient(GrpcHost parentHost)
 		{
-			server = new Server
-			{
-				Services = { RemoteApp.BindService(this) },
-				Ports = { new ServerPort("127.0.0.1", 10882, ServerCredentials.Insecure) }
-			};
-			server.Start();
+            parentHost.SetCurrentClient(this);
+            Console.WriteLine("New grpc Service");
 		}
 
-		readonly Server server;
+        //readonly Server server;
 	
 		Dictionary<string, TaskCompletionSource<IResponseMessage>> pendingResponses = new();
         
@@ -163,12 +159,5 @@ namespace Microsoft.Maui.Automation.Remote
                 }
             }
         }
-
-        public async Task Shutdown()
-		{
-			await server.ShutdownAsync();
-		}
-
-
 	}
 }

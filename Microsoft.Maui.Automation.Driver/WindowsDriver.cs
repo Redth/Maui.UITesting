@@ -16,11 +16,11 @@ namespace Microsoft.Maui.Automation.Driver
             var address = configuration.AppAgentAddress;
 
             var channel = GrpcChannel.ForAddress($"http://{address}:{port}");
-            grpc = new GrpcRemoteAppClient();
+            grpc = new GrpcHost();
 
         }
 
-        readonly GrpcRemoteAppClient grpc;
+        readonly GrpcHost grpc;
 
 
         public string Name => "Windows";
@@ -35,22 +35,7 @@ namespace Microsoft.Maui.Automation.Driver
             throw new NotImplementedException();
         }
 
-        public Task<IEnumerable<Element>> FindElements(Platform platform, string propertyName, string pattern, bool isExpression = false, string ancestorId = "")
-        {
-            throw new NotImplementedException();
-        }
-
         public Task<IDeviceInfo> GetDeviceInfo()
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<IEnumerable<Element>> GetElements(Platform platform)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<string> GetProperty(Platform platform, string elementId, string propertyName)
         {
             throw new NotImplementedException();
         }
@@ -114,6 +99,16 @@ namespace Microsoft.Maui.Automation.Driver
         {
             throw new NotImplementedException();
         }
+
+        public async Task<string> GetProperty(Platform platform, string elementId, string propertyName)
+        => await (await grpc.CurrentClient).GetProperty(platform, elementId, propertyName);
+
+        public async Task<IEnumerable<Element>> GetElements(Platform platform)
+            => await (await grpc.CurrentClient).GetElements(platform);
+
+        public async Task<IEnumerable<Element>> FindElements(Platform platform, string propertyName, string pattern, bool isExpression = false, string ancestorId = "")
+            => await (await grpc.CurrentClient).FindElements(platform, propertyName, pattern, isExpression, ancestorId);
+
     }
 }
 

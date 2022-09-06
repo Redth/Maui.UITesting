@@ -12,15 +12,24 @@ namespace Microsoft.Maui.Automation.Test
 	{
 		public Tests()
 		{
-			driver = new Driver.AndroidDriver(new AutomationConfiguration());
+
+			configuration = new AutomationConfiguration(
+				Platform.Maccatalyst, automationPlatform: Platform.Maui);
+
+			driver = new Driver.AppDriver(configuration);
 		}
 
-		readonly Microsoft.Maui.Automation.Driver.AndroidDriver driver;
+		readonly IAutomationConfiguration configuration;
+		readonly AppDriver driver;
 
 		[Fact]
 		public async Task RunApp()
 		{
 			var appId = "com.companyname.samplemauiapp";
+			var file = "/Users/redth/code/Maui.VirtualListView/Sample/VirtualListViewSample/bin/Debug/net6.0-maccatalyst/maccatalyst-x64/VirtualListViewSample.app";
+
+
+            await driver.InstallApp(file, appId);
 
 			//await driver.InstallApp(@"C:\code\Maui.UITesting\samples\SampleMauiApp\bin\Debug\net6.0-android\com.companyname.samplemauiapp-Signed.apk", appId);
 			await driver.LaunchApp(appId);

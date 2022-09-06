@@ -27,24 +27,35 @@ public class iOSDriver : IDriver
         var port = configuration.AppAgentPort;
         var address = configuration.AppAgentAddress;
 
+        if (configuration.DevicePlatform == Platform.Maccatalyst
+            || configuration.DevicePlatform == Platform.Macos)
+            configuration.Device = "mac";
+
         ArgumentNullException.ThrowIfNull(configuration.Device);
 
         Name = $"iOS ({configuration.Device})";
 
+        idbCompanionPath = UnpackIdb();
+
+        idbCompanionProcess = new ProcessRunner(idbCompanionPath, $"--udid {configuration.Device}");
+
         var channel = GrpcChannel.ForAddress($"http://{address}:{port}");
         idb = new Idb.CompanionService.CompanionServiceClient(channel);
-        grpc = new GrpcRemoteAppClient();
 
         var connectResponse = idb.connect(new Idb.ConnectRequest());
         Udid = connectResponse.Companion.Udid;
 
         Name = $"iOS ({configuration.Device} [{Udid}])";
+
+        grpc = new GrpcHost();
     }
 
     public readonly string Udid;
 
     readonly CompanionService.CompanionServiceClient idb;
-    readonly GrpcRemoteAppClient grpc;
+    readonly GrpcHost grpc;
+    readonly string idbCompanionPath;
+    readonly ProcessRunner idbCompanionProcess;
 
     public string Name { get; }
 
@@ -76,7 +87,12 @@ public class iOSDriver : IDriver
     }
 
     public Task InstallApp(string file, string appId)
-        => idb.install().RequestStream<InstallRequest, InstallResponse>(
+    {
+        if (Configuration.DevicePlatform == Platform.Maccatalyst
+            || Configuration.DevicePlatform == Platform.Macos)
+            return Task.CompletedTask;
+
+        return idb.install().RequestStream<InstallRequest, InstallResponse>(
             new Idb.InstallRequest()
             {
                 Destination = Idb.InstallRequest.Types.Destination.App,
@@ -86,6 +102,7 @@ public class iOSDriver : IDriver
                 var progress = response.Progress;
                 Console.WriteLine(progress);
             });
+    }
 
     public Task RemoveApp(string appId)
         => idb.uninstallAsync(new UninstallRequest
@@ -230,12 +247,28 @@ public class iOSDriver : IDriver
                 }
             });
 
-    public Task<string> GetProperty(Platform platform, string elementId, string propertyName)
-        => grpc.GetProperty(platform, elementId, propertyName);
+    public async Task<string> GetProperty(Platform platform, string elementId, string propertyName)
+        => await (await grpc.CurrentClient).GetProperty(platform, elementId, propertyName);
 
-    public Task<IEnumerable<Element>> GetElements(Platform platform)
-        => grpc.GetElements(platform);
+    public async Task<IEnumerable<Element>> GetElements(Platform platform)
+        => await (await grpc.CurrentClient).GetElements(platform);
 
-    public Task<IEnumerable<Element>> FindElements(Platform platform, string propertyName, string pattern, bool isExpression = false, string ancestorId = "")
-        => grpc.FindElements(platform, propertyName, pattern, isExpression, ancestorId);
+    public async Task<IEnumerable<Element>> FindElements(Platform platform, string propertyName, string pattern, bool isExpression = false, string ancestorId = "")
+        => await (await grpc.CurrentClient).FindElements(platform, propertyName, pattern, isExpression, ancestorId);
+
+    string UnpackIdb()
+    {
+        var outputDir = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "idb");
+
+        if (!Directory.Exists(outputDir))
+            Directory.CreateDirectory(outputDir);
+
+        var exePath = Path.Combine(outputDir, "idb-companion.universal", "bin", "idb_companion");
+        if (!File.Exists(exePath))
+            EmbeddedToolUtil.ExtractEmbeddedResourceTarGz("idb-companion.tar.gz", outputDir);
+
+        return exePath;
+    }
 }
