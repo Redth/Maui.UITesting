@@ -13,35 +13,30 @@ public class GrpcHost
         var builder = CreateHostBuilder(this, Array.Empty<string>());
 
         host = builder.Build();
-        host.StartAsync().ContinueWith(t =>
-        {
-            var svcs = host.Services;
-        });
+        host.StartAsync();
 
-
+        Client = host.Services.GetRequiredService<GrpcRemoteAppClient>();
     }
 
-    public void SetCurrentClient(GrpcRemoteAppClient client)
-    {
-        currentClient.TrySetResult(client);
-    }
+    public readonly GrpcRemoteAppClient Client;
 
-    TaskCompletionSource<GrpcRemoteAppClient> currentClient { get; set; } = new ();
-
-    public Task<GrpcRemoteAppClient> CurrentClient => currentClient.Task;
-
-    readonly IHost host;
+	readonly IHost host;
 
     public static IHostBuilder CreateHostBuilder(GrpcHost grpcHost, string[] args)
         => Host.CreateDefaultBuilder(args)
             .ConfigureWebHostDefaults(webBuilder => webBuilder
                 .ConfigureServices(services => {
                     services.AddGrpc();
+                    
                     services.AddSingleton<GrpcHost>(grpcHost);
-                })
+                    services.AddSingleton<GrpcRemoteAppClient>();
+
+				})
                 .Configure(app =>
-                    app.UseRouting().UseEndpoints(endpoints =>
-                        endpoints.MapGrpcService<GrpcRemoteAppClient>())));
+                    app.UseRouting()
+                        .UseGrpcWeb()
+                        .UseEndpoints(endpoints =>
+                            endpoints.MapGrpcService<GrpcRemoteAppClient>().EnableGrpcWeb())));
 
 
     public Task Stop()

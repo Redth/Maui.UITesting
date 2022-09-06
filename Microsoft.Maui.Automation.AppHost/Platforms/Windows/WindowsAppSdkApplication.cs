@@ -40,6 +40,11 @@ namespace Microsoft.Maui.Automation
             return matches;
         }
 
+        public override Task<PerformActionResult> PerformAction(Platform platform, string action, string elementId, params string[] arguments)
+        {
+            return Task.FromResult(PerformActionResult.Error());
+        }
+
         async Task Traverse(Platform platform, IEnumerable<Element> elements, IList<Element> matches, Func<Element, bool> matcher)
         {
             foreach (var e in elements)

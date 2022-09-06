@@ -8,6 +8,7 @@ using Microsoft.Maui.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using System.Net;
 using Grpc.Core;
+using System.Net.Http;
 
 namespace Microsoft.Maui.Automation
 {
@@ -50,8 +51,36 @@ namespace Microsoft.Maui.Automation
 #endif
                 );
 
+#if ANDROID
+            client = new GrpcRemoteAppAgent(multiApp, address, new MyAndroidHandler());
+#else
             client = new GrpcRemoteAppAgent(multiApp, address);
-        }
+#endif
+		}
 
 	}
+
+#if ANDROID
+    public class MyAndroidHandler : Xamarin.Android.Net.AndroidMessageHandler
+    {
+        MyHostnameVerifier verifier = new MyHostnameVerifier();
+
+        protected override Javax.Net.Ssl.IHostnameVerifier GetSSLHostnameVerifier(Javax.Net.Ssl.HttpsURLConnection connection)
+        {
+            return verifier;
+        }
+        protected override Javax.Net.Ssl.SSLSocketFactory ConfigureCustomSSLSocketFactory(Javax.Net.Ssl.HttpsURLConnection connection)
+        {
+			return Android.Net.SSLCertificateSocketFactory.GetInsecure(1000, null);
+		}
+
+        class MyHostnameVerifier : Java.Lang.Object, Javax.Net.Ssl.IHostnameVerifier
+        {
+            public bool Verify(string hostname, Javax.Net.Ssl.ISSLSession session)
+            {
+                return true;
+            }
+        }
+    }
+#endif
 }

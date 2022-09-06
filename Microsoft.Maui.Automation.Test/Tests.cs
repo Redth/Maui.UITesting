@@ -14,7 +14,10 @@ namespace Microsoft.Maui.Automation.Test
 		{
 
 			configuration = new AutomationConfiguration(
-				Platform.Maccatalyst, automationPlatform: Platform.Maui);
+				Platform.Android,
+				automationPlatform: Platform.Maui,
+				device: "emulator-5554");
+			configuration.AppAgentPort = 5000;
 
 			driver = new Driver.AppDriver(configuration);
 		}
@@ -26,13 +29,13 @@ namespace Microsoft.Maui.Automation.Test
 		public async Task RunApp()
 		{
 			var appId = "com.companyname.samplemauiapp";
-			var file = "/Users/redth/code/Maui.VirtualListView/Sample/VirtualListViewSample/bin/Debug/net6.0-maccatalyst/maccatalyst-x64/VirtualListViewSample.app";
+			var file = "C:\\code\\Maui.UITesting\\samples\\SampleMauiApp\\bin\\Debug\\net6.0-android\\com.companyname.samplemauiapp-Signed.apk";
 
 
-            await driver.InstallApp(file, appId);
+			//await driver.InstallApp(file, appId);
 
 			//await driver.InstallApp(@"C:\code\Maui.UITesting\samples\SampleMauiApp\bin\Debug\net6.0-android\com.companyname.samplemauiapp-Signed.apk", appId);
-			await driver.LaunchApp(appId);
+			//await driver.LaunchApp(appId);
 
 			var elements = await driver.FindElements(Platform.Maui, "AutomationId", "buttonOne");
 

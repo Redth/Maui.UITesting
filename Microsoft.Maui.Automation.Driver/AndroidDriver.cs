@@ -40,8 +40,8 @@ public class AndroidDriver : IDriver
 
 		Name = $"Android ({Adb.GetDeviceName(Device)})";
 
-		var forwardResult = Adb.RunCommand("reverse", $"tcp:{port}", $"tcp:{port}")?.GetAllOutput();
-		Console.WriteLine(forwardResult);
+		//var forwardResult = Adb.RunCommand("-s", $"\"{Device}\"", "reverse", $"tcp:{port}", $"tcp:{port}")?.GetAllOutput();
+		//System.Diagnostics.Debug.WriteLine(forwardResult);
 
 		grpc = new GrpcHost();
 	}
@@ -54,9 +54,9 @@ public class AndroidDriver : IDriver
 	readonly AndroidSdk.AndroidSdkManager androidSdkManager;
 	protected readonly string Device;
 
-    public IAutomationConfiguration Configuration { get; }
+	public IAutomationConfiguration Configuration { get; }
 
-    public string Name { get; }
+	public string Name { get; }
 
 	public Task Back()
 	{
@@ -166,29 +166,30 @@ public class AndroidDriver : IDriver
 
 	public Task PullFile(string appId, string remoteFile, string localDirectory)
 	{
-        Adb.Pull(new System.IO.FileInfo(remoteFile), new System.IO.DirectoryInfo(localDirectory), Device);
-        return Task.CompletedTask;
-    }
+		Adb.Pull(new System.IO.FileInfo(remoteFile), new System.IO.DirectoryInfo(localDirectory), Device);
+		return Task.CompletedTask;
+	}
 
-    public Task Swipe((int x, int y) start, (int x, int y) end)
+	public Task Swipe((int x, int y) start, (int x, int y) end)
 	{
 		Adb.Shell($"input swipe {start.x} {start.y} {end.x} {end.y} 2000", Device);
 		return Task.CompletedTask;
 	}
 
-	public async Task Tap(int x, int y)
-		=> await (await grpc.CurrentClient).PerformAction(Platform.Android, Actions.Tap, string.Empty, x.ToString(), y.ToString());
+	public Task Tap(int x, int y)
+		=> grpc.Client.PerformAction(Platform.Android, Actions.Tap, string.Empty, x.ToString(), y.ToString());
 
 	bool IsAppInstalled(string appId)
 		=> androidSdkManager.PackageManager.ListPackages()
 			.Any(p => p.PackageName?.Equals(appId, StringComparison.OrdinalIgnoreCase) ?? false);
 
-    public async Task<string> GetProperty(Platform platform, string elementId, string propertyName)
-        => await (await grpc.CurrentClient).GetProperty(platform, elementId, propertyName);
+	public Task<string> GetProperty(Platform platform, string elementId, string propertyName)
+		=> grpc.Client.GetProperty(platform, elementId, propertyName);
 
-    public async Task<IEnumerable<Element>> GetElements(Platform platform)
-        => await (await grpc.CurrentClient).GetElements(platform);
+	public Task<IEnumerable<Element>> GetElements(Platform platform)
+		=> grpc.Client.GetElements(platform);
 
-    public async Task<IEnumerable<Element>> FindElements(Platform platform, string propertyName, string pattern, bool isExpression = false, string ancestorId = "")
-        => await (await grpc.CurrentClient).FindElements(platform, propertyName, pattern, isExpression, ancestorId);
+	public Task<IEnumerable<Element>> FindElements(Platform platform, string propertyName, string pattern, bool isExpression = false, string ancestorId = "")
+		=> grpc.Client.FindElements(platform, propertyName, pattern, isExpression, ancestorId);
+
 }

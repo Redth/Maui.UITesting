@@ -4,15 +4,16 @@ using Microsoft.Maui.Automation.Remote;
 using Spectre.Console;
 using System.Net;
 
-var address = "http://localhost:10882";
 
-Console.WriteLine($"REPL> Connecting to {address}...");
+
 var platform = Platform.Maui;
 
-var grpc = new GrpcRemoteAppClient();
+var grpc = new GrpcHost();
 
-Console.WriteLine("Connected.");
+Console.WriteLine("Started GRPC Host.");
 
+
+var client = grpc.Client;
 
 while (true)
 {
@@ -22,7 +23,7 @@ while (true)
 	{
 		if (input.StartsWith("tree"))
 		{
-			var children = await grpc.GetElements(platform);
+			var children = await client.GetElements(platform);
 
 			foreach (var w in children)
 			{
@@ -40,7 +41,7 @@ while (true)
 		}
 		else if (input.StartsWith("windows"))
 		{
-			var children = await grpc.GetElements(platform);
+			var children = await client.GetElements(platform);
 
 			foreach (var w in children)
 			{
@@ -51,7 +52,7 @@ while (true)
 		}
 		else if (input.StartsWith("test"))
 		{
-			var elements = await grpc.FindElements(platform, "AutomationId", "buttonOne");
+			var elements = await client.FindElements(platform, "AutomationId", "buttonOne");
 			
 			foreach (var w in elements)
 			{
@@ -72,7 +73,7 @@ while (true)
 		break;
 }
 
-await grpc.Shutdown();
+await grpc.Stop();
 
 
 void PrintTree(IHasTreeNodes node, Element element, int depth)
