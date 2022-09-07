@@ -53,7 +53,7 @@ internal static class iOSExtensions
 	{
 		var e = new Element(application, Platform.Ios, uiView.Handle.ToString(), uiView, parentId)
 		{
-			AutomationId = uiView.AccessibilityIdentifier,
+			AutomationId = uiView.AccessibilityIdentifier ?? string.Empty,
 			Visible = !uiView.Hidden,
 			Enabled = uiView.UserInteractionEnabled,
 			Focused = uiView.Focused,
@@ -63,7 +63,7 @@ internal static class iOSExtensions
 
 			Width = (int)uiView.Frame.Width,
 			Height = (int)uiView.Frame.Height,
-			Text = uiView.GetText()
+			Text = uiView.GetText() ?? string.Empty
 		};
 
 		if (maxDepth <= 0 || (currentDepth + 1 <= maxDepth))
