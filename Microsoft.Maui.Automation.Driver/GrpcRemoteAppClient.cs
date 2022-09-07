@@ -152,6 +152,8 @@ namespace Microsoft.Maui.Automation.Remote
 					tcs.TrySetResult(requestStream.Current);
 				}
 			}
+
+			tcsRequestStream = new TaskCompletionSource<IAsyncStreamWriter<TRequest>>();
 		}
 	}
 }
