@@ -39,7 +39,7 @@ public class iOSDriver : IDriver
 
 		idbCompanionProcess = new ProcessRunner(idbCompanionPath, $"--udid {configuration.Device}");
 
-		var channel = GrpcChannel.ForAddress($"http://{address}:{port}");
+		var channel = GrpcChannel.ForAddress($"http://{address}:10882");
 		idb = new Idb.CompanionService.CompanionServiceClient(channel);
 
 		var connectResponse = idb.connect(new Idb.ConnectRequest());
