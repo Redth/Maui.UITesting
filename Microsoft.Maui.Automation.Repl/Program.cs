@@ -1,5 +1,8 @@
-﻿using Grpc.Net.Client;
+﻿using Grpc.Core.Logging;
+using Grpc.Net.Client;
+using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Automation;
+using Microsoft.Maui.Automation.Driver;
 using Microsoft.Maui.Automation.Remote;
 using Spectre.Console;
 using System.Net;
@@ -8,52 +11,35 @@ using System.Net;
 
 var platform = Platform.Maui;
 
-var grpc = new GrpcHost();
 
-Console.WriteLine("Started GRPC Host.");
-
-
-var client = grpc.Client;
-
-while (true)
+var config = new AutomationConfiguration
 {
-	var input = Console.ReadLine() ?? string.Empty;
+	AppAgentPort = 5000,
+	DevicePlatform = Platform.Android,
+	AutomationPlatform = platform,
+	Device = "emulator-5554"
+};
+var driver = new AppDriver(config);
 
-	try
-	{
-		if (input.StartsWith("tree"))
+var mappings = new Dictionary<string, Func<Task>>
+{
+	{ "tree", Tree },
+	{ "windows", Windows },
+	{ "test2", async () =>
 		{
-			var children = await client.GetElements(platform);
+			var button = await driver.FirstByAutomationId("buttonOne");
 
-			foreach (var w in children)
-			{
-				var tree = new Tree(w.ToTable(ConfigureTable));
+			await driver.Tap(button!);
 
+			var label = await driver.FirstByAutomationId("labelCount");
 
-				foreach (var d in w.Children)
-				{
-					PrintTree(tree, d, 1);
-				}
-
-				AnsiConsole.Write(tree);
-			}
-
+			Console.WriteLine(label.Text);
 		}
-		else if (input.StartsWith("windows"))
+	},
+	{ "test", async () =>
 		{
-			var children = await client.GetElements(platform);
+			var elements = await driver.FindElements("AutomationId", "buttonOne");
 
-			foreach (var w in children)
-			{
-				var tree = new Tree(w.ToTable(ConfigureTable));
-
-				AnsiConsole.Write(tree);
-			}
-		}
-		else if (input.StartsWith("test"))
-		{
-			var elements = await client.FindElements(platform, "AutomationId", "buttonOne");
-			
 			foreach (var w in elements)
 			{
 				var tree = new Tree(w.ToTable(ConfigureTable));
@@ -62,9 +48,37 @@ while (true)
 			}
 		}
 	}
+};
+
+while (true)
+{
+	var input = Console.ReadLine() ?? string.Empty;
+
+	try
+	{
+		foreach (var kvp in mappings)
+		{
+			if (input.StartsWith(kvp.Key))
+			{
+				Task.Run(async () =>
+				{
+					try
+					{
+						await kvp.Value();
+					}
+					catch (Exception ex)
+					{
+						AnsiConsole.WriteException(ex);
+					}
+				});
+				
+				break;
+			}
+		}
+	}
 	catch (Exception ex)
 	{
-		Console.WriteLine(ex);
+		AnsiConsole.WriteException(ex);
 	}
 
 	if (input != null && (input.Equals("quit", StringComparison.OrdinalIgnoreCase)
@@ -73,8 +87,37 @@ while (true)
 		break;
 }
 
-await grpc.Stop();
+driver.Dispose();
 
+async Task Tree()
+{
+	var children = await driver.GetElements();
+
+	foreach (var w in children)
+	{
+		var tree = new Tree(w.ToTable(ConfigureTable));
+
+
+		foreach (var d in w.Children)
+		{
+			PrintTree(tree, d, 1);
+		}
+
+		AnsiConsole.Write(tree);
+	}
+}
+
+async Task Windows()
+{
+	var children = await driver.GetElements();
+
+	foreach (var w in children)
+	{
+		var tree = new Tree(w.ToTable(ConfigureTable));
+
+		AnsiConsole.Write(tree);
+	}
+}
 
 void PrintTree(IHasTreeNodes node, Element element, int depth)
 {

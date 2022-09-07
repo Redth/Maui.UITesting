@@ -40,52 +40,36 @@ namespace Microsoft.Maui.Automation
 		public bool IsActivityCurrent(Activity activity)
 			=> LifecycleListener.Activity == activity;
 
-		public override Task<string> GetProperty(Platform platform, string elementId, string propertyName)
+		public override Task<string> GetProperty(string elementId, string propertyName)
 		{
 			throw new NotImplementedException();
 		}
 
-		public override Task<IEnumerable<Element>> GetElements(Platform platform)
+		public override Task<IEnumerable<Element>> GetElements()
 		{
 			return Task.FromResult(LifecycleListener.Activities.Select(a => a.GetElement(this, 1, -1)));
 		}
 
-		public override Task<IEnumerable<Element>> FindElements(Platform platform, Func<Element, bool> matcher)
+		public override Task<IEnumerable<Element>> FindElements(Func<Element, bool> matcher)
 		{
 			var windows = LifecycleListener.Activities.Select(a => a.GetElement(this, 1, 1));
 
 			var matches = new List<Element>();
-			Traverse(platform, windows, matches, matcher);
+			Traverse(windows, matches, matcher);
 
 			return Task.FromResult<IEnumerable<Element>>(matches);
 		}
 
-        public override async Task<PerformActionResult> PerformAction(Platform platform, string action, string elementId, params string[] arguments)
-        {
-            if (action == Actions.Tap)
-			{
-				if (!string.IsNullOrEmpty(elementId))
-				{
-					var element = await this.FirstById(elementId);
-					if (element.PlatformElement is View androidView)
-					{
-						var r = androidView.PerformClick();
-						return PerformActionResult.Ok();
-					}
-				}
-				else if (arguments is not null
-					&& arguments.Length == 2
-					&& ulong.TryParse(arguments[0], out var x)
-					&& ulong.TryParse(arguments[1], out var y))
-				{
-					// tap x and y
-				}
-			}
+		public override async Task<PerformActionResult> PerformAction(string action, string elementId, params string[] arguments)
+		{
+			var element = await this.FirstById(elementId);
+			if (element?.PlatformElement is Android.Views.View androidView)
+				return await androidView.PerformAction(action, elementId, arguments);
 
 			return PerformActionResult.Error($"Unrecognized action: {action}");
-        }
+		}
 
-        void Traverse(Platform platform, IEnumerable<Element> elements, IList<Element> matches, Func<Element, bool> matcher)
+		void Traverse(IEnumerable<Element> elements, IList<Element> matches, Func<Element, bool> matcher)
 		{
 			foreach (var e in elements)
 			{
@@ -95,7 +79,7 @@ namespace Microsoft.Maui.Automation
 				if (e.PlatformElement is View view)
 				{
 					var children = view.GetChildren(this, e.Id, 1, 1);
-					Traverse(platform, children, matches, matcher);
+					Traverse(children, matches, matcher);
 				}
 			}
 		}

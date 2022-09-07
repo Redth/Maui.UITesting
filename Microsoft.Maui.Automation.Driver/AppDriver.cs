@@ -2,9 +2,10 @@
 
 namespace Microsoft.Maui.Automation.Driver;
 
-public class AppDriver : IDriver
+public class AppDriver : Driver
 {
 	public AppDriver(IAutomationConfiguration configuration)
+		: base(configuration)
 	{
 		Driver = configuration.DevicePlatform switch
 		{
@@ -19,61 +20,70 @@ public class AppDriver : IDriver
 
 	public readonly IDriver Driver;
 
-	public IAutomationConfiguration Configuration => Driver!.Configuration;
+	public override string Name => Driver.Name;
 
-	public string Name => Driver.Name;
-
-	public Task Back()
+	public override Task Back()
 		=> Driver.Back();
 
-	public Task ClearAppState(string appId)
+	public override Task ClearAppState(string appId)
 		=> Driver.ClearAppState(appId);
 
-	public Task<IEnumerable<Element>> FindElements(Platform platform, string propertyName, string pattern, bool isExpression = false, string ancestorId = "")
-		=> Driver.FindElements(platform, propertyName, pattern, isExpression, propertyName);
+	public override Task<IEnumerable<Element>> FindElements(string propertyName, string pattern, bool isExpression = false, string ancestorId = "")
+		=> Driver.FindElements(propertyName, pattern, isExpression, propertyName);
 
-	public Task<IDeviceInfo> GetDeviceInfo()
+	public override Task<IDeviceInfo> GetDeviceInfo()
 		=> Driver.GetDeviceInfo();
 
-	public Task<IEnumerable<Element>> GetElements(Platform platform)
-		=> Driver.GetElements(platform);
+	public override Task<IEnumerable<Element>> GetElements()
+		=> Driver.GetElements();
 
-	public Task<string> GetProperty(Platform platform, string elementId, string propertyName)
-		=> Driver.GetProperty(platform, elementId, propertyName);
+	public override Task<string> GetProperty(string elementId, string propertyName)
+		=> Driver.GetProperty(elementId, propertyName);
 
-	public Task InputText(string text)
+	public override Task<PerformActionResult> PerformAction(string action, string elementId, params string[] arguments)
+		=> Driver.PerformAction(action, elementId, arguments);
+
+	public override Task InputText(string text)
 		=> Driver.InputText(text);
 
-	public Task InstallApp(string file, string appId)
+	public override Task InstallApp(string file, string appId)
 		=> Driver.InstallApp(file, appId);
 
-	public Task KeyPress(char keyCode)
+	public override Task KeyPress(char keyCode)
 		=> Driver.KeyPress(keyCode);
 
-	public Task LaunchApp(string appId)
+	public override Task LaunchApp(string appId)
 		=> Driver.LaunchApp(appId);
 
-	public Task LongPress(int x, int y)
+	public override Task LongPress(int x, int y)
 		=> Driver.LongPress(x, y);
 
-	public Task OpenUri(string uri)
+	public override Task OpenUri(string uri)
 		=> Driver.OpenUri(uri);
 
-	public Task PullFile(string appId, string remoteFile, string localDirectory)
+	public override Task PullFile(string appId, string remoteFile, string localDirectory)
 		=> Driver.PullFile(appId, remoteFile, localDirectory);
 
-	public Task PushFile(string appId, string localFile, string destinationDirectory)
+	public override Task PushFile(string appId, string localFile, string destinationDirectory)
 		=> Driver.PushFile(appId, localFile, destinationDirectory);
 
-	public Task RemoveApp(string appId)
+	public override Task RemoveApp(string appId)
 		=> Driver.RemoveApp(appId);
 
-	public Task StopApp(string appId)
+	public override Task StopApp(string appId)
 		=> Driver.StopApp(appId);
 
-	public Task Swipe((int x, int y) start, (int x, int y) end)
+	public override Task Swipe((int x, int y) start, (int x, int y) end)
 		=> Driver.Swipe(start, end);
 
-	public Task Tap(int x, int y)
+	public override Task Tap(int x, int y)
 		=> Driver.Tap(x, y);
+
+	public override Task Tap(Element element)
+		=> Driver.PerformAction(Actions.Tap, element.Id);
+
+	public override void Dispose()
+	{
+		Driver.Dispose();
+	}
 }

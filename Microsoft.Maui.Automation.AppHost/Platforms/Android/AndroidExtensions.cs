@@ -3,10 +3,12 @@ using Android.Content;
 using Android.Hardware.Lights;
 using Android.Views;
 using AndroidX.Core.View.Accessibility;
+using Java.Lang;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace Microsoft.Maui.Automation
@@ -142,6 +144,47 @@ namespace Microsoft.Maui.Automation
 			if (maxDepth <= 0 || (currentDepth + 1 <= maxDepth))
 				e.Children.AddRange(activity.GetChildren(e.Application, e.Id, currentDepth + 1, maxDepth));
 			return e;
+		}
+
+
+		public static async Task<PerformActionResult> PerformAction(this Android.Views.View view, string action, string elementId, params string[] arguments)
+		{
+			if (action == Actions.Tap)
+			{
+				await view.PostAsync(() => view.PerformClick());
+				return PerformActionResult.Ok();
+			}
+
+			throw new NotSupportedException($"PerformAction {action} is not supported.");
+		}
+
+		public static Task PostAsync(this Android.Views.View view, Action action)
+		{
+			var r = new AsyncThreadRunner(() => view.PerformClick());
+			view.Post(r);
+			return r.WaitAsync();
+		}
+	}
+
+	class AsyncThreadRunner : Java.Lang.Object, IRunnable
+	{
+		public AsyncThreadRunner(Action action)
+		{
+			runner = action;
+			tcsRunner = new();
+		}
+
+		readonly Action runner;
+
+		readonly TaskCompletionSource<bool> tcsRunner;
+
+		public Task WaitAsync()
+			=> tcsRunner.Task;
+
+		public void Run()
+		{
+			runner?.Invoke();
+			tcsRunner.TrySetResult(true);
 		}
 	}
 }

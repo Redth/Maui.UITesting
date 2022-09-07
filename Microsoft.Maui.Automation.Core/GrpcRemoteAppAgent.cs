@@ -1,6 +1,7 @@
 ﻿using Grpc.Core;
 using Grpc.Net.Client;
 using Grpc.Net.Client.Configuration;
+using Grpc.Net.Client.Web;
 using Microsoft.Maui.Automation.RemoteGrpc;
 using System;
 using System.Collections.Generic;
@@ -29,39 +30,11 @@ namespace Microsoft.Maui.Automation
 
 		private bool disposedValue;
 
-		public GrpcRemoteAppAgent(IApplication application, string address, HttpMessageHandler? httpMessageHandler = null)
+		public GrpcRemoteAppAgent(IApplication application, string address)
 		{
 			Application = application;
 
-			var grpc = GrpcChannel.ForAddress(address, new GrpcChannelOptions
-			{
-				//ServiceConfig = new ServiceConfig
-				//{
-				//	MethodConfigs =
-				//	 {
-				//		 new MethodConfig
-				//		 {
-				//			 Names = { MethodName.Default },
-				//			 RetryPolicy = new RetryPolicy
-				//			 {
-				//				 MaxAttempts = 60,
-				//				 InitialBackoff = TimeSpan.FromSeconds(1),
-				//				 MaxBackoff = TimeSpan.FromSeconds(5),
-				//				 BackoffMultiplier = 1.1,
-				//				 RetryableStatusCodes = { StatusCode.NotFound, StatusCode.Unavailable }
-				//			 }
-				//		 }
-				//	 }
-				//},
-				//HttpHandler = new Grpc.Net.Client.Web.GrpcWebHandler(Grpc.Net.Client.Web.GrpcWebMode.GrpcWeb)
-				//,
-					//httpMessageHandler ?? new HttpClientHandler())
-				//HttpHandler = new HttpClientHandler
-				//{
-				// ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
-				//}
-			}); ;
-
+			var grpc = GrpcChannel.ForAddress(address);
 			client = new RemoteApp.RemoteAppClient(grpc);
 
 			elementsCall = client.GetElementsRoute();
@@ -87,7 +60,8 @@ namespace Microsoft.Maui.Automation
 						var response = await HandleFindElementsRequest(findElementsCall.ResponseStream.Current);
 						await findElementsCall.RequestStream.WriteAsync(response);
 					}
-				} catch (Exception ex)
+				}
+				catch (Exception ex)
 				{
 					throw ex;
 				}
@@ -114,54 +88,102 @@ namespace Microsoft.Maui.Automation
 
 		async Task<ElementsResponse> HandleElementsRequest(ElementsRequest request)
 		{
-			// Get the elements from the running app host
-			var elements = await Application.GetElements(request.Platform);
-
 			var response = new ElementsResponse();
 			response.RequestId = request.RequestId;
-			response.Elements.AddRange(elements);
+
+			try
+			{
+				// Get the elements from the running app host
+				var elements = await GetApp(request.Platform).GetElements();
+				response.Elements.AddRange(elements);
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex);
+			}
 
 			return response;
 		}
 
 		async Task<ElementsResponse> HandleFindElementsRequest(FindElementsRequest request)
 		{
-			// Get the elements from the running app host
-			var elements = await Application.FindElements(request.Platform, e =>
-				e.Matches(request.PropertyName, request.Pattern, request.IsExpression));
-
 			var response = new ElementsResponse();
 			response.RequestId = request.RequestId;
-			response.Elements.AddRange(elements);
+
+			try
+			{
+				// Get the elements from the running app host
+				var elements = await GetApp(request.Platform).FindElements(e =>
+					e.PropertyMatches(request.PropertyName, request.Pattern, request.IsExpression));
+				response.Elements.AddRange(elements);
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex);
+			}
 
 			return response;
 		}
 
 		async Task<PropertyResponse> HandleGetPropertyRequest(PropertyRequest request)
 		{
-			// Get the elements from the running app host
-			var v = await Application.GetProperty(request.Platform, request.ElementId, request.PropertyName);
-
 			var response = new PropertyResponse();
 			response.Platform = request.Platform;
 			response.RequestId = request.RequestId;
-			response.Value = v;
 
+			try
+			{
+				// Get the elements from the running app host
+				var v = await GetApp(request.Platform).GetProperty(request.ElementId, request.PropertyName);
+
+				response.Value = v;
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex);
+				response.Value = string.Empty;
+			}
 			return response;
+
 		}
 
 		async Task<PerformActionResponse> HandlePerformActionRequest(PerformActionRequest request)
 		{
-			// Get the elements from the running app host
-			var result = await Application.PerformAction(request.Platform, request.Action, request.ElementId, request.Arguments.ToArray());
-
 			var response = new PerformActionResponse();
 			response.Platform = request.Platform;
 			response.RequestId = request.RequestId;
-			response.Status = result.Status;
-			response.Result = result.Result;
+
+			try
+			{
+				// Get the elements from the running app host
+				var result = await GetApp(request.Platform).PerformAction(request.Action, request.ElementId, request.Arguments.ToArray());
+				response.Status = result.Status;
+				response.Result = result.Result;
+			}
+			catch (Exception ex)
+			{
+				response.Status = PerformActionResult.ErrorStatus;
+				response.Result = ex.Message;
+			}
 
 			return response;
+		}
+
+		IApplication GetApp(Platform platform)
+		{
+			var unsupportedText = $"Platform {platform} is not supported on this app agent";
+
+			if (Application is MultiPlatformApplication multiApp)
+			{
+				if (!multiApp.PlatformApps.ContainsKey(platform))
+					throw new NotSupportedException(unsupportedText);
+
+				return multiApp.PlatformApps[platform];
+			}
+
+			if (Application.DefaultPlatform != platform)
+				throw new NotSupportedException(unsupportedText);
+			return Application;
 		}
 
 		protected virtual void Dispose(bool disposing)

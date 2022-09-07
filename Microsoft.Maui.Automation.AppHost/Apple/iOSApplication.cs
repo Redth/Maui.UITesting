@@ -13,12 +13,12 @@ namespace Microsoft.Maui.Automation
 	{
 		public override Platform DefaultPlatform => Platform.Ios;
 
-		public override async Task<string> GetProperty(Platform platform, string elementId, string propertyName)
+		public override async Task<string> GetProperty(string elementId, string propertyName)
 		{
 			var selector = new ObjCRuntime.Selector(propertyName);
 			var getSelector = new ObjCRuntime.Selector("get" + System.Globalization.CultureInfo.InvariantCulture.TextInfo.ToTitleCase(propertyName));
 
-			var element = (await FindElements(platform, e => e.Id?.Equals(elementId) ?? false))?.FirstOrDefault();
+			var element = (await FindElements(e => e.Id?.Equals(elementId) ?? false))?.FirstOrDefault();
 
 			if (element is not null && element.PlatformElement is NSObject nsobj)
 			{
@@ -40,7 +40,7 @@ namespace Microsoft.Maui.Automation
 			return string.Empty;
 		}
 
-		public override Task<IEnumerable<Element>> GetElements(Platform platform)
+		public override Task<IEnumerable<Element>> GetElements()
 		{
 			var root = GetRootElements(-1);
 
@@ -86,20 +86,20 @@ namespace Microsoft.Maui.Automation
 			return children;
 		}
 
-		public override Task<IEnumerable<Element>> FindElements(Platform platform, Func<Element, bool> matcher)
+		public override Task<IEnumerable<Element>> FindElements(Func<Element, bool> matcher)
 		{
 			var windows = GetRootElements(-1);
 
 			var matches = new List<Element>();
-			Traverse(platform, windows, matches, matcher);
+			Traverse(windows, matches, matcher);
 
 			return Task.FromResult<IEnumerable<Element>>(matches);
 		}
 
-        public override Task<PerformActionResult> PerformAction(Platform platform, string action, string elementId, params string[] arguments)
+		public override Task<PerformActionResult> PerformAction(string action, string elementId, params string[] arguments)
 			=> Task.FromResult(new PerformActionResult { Result = String.Empty, Status = -1 });
 
-        void Traverse(Platform platform, IEnumerable<Element> elements, IList<Element> matches, Func<Element, bool> matcher)
+		void Traverse(IEnumerable<Element> elements, IList<Element> matches, Func<Element, bool> matcher)
 		{
 			foreach (var e in elements)
 			{
@@ -110,7 +110,7 @@ namespace Microsoft.Maui.Automation
 				{
 					var children = uiView.Subviews?.Select(s => s.GetElement(this, e.Id, 1, 1))
 						?.ToList() ?? new List<Element>();
-					Traverse(platform, children, matches, matcher);
+					Traverse(children, matches, matcher);
 				}
 			}
 		}

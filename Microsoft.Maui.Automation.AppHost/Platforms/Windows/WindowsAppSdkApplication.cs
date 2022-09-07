@@ -13,12 +13,12 @@ namespace Microsoft.Maui.Automation
         public override Platform DefaultPlatform => Platform.Winappsdk;
 
 
-        public override Task<IEnumerable<Element>> GetElements(Platform platform)
+        public override Task<IEnumerable<Element>> GetElements()
             => Task.FromResult<IEnumerable<Element>>(new[] { UI.Xaml.Window.Current.GetElement(this, 1, -1) });
 
-        public override async Task<string> GetProperty(Platform platform, string elementId, string propertyName)
+        public override async Task<string> GetProperty(string elementId, string propertyName)
         {
-            var matches = await FindElements(platform, e => e.Id?.Equals(elementId) ?? false);
+            var matches = await FindElements(e => e.Id?.Equals(elementId) ?? false);
 
             var match = matches?.FirstOrDefault();
 
@@ -29,23 +29,23 @@ namespace Microsoft.Maui.Automation
         }
 
 
-        public override async Task<IEnumerable<Element>> FindElements(Platform platform, Func<Element, bool> matcher)
+        public override async Task<IEnumerable<Element>> FindElements(Func<Element, bool> matcher)
         {
             var windows = new[] { UI.Xaml.Window.Current.GetElement(this, 1, 1) };
 
             var matches = new List<Element>();
             
-            await Traverse(platform, windows, matches, matcher);
+            await Traverse(windows, matches, matcher);
 
             return matches;
         }
 
-        public override Task<PerformActionResult> PerformAction(Platform platform, string action, string elementId, params string[] arguments)
+        public override Task<PerformActionResult> PerformAction(string action, string elementId, params string[] arguments)
         {
             return Task.FromResult(PerformActionResult.Error());
         }
 
-        async Task Traverse(Platform platform, IEnumerable<Element> elements, IList<Element> matches, Func<Element, bool> matcher)
+        async Task Traverse(IEnumerable<Element> elements, IList<Element> matches, Func<Element, bool> matcher)
         {
             foreach (var e in elements)
             {
@@ -62,7 +62,7 @@ namespace Microsoft.Maui.Automation
                         children.Add(c);
                     }
 
-                    await Traverse(platform, children, matches, matcher);
+                    await Traverse(children, matches, matcher);
                 }
             }
         }

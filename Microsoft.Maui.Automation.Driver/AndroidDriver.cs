@@ -19,8 +19,8 @@ public class AndroidDriver : IDriver
 	{
 		Configuration = configuration;
 
-		int port = 10882;
-		var address = IPAddress.Any.ToString();
+		int port = 5000;
+		//var address = IPAddress.Any.ToString();
 		var adbDeviceSerial = configuration.Device;
 
 		androidSdkManager = new AndroidSdk.AndroidSdkManager();
@@ -40,8 +40,8 @@ public class AndroidDriver : IDriver
 
 		Name = $"Android ({Adb.GetDeviceName(Device)})";
 
-		//var forwardResult = Adb.RunCommand("-s", $"\"{Device}\"", "reverse", $"tcp:{port}", $"tcp:{port}")?.GetAllOutput();
-		//System.Diagnostics.Debug.WriteLine(forwardResult);
+		var forwardResult = Adb.RunCommand("-s", $"\"{Device}\"", "reverse", $"tcp:{port}", $"tcp:{port}")?.GetAllOutput();
+		System.Diagnostics.Debug.WriteLine(forwardResult);
 
 		grpc = new GrpcHost();
 	}
@@ -53,6 +53,7 @@ public class AndroidDriver : IDriver
 
 	readonly AndroidSdk.AndroidSdkManager androidSdkManager;
 	protected readonly string Device;
+	private bool disposedValue;
 
 	public IAutomationConfiguration Configuration { get; }
 
@@ -177,19 +178,31 @@ public class AndroidDriver : IDriver
 	}
 
 	public Task Tap(int x, int y)
-		=> grpc.Client.PerformAction(Platform.Android, Actions.Tap, string.Empty, x.ToString(), y.ToString());
+		=> grpc.Client.PerformAction(Configuration.AutomationPlatform, Actions.Tap, string.Empty, x.ToString(), y.ToString());
+
+	public Task Tap(Element element)
+		=> grpc.Client.PerformAction(Configuration.AutomationPlatform, Actions.Tap, element.Id);
+
 
 	bool IsAppInstalled(string appId)
 		=> androidSdkManager.PackageManager.ListPackages()
 			.Any(p => p.PackageName?.Equals(appId, StringComparison.OrdinalIgnoreCase) ?? false);
 
-	public Task<string> GetProperty(Platform platform, string elementId, string propertyName)
-		=> grpc.Client.GetProperty(platform, elementId, propertyName);
+	public Task<string> GetProperty(string elementId, string propertyName)
+		=> grpc.Client.GetProperty(Configuration.AutomationPlatform, elementId, propertyName);
 
-	public Task<IEnumerable<Element>> GetElements(Platform platform)
-		=> grpc.Client.GetElements(platform);
+	public Task<IEnumerable<Element>> GetElements()
+		=> grpc.Client.GetElements(Configuration.AutomationPlatform);
 
-	public Task<IEnumerable<Element>> FindElements(Platform platform, string propertyName, string pattern, bool isExpression = false, string ancestorId = "")
-		=> grpc.Client.FindElements(platform, propertyName, pattern, isExpression, ancestorId);
+	public Task<IEnumerable<Element>> FindElements(string propertyName, string pattern, bool isExpression = false, string ancestorId = "")
+		=> grpc.Client.FindElements(Configuration.AutomationPlatform, propertyName, pattern, isExpression, ancestorId);
 
+	public Task<PerformActionResult> PerformAction(string action, string elementId, params string[] arguments)
+		=> grpc.Client.PerformAction(Configuration.AutomationPlatform, action, elementId, arguments);
+
+	public async void Dispose()
+	{
+		if (grpc is not null)
+			await grpc.Stop();
+	}
 }

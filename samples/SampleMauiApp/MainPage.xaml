@@ -24,6 +24,7 @@
 
             <Label 
                 Text="Current count: 0"
+                AutomationId="labelCount"
                 Grid.Row="2"
                 FontSize="18"
                 FontAttributes="Bold"

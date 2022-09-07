@@ -10,5 +10,8 @@
         Platform DevicePlatform { get; set; }
 
         Platform AutomationPlatform { get; set; }
+
+        string AppId { get; set; }
+        string AppFilename { get; set; }
     }
 }

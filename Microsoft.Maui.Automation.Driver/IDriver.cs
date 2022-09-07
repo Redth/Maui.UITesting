@@ -1,6 +1,6 @@
 ﻿namespace Microsoft.Maui.Automation.Driver
 {
-	public interface IDriver
+	public interface IDriver : IDisposable
 	{
 		string Name { get; }
 
@@ -9,6 +9,7 @@
 		Task<IDeviceInfo> GetDeviceInfo();
 
 		Task InstallApp(string file, string appId);
+
 		Task RemoveApp(string appId);
 
 		Task LaunchApp(string appId);
@@ -17,11 +18,13 @@
 		Task ClearAppState(string appId);
 
 		Task PushFile(string appId, string localFile, string destinationDirectory);
-        Task PullFile(string appId, string remoteFile, string localDirectory);
+		Task PullFile(string appId, string remoteFile, string localDirectory);
 
-        Task Tap(int x, int y);
+		Task Tap(int x, int y);
 
 		Task LongPress(int x, int y);
+
+		Task Tap(Element element);
 
 		Task KeyPress(char keyCode);
 
@@ -33,10 +36,12 @@
 
 		Task OpenUri(string uri);
 
-		Task<string> GetProperty(Platform platform, string elementId, string propertyName);
+		Task<string> GetProperty(string elementId, string propertyName);
 
-		Task<IEnumerable<Element>> GetElements(Platform platform);
+		Task<IEnumerable<Element>> GetElements();
 
-		Task<IEnumerable<Element>> FindElements(Platform platform, string propertyName, string pattern, bool isExpression = false, string ancestorId = "");
+		Task<IEnumerable<Element>> FindElements(string propertyName, string pattern, bool isExpression = false, string ancestorId = "");
+
+		Task<PerformActionResult> PerformAction(string action, string elementId, params string[] arguments);
 	}
 }

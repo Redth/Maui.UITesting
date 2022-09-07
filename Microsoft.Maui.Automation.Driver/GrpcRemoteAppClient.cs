@@ -1,19 +1,15 @@
 ﻿using Grpc.Core;
+using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Automation.RemoteGrpc;
-using System;
-using System.Collections.Concurrent;
-using System.Linq.Expressions;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace Microsoft.Maui.Automation.Remote
 {
-	public class GrpcRemoteAppClient : RemoteGrpc.RemoteApp.RemoteAppBase
+	public class GrpcRemoteAppClient : RemoteApp.RemoteAppBase
 	{
-		public GrpcRemoteAppClient()
+		public GrpcRemoteAppClient(ILogger<GrpcRemoteAppClient> logger)
 			: base()
 		{
-			Console.WriteLine("New grpc Service");
+			logger.LogInformation("GRPC Service Created");
 		}
 	
 		Dictionary<string, TaskCompletionSource<IResponseMessage>> pendingResponses = new();

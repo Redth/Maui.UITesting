@@ -10,37 +10,39 @@ namespace Microsoft.Maui.Automation.Test
 {
 	public class Tests
 	{
+		readonly AppDriver driver;
+
 		public Tests()
 		{
-
-			configuration = new AutomationConfiguration(
-				Platform.Android,
-				automationPlatform: Platform.Maui,
-				device: "emulator-5554");
-			configuration.AppAgentPort = 5000;
-
-			driver = new Driver.AppDriver(configuration);
+			driver = new AppDriver(
+				new AutomationConfiguration(
+					"com.companyname.samplemauiapp",
+					"C:\\code\\Maui.UITesting\\samples\\SampleMauiApp\\bin\\Debug\\net6.0-android\\com.companyname.samplemauiapp-Signed.apk",
+					Platform.Android,
+					automationPlatform: Platform.Maui,
+					device: "emulator-5554"));
 		}
-
-		readonly IAutomationConfiguration configuration;
-		readonly AppDriver driver;
 
 		[Fact]
 		public async Task RunApp()
 		{
-			var appId = "com.companyname.samplemauiapp";
-			var file = "C:\\code\\Maui.UITesting\\samples\\SampleMauiApp\\bin\\Debug\\net6.0-android\\com.companyname.samplemauiapp-Signed.apk";
+			// Install and launch the app
+			await driver.InstallApp();
+			await driver.LaunchApp();
 
+			// Find the button by its MAUI AutomationId property
+			var button = await driver.FirstByAutomationId("buttonOne");
+			Assert.NotNull(button);
 
-			//await driver.InstallApp(file, appId);
+			// Tap the button to increment the counter
+			await driver.Tap(button);
 
-			//await driver.InstallApp(@"C:\code\Maui.UITesting\samples\SampleMauiApp\bin\Debug\net6.0-android\com.companyname.samplemauiapp-Signed.apk", appId);
-			//await driver.LaunchApp(appId);
+			// Find the label we expect to have changed
+			var label = await driver.By(e =>
+				e.Type == "Label"
+				&& e.Text.Contains("1"));
 
-			var elements = await driver.FindElements(Platform.Maui, "AutomationId", "buttonOne");
-
-			var e = elements.FirstOrDefault();
-
+			Assert.NotEmpty(label);
 		}
 	}
 }

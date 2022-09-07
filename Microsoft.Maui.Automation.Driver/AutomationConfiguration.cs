@@ -42,8 +42,10 @@ namespace Microsoft.Maui.Automation.Driver
         {
         }
 
-        public AutomationConfiguration(Platform devicePlatform, string? device = null, Platform? automationPlatform = null)
+        public AutomationConfiguration(string appId, string appFilename, Platform devicePlatform, string? device = null, Platform? automationPlatform = null)
         {
+            AppId = appId;
+            AppFilename = appFilename;
             DevicePlatform = devicePlatform;
             if (!string.IsNullOrEmpty(device))
                 Device = device;
@@ -58,7 +60,7 @@ namespace Microsoft.Maui.Automation.Driver
 
         public int AppAgentPort
         {
-            get => int.Parse(GetOrDefault(nameof(AppAgentPort), 10882).ToString());
+            get => int.Parse(GetOrDefault(nameof(AppAgentPort), 5000).ToString());
             set => this[nameof(AppAgentPort)] = value;
         }
 
@@ -80,7 +82,19 @@ namespace Microsoft.Maui.Automation.Driver
             set => this[nameof(AutomationPlatform)] = Enum.GetName<Platform>(value) ?? nameof(Platform.Maui);
         }
 
-        private object GetOrDefault(string key, object defaultValue)
+		public string AppId
+		{
+			get => GetOrDefault(nameof(AppId), "").ToString();
+			set => this[nameof(AppId)] = value;
+		}
+
+		public string AppFilename
+		{
+			get => GetOrDefault(nameof(AppFilename), "").ToString();
+			set => this[nameof(AppFilename)] = value;
+		}
+
+		private object GetOrDefault(string key, object defaultValue)
         {
             if (this.ContainsKey(key))
                 return this[key];

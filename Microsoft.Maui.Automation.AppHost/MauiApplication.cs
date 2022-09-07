@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Maui.Automation.RemoteGrpc;
+using Microsoft.Maui.Controls;
 using Microsoft.Maui.Dispatching;
+using Microsoft.Maui.Platform;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -12,8 +14,10 @@ namespace Microsoft.Maui.Automation
 {
 	public class MauiApplication : Application
 	{
-		public MauiApplication(Maui.IApplication? mauiApp = default) : base()
+		public MauiApplication(IApplication platformApp, Maui.IApplication mauiApp = default) : base()
 		{
+			PlatformApplication = platformApp;
+
 			MauiPlatformApplication = mauiApp
 				?? App.GetCurrentMauiApplication() ?? throw new PlatformNotSupportedException();
 		}
@@ -29,7 +33,9 @@ namespace Microsoft.Maui.Automation
 
 		public readonly Maui.IApplication MauiPlatformApplication;
 
-		public override Task<IEnumerable<Element>> GetElements(Platform platform)
+		public readonly IApplication PlatformApplication;
+
+		public override Task<IEnumerable<Element>> GetElements()
 			=> Dispatch<IEnumerable<Element>>(() =>
 			{
 				var windows = new List<Element>();
@@ -43,7 +49,7 @@ namespace Microsoft.Maui.Automation
 				return Task.FromResult<IEnumerable<Element>>(windows);
 			});
 
-		public override Task<IEnumerable<Element>> FindElements(Platform platform, Func<Element, bool> matcher)
+		public override Task<IEnumerable<Element>> FindElements(Func<Element, bool> matcher)
 			=> Dispatch<IEnumerable<Element>>(() =>
 			{
 				var windows = new List<Element>();
@@ -55,12 +61,12 @@ namespace Microsoft.Maui.Automation
 				}
 
 				var matches = new List<Element>();
-				Traverse(platform, windows, matches, matcher);
+				Traverse(windows, matches, matcher);
 
 				return Task.FromResult<IEnumerable<Element>>(matches);
 			});
 
-		void Traverse(Platform platform, IEnumerable<Element> elements, IList<Element> matches, Func<Element, bool> matcher)
+		void Traverse(IEnumerable<Element> elements, IList<Element> matches, Func<Element, bool> matcher)
 		{
 			foreach (var e in elements)
 			{
@@ -70,25 +76,50 @@ namespace Microsoft.Maui.Automation
 				if (e.PlatformElement is IView view)
 				{
 					var children = view.GetChildren(this, e.Id, 1, 1);
-					Traverse(platform, children, matches, matcher);
+					Traverse(children, matches, matcher);
 				}
 				else if (e.PlatformElement is IWindow window)
 				{
 					var children = window.GetChildren(this, e.Id, 1, 1);
-					Traverse(platform, children, matches, matcher);
+					Traverse(children, matches, matcher);
 				}
 			}
 		}
 
-		public override Task<string> GetProperty(Platform platform, string elementId, string propertyName)
+		public override async Task<string> GetProperty(string elementId, string propertyName)
 		{
-			throw new NotImplementedException();
+			var element = await this.FirstById(elementId);
+
+			return element.PlatformElement
+				.GetType()
+				.GetProperty(propertyName, System.Reflection.BindingFlags.GetProperty | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic)
+					?.GetValue(element.Platform)?.ToString() ?? String.Empty;
 		}
 
-        public override Task<PerformActionResult> PerformAction(Platform platform, string action, string elementId, params string[] arguments)
-        {
-            throw new NotImplementedException();
-        }
-    }
+		public override Task<PerformActionResult> PerformAction(string action, string elementId, params string[] arguments)
+			=> action switch
+			{
+				Actions.Tap => PerformTap(elementId, arguments),
+				_ => throw new NotImplementedException()
+			};
+
+		async Task<PerformActionResult> PerformTap(string elementId, params string[] arguments)
+		{
+			if (!string.IsNullOrEmpty(elementId))
+			{
+				var element = await this.FirstById(elementId);
+
+				if (element.PlatformElement is IElement mauiElement)
+				{
+#if ANDROID
+					if (mauiElement.Handler?.PlatformView is Android.Views.View androidView)
+						return await androidView.PerformAction(Actions.Tap, elementId, arguments);
+#endif
+				}
+			}
+
+			throw new NotImplementedException();
+		}
+	}
 }
 
