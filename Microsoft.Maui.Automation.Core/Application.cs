@@ -60,7 +60,7 @@ namespace Microsoft.Maui.Automation
 
 		public abstract Task<IEnumerable<Element>> GetElements();
 
-		public abstract Task<IEnumerable<Element>> FindElements(Func<Element, bool> matcher);
+		public abstract Task<IEnumerable<Element>> FindElements(Predicate<Element> matcher);
 
 		public Task<PerformActionResult> PerformAction(string action, params string[] arguments)
 			=> PerformAction(action, string.Empty, arguments);

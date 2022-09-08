@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Windows.UI.Core;
 
 namespace Microsoft.Maui.Automation
 {
@@ -29,7 +30,7 @@ namespace Microsoft.Maui.Automation
         }
 
 
-        public override async Task<IEnumerable<Element>> FindElements(Func<Element, bool> matcher)
+        public override async Task<IEnumerable<Element>> FindElements(Predicate<Element> matcher)
         {
             var windows = new[] { UI.Xaml.Window.Current.GetElement(this, 1, 1) };
 
@@ -45,18 +46,18 @@ namespace Microsoft.Maui.Automation
             return Task.FromResult(PerformActionResult.Error());
         }
 
-        async Task Traverse(IEnumerable<Element> elements, IList<Element> matches, Func<Element, bool> matcher)
+        async Task Traverse(IEnumerable<Element> elements, IList<Element> matches, Predicate<Element> matcher)
         {
             foreach (var e in elements)
             {
                 if (matcher(e))
                     matches.Add(e);
 
-                if (e.PlatformElement is UIElement uiElement)
+                if (e.PlatformElement is FrameworkElement fwElement)
                 {
                     var children = new List<Element>();
 
-                    foreach (var child in (uiElement as Panel)?.Children ?? Enumerable.Empty<UIElement>())
+                    foreach (var child in fwElement.FindChildren(false))
                     {
                         var c = child.GetElement(this, e.Id, 1, 1);
                         children.Add(c);

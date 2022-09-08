@@ -50,7 +50,7 @@ namespace Microsoft.Maui.Automation
 			return Task.FromResult(LifecycleListener.Activities.Select(a => a.GetElement(this, 1, -1)));
 		}
 
-		public override Task<IEnumerable<Element>> FindElements(Func<Element, bool> matcher)
+		public override Task<IEnumerable<Element>> FindElements(Predicate<Element> matcher)
 		{
 			var windows = LifecycleListener.Activities.Select(a => a.GetElement(this, 1, 1));
 
@@ -69,7 +69,7 @@ namespace Microsoft.Maui.Automation
 			return PerformActionResult.Error($"Unrecognized action: {action}");
 		}
 
-		void Traverse(IEnumerable<Element> elements, IList<Element> matches, Func<Element, bool> matcher)
+		void Traverse(IEnumerable<Element> elements, IList<Element> matches, Predicate<Element> matcher)
 		{
 			foreach (var e in elements)
 			{

@@ -49,7 +49,7 @@ namespace Microsoft.Maui.Automation
 				return Task.FromResult<IEnumerable<Element>>(windows);
 			});
 
-		public override Task<IEnumerable<Element>> FindElements(Func<Element, bool> matcher)
+		public override Task<IEnumerable<Element>> FindElements(Predicate<Element> matcher)
 			=> Dispatch<IEnumerable<Element>>(() =>
 			{
 				var windows = new List<Element>();
@@ -66,7 +66,7 @@ namespace Microsoft.Maui.Automation
 				return Task.FromResult<IEnumerable<Element>>(matches);
 			});
 
-		void Traverse(IEnumerable<Element> elements, IList<Element> matches, Func<Element, bool> matcher)
+		void Traverse(IEnumerable<Element> elements, IList<Element> matches, Predicate<Element> matcher)
 		{
 			foreach (var e in elements)
 			{

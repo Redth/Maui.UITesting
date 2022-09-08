@@ -9,7 +9,7 @@ namespace Microsoft.Maui.Automation
 
         public Task<IEnumerable<Element>> GetElements();
 
-        public Task<IEnumerable<Element>> FindElements(Func<Element, bool> matcher);
+        public Task<IEnumerable<Element>> FindElements(Predicate<Element> matcher);
 
         public Task<string> GetProperty(string elementId, string propertyName);
 

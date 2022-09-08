@@ -32,37 +32,37 @@ namespace RemoteAutomationTests
 
         //}
 
-        public override Task<string> GetProperty(Platform platform, string elementId, string propertyName)
+        public override Task<string> GetProperty(string elementId, string propertyName)
         {
             throw new NotImplementedException();
         }
 
-        public override Task<PerformActionResult> PerformAction(Platform platform, string action, string elementId, params string[] arguments)
+        public override Task<PerformActionResult> PerformAction(string action, string elementId, params string[] arguments)
         {
             throw new NotImplementedException();
         }
 
-        public override Task<IEnumerable<Element>> GetElements(Platform platform)
+        public override Task<IEnumerable<Element>> GetElements()
             => Task.FromResult<IEnumerable<Element>>(MockWindows);
 
-        public override Task<IEnumerable<Element>> FindElements(Platform platform, Func<Element, bool> matcher)
+        public override Task<IEnumerable<Element>> FindElements(Predicate<Element> matcher)
         {
             var windows = MockWindows;
 
             var matches = new List<Element>();
-            Traverse(platform, windows, matches, matcher);
+            Traverse(windows, matches, matcher);
 
             return Task.FromResult<IEnumerable<Element>>(matches);
         }
 
-        void Traverse(Platform platform, IEnumerable<Element> elements, IList<Element> matches, Func<Element, bool> matcher)
+        void Traverse(IEnumerable<Element> elements, IList<Element> matches, Predicate<Element> matcher)
         {
             foreach (var e in elements)
             {
                 if (matcher(e))
                     matches.Add(e);
 
-                Traverse(platform, e.Children, matches, matcher);
+                Traverse(e.Children, matches, matcher);
             }
         }
     }

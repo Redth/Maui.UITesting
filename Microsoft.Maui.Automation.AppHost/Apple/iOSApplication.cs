@@ -86,7 +86,7 @@ namespace Microsoft.Maui.Automation
 			return children;
 		}
 
-		public override Task<IEnumerable<Element>> FindElements(Func<Element, bool> matcher)
+		public override Task<IEnumerable<Element>> FindElements(Predicate<Element> matcher)
 		{
 			var windows = GetRootElements(-1);
 
@@ -99,7 +99,7 @@ namespace Microsoft.Maui.Automation
 		public override Task<PerformActionResult> PerformAction(string action, string elementId, params string[] arguments)
 			=> Task.FromResult(new PerformActionResult { Result = String.Empty, Status = -1 });
 
-		void Traverse(IEnumerable<Element> elements, IList<Element> matches, Func<Element, bool> matcher)
+		void Traverse(IEnumerable<Element> elements, IList<Element> matches, Predicate<Element> matcher)
 		{
 			foreach (var e in elements)
 			{

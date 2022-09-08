@@ -82,17 +82,20 @@ namespace Microsoft.Maui.Automation.Driver
             set => this[nameof(AutomationPlatform)] = Enum.GetName<Platform>(value) ?? nameof(Platform.Maui);
         }
 
-		public string AppId
-		{
-			get => GetOrDefault(nameof(AppId), "").ToString();
-			set => this[nameof(AppId)] = value;
-		}
+        public string AppId
+        {
+            get => GetOrDefault(nameof(AppId), "").ToString();
+            set => this[nameof(AppId)] = value;
+        }
 
-		public string AppFilename
-		{
-			get => GetOrDefault(nameof(AppFilename), "").ToString();
-			set => this[nameof(AppFilename)] = value;
-		}
+        public string AppFilename
+        {
+            get => GetOrDefault(nameof(AppFilename), "").ToString();
+            set => this[nameof(AppFilename)] = value;
+        }
+
+        public string Get(string key, string defaultValue)
+            => GetOrDefault(key, defaultValue)?.ToString();
 
 		private object GetOrDefault(string key, object defaultValue)
         {

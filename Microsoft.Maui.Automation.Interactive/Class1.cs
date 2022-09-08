@@ -46,6 +46,8 @@ public class AutomationExtensions : IKernelExtension
             deviceOption);
 
         kernel.AddDirective(testOption);
+
+        return Task.CompletedTask;
     }
 }
 

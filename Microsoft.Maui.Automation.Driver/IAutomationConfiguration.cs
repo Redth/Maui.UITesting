@@ -13,5 +13,7 @@
 
         string AppId { get; set; }
         string AppFilename { get; set; }
+
+        string Get(string key, string defaultValue);
     }
 }

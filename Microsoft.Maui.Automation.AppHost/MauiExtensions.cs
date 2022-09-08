@@ -1,4 +1,6 @@
-﻿using Microsoft.Maui.Controls;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Maui.Controls;
+using Microsoft.Maui.Platform;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -38,32 +40,32 @@ namespace Microsoft.Maui.Automation
 		}
 
 
-		internal static Element GetPlatformElement(this Maui.IWindow window, IApplication application, int currentDepth = -1, int maxDepth = -1)
+		internal static Element GetPlatformWindowElement(this Maui.IWindow window, IApplication application)
 		{
 #if ANDROID
 			if (window.Handler.PlatformView is Android.App.Activity activity)
-				return activity.GetElement(application, currentDepth, maxDepth);
+				return activity.GetElement(application, 1, 1);
 #elif IOS || MACCATALYST
 			if (window.Handler.PlatformView is UIKit.UIWindow uiwindow)
-				return uiwindow.GetElement(application, currentDepth, maxDepth);
+				return uiwindow.GetElement(application, 1, 1);
 #elif WINDOWS
             if (window.Handler.PlatformView is Microsoft.UI.Xaml.Window xamlwindow)
-				return xamlwindow.GetElement(application, currentDepth, maxDepth);
+				return xamlwindow.GetElement(application, 1, 1);
 #endif
 			return null;
 		}
 
-		internal static Element GetPlatformElement(this Maui.IView view, IApplication application, string parentId = "", int currentDepth = -1, int maxDepth = -1)
+		internal static string GetPlatformElementId(this Maui.IView view, IApplication application, string parentId = "", int currentDepth = -1, int maxDepth = -1)
 		{
 #if ANDROID
 			if (view.Handler.PlatformView is Android.Views.View androidview)
-				return androidview.GetElement(application, parentId, currentDepth, maxDepth);
+				return androidview.Id.ToString();
 #elif IOS || MACCATALYST
 			if (view.Handler.PlatformView is UIKit.UIView uiview)
-				return uiview.GetElement(application, parentId, currentDepth, maxDepth);
+				return uiview.Handle.ToString();
 #elif WINDOWS
-            if (view.Handler.PlatformView is Microsoft.UI.Xaml.UIElement uielement)
-				return uielement.GetElement(application, parentId, currentDepth, maxDepth);
+			if (view.Handler.PlatformView is Microsoft.UI.Xaml.FrameworkElement fwElement)
+				return fwElement.GetHashCode().ToString();
 #endif
 
 			return null;
@@ -72,7 +74,7 @@ namespace Microsoft.Maui.Automation
 
 		internal static Element GetMauiElement(this Maui.IWindow window, IApplication application, string parentId = "", int currentDepth = -1, int maxDepth = -1)
 		{
-			var platformElement = window.GetPlatformElement(application);
+			var platformElement = window.GetPlatformWindowElement(application);
 
 			var e = new Element(application, Platform.Maui, platformElement.Id, window, parentId)
 			{
@@ -93,12 +95,12 @@ namespace Microsoft.Maui.Automation
 
 		internal static Element GetMauiElement(this Maui.IView view, IApplication application, string parentId = "", int currentDepth = -1, int maxDepth = -1)
 		{
-			var platformElement = view.GetPlatformElement(application, parentId, currentDepth, maxDepth);
+			var platformElementId = view.GetPlatformElementId(application, parentId, currentDepth, maxDepth);
 
-			var e = new Element(application, Platform.Maui, platformElement.Id, view, parentId)
+			var e = new Element(application, Platform.Maui, platformElementId, view, parentId)
 			{
 				ParentId = parentId,
-				AutomationId = view.AutomationId ?? platformElement.Id,
+				AutomationId = view.AutomationId ?? platformElementId,
 				Type = view.GetType().Name,
 				FullType = view.GetType().FullName,
 				Visible = view.Visibility == Visibility.Visible,

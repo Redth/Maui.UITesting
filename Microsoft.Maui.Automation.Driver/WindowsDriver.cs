@@ -6,6 +6,9 @@ using System.Net;
 using OpenQA.Selenium.Appium.Windows;
 using OpenQA.Selenium.Remote;
 using OpenQA.Selenium.Appium.MultiTouch;
+using OpenQA.Selenium.Interactions;
+using OpenQA.Selenium.Appium.Interactions;
+using PointerInputDevice = OpenQA.Selenium.Appium.Interactions.PointerInputDevice;
 
 namespace Microsoft.Maui.Automation.Driver
 {
@@ -31,9 +34,8 @@ namespace Microsoft.Maui.Automation.Driver
 			if (string.IsNullOrEmpty(appDriverPath) || !File.Exists(appDriverPath))
 				throw new FileNotFoundException("Unable to locate WinAppDriver.exe, please install from: https://github.com/Microsoft/WinAppDriver");
 
-
-			appDriverProcess = new ProcessRunner(appDriverPath);
-			appDriverProcess.OutputLine += AppDriverProcess_OutputLine;
+			appDriverProcess = null;
+			//appDriverProcess = new ProcessRunner(appDriverPath);
 			var appCapabilities = new DesiredCapabilities();
 			appCapabilities.SetCapability("app", configuration.AppId);
 			appCapabilities.SetCapability("platformName", "Windows");
@@ -154,18 +156,35 @@ namespace Microsoft.Maui.Automation.Driver
 
 		public Task Tap(int x, int y)
 		{
+			//x = (int)(x * 2.25);
+			//y = (int)(y * 2.25);
+			
 			var touch = new RemoteTouchScreen(Session);
+			//touch.d
 			touch.Down(x, y);
 			Thread.Sleep(100);
 			touch.Up(x, y);
 			return Task.CompletedTask;
 		}
 
-		public Task Tap(Element element)
+		public async Task Tap(Element element)
 		{
-			var tapX = element.X + (element.Width / 2);
-			var tapY = element.Y + (element.Height / 2);
-			return Tap(tapX, tapY);
+			var platformElements = (await grpc.Client.GetElements(Platform.Winappsdk));
+
+			var windowsElement = platformElements?.FirstOrDefault(e => e.Id == element.Id);
+
+			var x = (int)(windowsElement.X * 2.25);
+			var y = (int)(windowsElement.Y * 2.25);
+			var touchContact = new PointerInputDevice(PointerKind.Touch);
+			var touchSequence = new ActionSequence(touchContact, 0);
+
+			touchSequence.AddAction(touchContact.CreatePointerMove(CoordinateOrigin.Viewport, x, y, TimeSpan.Zero));
+			touchSequence.AddAction(touchContact.CreatePointerDown(PointerButton.TouchContact));
+			touchSequence.AddAction(touchContact.CreatePointerMove(CoordinateOrigin.Viewport, x, y, TimeSpan.FromMilliseconds(200)));
+			touchSequence.AddAction(touchContact.CreatePointerUp(PointerButton.TouchContact));
+
+			Session.PerformActions(new List<ActionSequence> { touchSequence });
+			//return Task.CompletedTask;
 		}
 
 		public Task<string> GetProperty(string elementId, string propertyName)
@@ -182,11 +201,17 @@ namespace Microsoft.Maui.Automation.Driver
 
 		public async void Dispose()
 		{
-			Session?.Close();
-			Session?.Dispose();
+			try
+			{
+				Session?.Close();
+				Session?.Dispose();
+			} catch { }
 
-			appDriverProcess?.Kill();
-			appDriverProcess?.WaitForExit();
+			try
+			{
+				appDriverProcess?.Kill();
+				appDriverProcess?.WaitForExit();
+			} catch { }
 
 			if (grpc is not null)
 				await grpc.Stop();

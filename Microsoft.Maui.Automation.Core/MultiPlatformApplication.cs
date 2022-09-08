@@ -35,7 +35,7 @@ namespace Microsoft.Maui.Automation
 		public override Task<string> GetProperty(string elementId, string propertyName)
 			=> GetApp(DefaultPlatform).GetProperty(elementId, propertyName);
 
-		public override Task<IEnumerable<Element>> FindElements(Func<Element, bool> matcher)
+		public override Task<IEnumerable<Element>> FindElements(Predicate<Element> matcher)
 			=> GetApp(DefaultPlatform).FindElements(matcher);
 
 

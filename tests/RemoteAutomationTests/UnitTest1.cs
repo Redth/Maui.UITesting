@@ -17,7 +17,7 @@ namespace RemoteAutomationTests
                 .WithView("view1");
             
             var windows = new List<Element>();
-            var elems = await app.GetElements(Platform.Maui);
+            var elems = await app.GetElements();
 
             // Query the remote host
             foreach (var window in elems)
