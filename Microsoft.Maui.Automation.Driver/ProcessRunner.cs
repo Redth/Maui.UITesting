@@ -33,12 +33,18 @@ internal class ProcessRunner
         process.OutputDataReceived += (s, e) =>
         {
             if (e.Data != null)
+            {
                 standardOutput.Add(e.Data);
+                OutputLine?.Invoke(this, e.Data);
+            }
         };
         process.ErrorDataReceived += (s, e) =>
         {
             if (e.Data != null)
+            {
                 standardError.Add(e.Data);
+                OutputLine?.Invoke(this, e.Data);
+            }
         };
         process.Start();
         process.BeginOutputReadLine();
@@ -61,6 +67,11 @@ internal class ProcessRunner
 
     public void Kill()
         => process?.Kill();
+
+    public event EventHandler<string> OutputLine;
+
+    public IEnumerable<string> Output
+        => standardOutput.Concat(standardError);
 
     public void StandardInputWrite(string input)
     {

@@ -37,8 +37,27 @@ public class iOSDriver : IDriver
 
 		idbCompanionPath = UnpackIdb();
 
-		idbCompanionProcess = new ProcessRunner(idbCompanionPath, $"--udid {configuration.Device}");
+		idbCompanionProcess = new ProcessRunner(idbCompanionPath, $"--boot {Configuration.Device}");
+		var bootResult = idbCompanionProcess.WaitForExit();
+		Console.WriteLine(bootResult.GetAllOutput());
+		
 
+		idbCompanionProcess = new ProcessRunner(idbCompanionPath, $"--udid {configuration.Device}");
+        
+		// Sleep until idb exited or started
+		while (true)
+		{
+			Thread.Sleep(500);
+
+			if (idbCompanionProcess.HasExited)
+				throw new Exception("Failed to start idb");
+
+			var output = idbCompanionProcess.Output.ToList();
+
+			if (output.Any(s => s?.Contains("\"grpc_swift_port\":10882") ?? false))
+				break;
+        }
+		
 		var channel = GrpcChannel.ForAddress($"http://{address}:10882");
 		idb = new Idb.CompanionService.CompanionServiceClient(channel);
 
@@ -50,7 +69,12 @@ public class iOSDriver : IDriver
 		grpc = new GrpcHost();
 	}
 
-	public readonly string Udid;
+    private void IdbCompanionProcess_OutputLine(object? sender, string e)
+    {
+        throw new NotImplementedException();
+    }
+
+    public readonly string Udid;
 
 	readonly CompanionService.CompanionServiceClient idb;
 	readonly GrpcHost grpc;
@@ -92,15 +116,24 @@ public class iOSDriver : IDriver
 			|| Configuration.DevicePlatform == Platform.Macos)
 			return Task.CompletedTask;
 
-		return idb.install().RequestStream<InstallRequest, InstallResponse>(
-			new Idb.InstallRequest()
-			{
-				Destination = Idb.InstallRequest.Types.Destination.App,
+		var payload = new Payload();
+		payload.FilePath = file;
+		
 
-			}, response =>
+		return idb.install().RequestStream<InstallRequest, InstallResponse>(
+			new InstallRequest[] {
+                new InstallRequest
+				{
+					Destination = InstallRequest.Types.Destination.App
+				},
+				new InstallRequest
+				{
+					Payload = payload
+				}
+            },
+			response =>
 			{
-				var progress = response.Progress;
-				Console.WriteLine(progress);
+				Console.WriteLine($"{response.Uuid} -> {response.Name} -> {response.Progress}");
 			});
 	}
 
@@ -190,7 +223,7 @@ public class iOSDriver : IDriver
 		=> press(x, y, TimeSpan.FromMilliseconds(50));
 
 	public Task Tap(Element element)
-		=> grpc.Client.PerformAction(Platform.Ios, Actions.Tap, element.Id);
+		=> grpc.Client.PerformAction(Configuration.AutomationPlatform, Actions.Tap, element.Id);
 
 
 	public Task LongPress(int x, int y)
@@ -281,6 +314,9 @@ public class iOSDriver : IDriver
 
 	public async void Dispose()
 	{
+		try { idbCompanionProcess?.Kill(); }
+		catch { }
+
 		if (grpc is not null)
 			await grpc.Stop();
 	}

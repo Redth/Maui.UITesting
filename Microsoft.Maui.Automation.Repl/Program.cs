@@ -1,5 +1,4 @@
-﻿using Grpc.Core.Logging;
-using Grpc.Net.Client;
+﻿using Grpc.Net.Client;
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Automation;
 using Microsoft.Maui.Automation.Driver;
@@ -49,6 +48,9 @@ var mappings = new Dictionary<string, Func<Task>>
 		}
 	}
 };
+
+await driver.InstallApp();
+await driver.LaunchApp();
 
 while (true)
 {

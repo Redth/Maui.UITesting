@@ -4,34 +4,20 @@ namespace Microsoft.Maui.Automation.Driver;
 
 public static class GrpcExtensions
 {
-    public static async Task RequestStream<TRequest, TResponse>(this AsyncDuplexStreamingCall<TRequest, TResponse> call, TRequest request, Action<TResponse>? callback = null)
+    public static Task RequestStream<TRequest, TResponse>(this AsyncDuplexStreamingCall<TRequest, TResponse> call, TRequest request, Action<TResponse>? callback = null)
+        => call.RequestStream<TRequest, TResponse>(new[] { request }, callback);
+
+    public static async Task RequestStream<TRequest, TResponse>(this AsyncDuplexStreamingCall<TRequest, TResponse> call, TRequest[] requests, Action<TResponse>? callback = null)
     {
-        await call.RequestStream.WriteAsync(request);
-
-        var tcsComplete = new TaskCompletionSource<bool>();
-
-        var statusTask = Task.Run(async () =>
-        {
-            try
-            {
-                while (await call.ResponseStream.MoveNext(CancellationToken.None))
-                {
-                    var c = call.ResponseStream.Current;
-
-                    callback?.Invoke(c);
-                }
-
-                tcsComplete.TrySetResult(true);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
-                tcsComplete.TrySetException(ex);
-            }
-        });
+        foreach (var request in requests)
+            await call.RequestStream.WriteAsync(request);
 
         await call.RequestStream.CompleteAsync();
-        await tcsComplete.Task;
+
+        await foreach (var response in call.ResponseStream.ReadAllAsync())
+        {
+            callback?.Invoke(response);
+        }
     }
 
     public static Task<TResponse> SendStream<TRequest, TResponse>(this AsyncClientStreamingCall<TRequest, TResponse> call, params TRequest[] requests)
