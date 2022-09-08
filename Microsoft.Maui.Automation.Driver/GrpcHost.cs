@@ -15,7 +15,7 @@ public class GrpcHost
 		var builder = CreateHostBuilder(this, Array.Empty<string>());
 
 		host = builder.Build();
-		host.StartAsync();
+		host.Start();
 
 		Services = host.Services;
 		Client = host.Services.GetRequiredService<GrpcRemoteAppClient>();
