@@ -1,10 +1,13 @@
 ﻿#if IOS || MACCATALYST
 using Microsoft.Maui.Controls;
+using Microsoft.Maui.Controls.PlatformConfiguration;
 using Microsoft.Maui.Controls.PlatformConfiguration.AndroidSpecific;
 using Microsoft.Maui.Controls.PlatformConfiguration.GTKSpecific;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 using UIKit;
 using static System.Net.Mime.MediaTypeNames;
 
@@ -94,5 +97,20 @@ internal static class iOSExtensions
 		}
 		return e;
 	}
+
+    public static Task<PerformActionResult> PerformAction(this UIKit.UIView view, string action, string elementId, params string[] arguments)
+    {
+        if (action == Actions.Tap)
+        {
+			if (view is UIControl ctrl)
+			{
+				ctrl.InvokeOnMainThread(() =>
+					ctrl.SendActionForControlEvents(UIControlEvent.TouchUpInside));
+                return Task.FromResult(PerformActionResult.Ok());
+            }
+        }
+
+        throw new NotSupportedException($"PerformAction {action} is not supported.");
+    }
 }
 #endif

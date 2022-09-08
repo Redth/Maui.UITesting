@@ -114,6 +114,9 @@ namespace Microsoft.Maui.Automation
 #if ANDROID
 					if (mauiElement.Handler?.PlatformView is Android.Views.View androidView)
 						return await androidView.PerformAction(Actions.Tap, elementId, arguments);
+#elif IOS || MACCATALYST
+					if (mauiElement.Handler?.PlatformView is UIKit.UIView uiview)
+						return await uiview.PerformAction(Actions.Tap, elementId, arguments);
 #endif
 				}
 			}
