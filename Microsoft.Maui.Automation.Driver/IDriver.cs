@@ -8,17 +8,17 @@
 
 		Task<IDeviceInfo> GetDeviceInfo();
 
-		Task InstallApp(string file, string appId);
+		Task InstallApp();
 
-		Task RemoveApp(string appId);
+		Task RemoveApp();
 
-		Task LaunchApp(string appId);
-		Task StopApp(string appId);
+		Task LaunchApp();
+		Task StopApp();
 
-		Task ClearAppState(string appId);
+		Task ClearAppState();
 
-		Task PushFile(string appId, string localFile, string destinationDirectory);
-		Task PullFile(string appId, string remoteFile, string localDirectory);
+		Task PushFile(string localFile, string destinationDirectory);
+		Task PullFile(string remoteFile, string localDirectory);
 
 		Task Tap(int x, int y);
 

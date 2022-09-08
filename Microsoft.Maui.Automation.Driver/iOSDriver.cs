@@ -43,7 +43,7 @@ public class iOSDriver : IDriver
 		
 
 		idbCompanionProcess = new ProcessRunner(idbCompanionPath, $"--udid {configuration.Device}");
-        
+
 		// Sleep until idb exited or started
 		while (true)
 		{
@@ -56,7 +56,7 @@ public class iOSDriver : IDriver
 
 			if (output.Any(s => s?.Contains("\"grpc_swift_port\":10882") ?? false))
 				break;
-        }
+		}
 		
 		var channel = GrpcChannel.ForAddress($"http://{address}:10882");
 		idb = new Idb.CompanionService.CompanionServiceClient(channel);
@@ -85,14 +85,14 @@ public class iOSDriver : IDriver
 
 	public IAutomationConfiguration Configuration { get; }
 
-	public async Task ClearAppState(string appId)
+	public async Task ClearAppState()
 	{
 		var req = new RmRequest
 		{
 			Container = new FileContainer
 			{
 				Kind = FileContainer.Types.Kind.Application,
-				BundleId = appId
+				BundleId = Configuration.AppId
 			}
 		};
 		req.Paths.Add("/");
@@ -104,43 +104,38 @@ public class iOSDriver : IDriver
 			Container = new FileContainer
 			{
 				Kind = FileContainer.Types.Kind.Application,
-				BundleId = appId
+				BundleId = Configuration.AppId
 			},
 			Path = "tmp"
 		});
 	}
 
-	public Task InstallApp(string file, string appId)
+	public Task InstallApp()
 	{
 		if (Configuration.DevicePlatform == Platform.Maccatalyst
 			|| Configuration.DevicePlatform == Platform.Macos)
 			return Task.CompletedTask;
 
 		var payload = new Payload();
-		payload.FilePath = file;
+		payload.FilePath = Configuration.AppFilename;
 		
 
 		return idb.install().RequestStream<InstallRequest, InstallResponse>(
-			new InstallRequest[] {
-                new InstallRequest
-				{
-					Destination = InstallRequest.Types.Destination.App
-				},
-				new InstallRequest
-				{
-					Payload = payload
-				}
-            },
+			new []
+			{
+				new InstallRequest { Destination = InstallRequest.Types.Destination.App },
+				new InstallRequest { Payload = payload }
+			},
 			response =>
 			{
 				Console.WriteLine($"{response.Uuid} -> {response.Name} -> {response.Progress}");
 			});
 	}
 
-	public Task RemoveApp(string appId)
+	public Task RemoveApp()
 		=> idb.uninstallAsync(new UninstallRequest
 		{
-			BundleId = appId
+			BundleId = Configuration.AppId
 		}).ResponseAsync;
 
 	public async Task<IDeviceInfo> GetDeviceInfo()
@@ -156,21 +151,21 @@ public class iOSDriver : IDriver
 
 	
 
-	public Task LaunchApp(string appId)
+	public Task LaunchApp()
 		=> idb.launch().RequestStream<LaunchRequest, LaunchResponse>(
 			new LaunchRequest
 			{
 				Start = new LaunchRequest.Types.Start
 				{
-					BundleId = appId,
+					BundleId = Configuration.AppId,
 					ForegroundIfRunning = true,
 				}
 			});
 
-	public Task StopApp(string appId)
+	public Task StopApp()
 		=> idb.terminateAsync(new TerminateRequest
 		{
-			BundleId = appId
+			BundleId = Configuration.AppId
 		}).ResponseAsync;
 
 	public Task OpenUri(string uri)
@@ -180,31 +175,35 @@ public class iOSDriver : IDriver
 		}).ResponseAsync;
 
 
-	public Task PushFile(string appId, string localFile, string destinationDirectory)
+	public Task PushFile(string localFile, string destinationDirectory)
 		=> idb.push().SendStream(new PushRequest
 		{
 			Inner = new PushRequest.Types.Inner
 			{
 				Container = new FileContainer
 				{
-					BundleId = appId,
-					Kind = FileContainer.Types.Kind.Application
+					BundleId = Configuration.AppId,
+					Kind = FileContainer.Types.Kind.ApplicationContainer,
 				},
 				DstPath = destinationDirectory
+			},
+			Payload = new Payload
+			{
+				FilePath = localFile,
 			}
 		});
 
-	public Task PullFile(string appId, string remoteFile, string localDirectory)
+	public Task PullFile(string remoteFile, string localDirectory)
 		=> idb.pull(new PullRequest
 		{
 			Container = new FileContainer
 			{
-				BundleId = appId,
+				BundleId = Configuration.AppId,
 				Kind = FileContainer.Types.Kind.Application
 			},
 			DstPath = localDirectory,
 			SrcPath = remoteFile
-		}).ReceiveStream<PullResponse>(r =>
+		}).ReceiveStream(r =>
 		{
 			Console.WriteLine($"{r.Payload.FilePath}");
 		});

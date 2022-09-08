@@ -59,30 +59,32 @@ public class AndroidDriver : IDriver
 
 	public string Name { get; }
 
+	string AppId => Configuration.AppId;
+
 	public Task Back()
 	{
 		Adb.Shell($"input keyevent 4", Device);
 		return Task.CompletedTask;
 	}
 
-	public Task ClearAppState(string appId)
+	public Task ClearAppState()
 	{
-		if (!IsAppInstalled(appId))
+		if (!IsAppInstalled())
 			return Task.CompletedTask;
 
-		Adb.Shell($"pm clear {appId}", Device);
+		Adb.Shell($"pm clear {AppId}", Device);
 		return Task.CompletedTask;
 	}
 
-	public Task InstallApp(string file, string appId)
+	public Task InstallApp()
 	{
-		Adb.Install(new System.IO.FileInfo(file), Device);
+		Adb.Install(new System.IO.FileInfo(Configuration.AppFilename), Device);
 		return Task.CompletedTask;
 	}
 
-	public Task RemoveApp(string appId)
+	public Task RemoveApp()
 	{
-		Adb.Uninstall(appId, false, Device);
+		Adb.Uninstall(AppId, false, Device);
 		return Task.CompletedTask;
 	}
 
@@ -127,13 +129,13 @@ public class AndroidDriver : IDriver
 		return Task.CompletedTask;
 	}
 
-	public Task LaunchApp(string appId)
+	public Task LaunchApp()
 	{
 		// First force stop existing
-		Adb.Shell($"am force-stop {appId}", Device);
+		Adb.Shell($"am force-stop {AppId}", Device);
 
 		// Launch app's activity
-		Adb.Shell($"monkey -p {appId} -c android.intent.category.LAUNCHER 1", Device);
+		Adb.Shell($"monkey -p {AppId} -c android.intent.category.LAUNCHER 1", Device);
 		//Adb.Shell($"monkey --pct-syskeys 0 -p {appId} 1", Device);
 		return Task.CompletedTask;
 	}
@@ -151,21 +153,21 @@ public class AndroidDriver : IDriver
 		return Task.CompletedTask;
 	}
 
-	public Task StopApp(string appId)
+	public Task StopApp()
 	{
 		// Force the app to stop
 		// am force-stop $appId"
-		Adb.Shell($"am force-stop {appId}", Device);
+		Adb.Shell($"am force-stop {AppId}", Device);
 		return Task.CompletedTask;
 	}
 
-	public Task PushFile(string appId, string localFile, string destinationDirectory)
+	public Task PushFile(string localFile, string destinationDirectory)
 	{
 		Adb.Push(new System.IO.FileInfo(localFile), new System.IO.DirectoryInfo(destinationDirectory), Device);
 		return Task.CompletedTask;
 	}
 
-	public Task PullFile(string appId, string remoteFile, string localDirectory)
+	public Task PullFile(string remoteFile, string localDirectory)
 	{
 		Adb.Pull(new System.IO.FileInfo(remoteFile), new System.IO.DirectoryInfo(localDirectory), Device);
 		return Task.CompletedTask;
@@ -184,9 +186,9 @@ public class AndroidDriver : IDriver
 		=> grpc.Client.PerformAction(Configuration.AutomationPlatform, Actions.Tap, element.Id);
 
 
-	bool IsAppInstalled(string appId)
+	bool IsAppInstalled()
 		=> androidSdkManager.PackageManager.ListPackages()
-			.Any(p => p.PackageName?.Equals(appId, StringComparison.OrdinalIgnoreCase) ?? false);
+			.Any(p => p.PackageName?.Equals(AppId, StringComparison.OrdinalIgnoreCase) ?? false);
 
 	public Task<string> GetProperty(string elementId, string propertyName)
 		=> grpc.Client.GetProperty(Configuration.AutomationPlatform, elementId, propertyName);

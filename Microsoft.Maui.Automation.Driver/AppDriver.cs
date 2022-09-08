@@ -25,8 +25,8 @@ public class AppDriver : Driver
 	public override Task Back()
 		=> Driver.Back();
 
-	public override Task ClearAppState(string appId)
-		=> Driver.ClearAppState(appId);
+	public override Task ClearAppState()
+		=> Driver.ClearAppState();
 
 	public override Task<IEnumerable<Element>> FindElements(string propertyName, string pattern, bool isExpression = false, string ancestorId = "")
 		=> Driver.FindElements(propertyName, pattern, isExpression, propertyName);
@@ -46,14 +46,14 @@ public class AppDriver : Driver
 	public override Task InputText(string text)
 		=> Driver.InputText(text);
 
-	public override Task InstallApp(string file, string appId)
-		=> Driver.InstallApp(file, appId);
+	public override Task InstallApp()
+		=> Driver.InstallApp();
 
 	public override Task KeyPress(char keyCode)
 		=> Driver.KeyPress(keyCode);
 
-	public override Task LaunchApp(string appId)
-		=> Driver.LaunchApp(appId);
+	public override Task LaunchApp()
+		=> Driver.LaunchApp();
 
 	public override Task LongPress(int x, int y)
 		=> Driver.LongPress(x, y);
@@ -61,17 +61,17 @@ public class AppDriver : Driver
 	public override Task OpenUri(string uri)
 		=> Driver.OpenUri(uri);
 
-	public override Task PullFile(string appId, string remoteFile, string localDirectory)
-		=> Driver.PullFile(appId, remoteFile, localDirectory);
+	public override Task PullFile(string remoteFile, string localDirectory)
+		=> Driver.PullFile(remoteFile, localDirectory);
 
-	public override Task PushFile(string appId, string localFile, string destinationDirectory)
-		=> Driver.PushFile(appId, localFile, destinationDirectory);
+	public override Task PushFile(string localFile, string destinationDirectory)
+		=> Driver.PushFile(localFile, destinationDirectory);
 
-	public override Task RemoveApp(string appId)
-		=> Driver.RemoveApp(appId);
+	public override Task RemoveApp()
+		=> Driver.RemoveApp();
 
-	public override Task StopApp(string appId)
-		=> Driver.StopApp(appId);
+	public override Task StopApp()
+		=> Driver.StopApp();
 
 	public override Task Swipe((int x, int y) start, (int x, int y) end)
 		=> Driver.Swipe(start, end);
@@ -80,7 +80,7 @@ public class AppDriver : Driver
 		=> Driver.Tap(x, y);
 
 	public override Task Tap(Element element)
-		=> Driver.PerformAction(Actions.Tap, element.Id);
+		=> Driver.Tap(element);
 
 	public override void Dispose()
 	{
