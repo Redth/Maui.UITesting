@@ -1,5 +1,4 @@
-﻿#if WINDOWS
-using System;
+﻿using System;
 using AndroidSdk;
 using Grpc.Net.Client;
 using Microsoft.Maui.Automation.Remote;
@@ -170,6 +169,10 @@ namespace Microsoft.Maui.Automation.Driver
 
 		public async Task Tap(Element element)
 		{
+			var we = Session.FindElements(OpenQA.Selenium.By.XPath("//*"))?.ToList();
+
+			we?.FirstOrDefault()?.Click();
+
 			var platformElements = (await grpc.Client.GetElements(Platform.Winappsdk));
 
 			var windowsElement = platformElements?.FirstOrDefault(e => e.Id == element.Id);
@@ -219,4 +222,3 @@ namespace Microsoft.Maui.Automation.Driver
 		}
 	}
 }
-#endif
