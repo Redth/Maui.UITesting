@@ -13,7 +13,9 @@ public class AppDriver : Driver
 			Platform.Ios => new iOSDriver(configuration),
 			Platform.Tvos => new iOSDriver(configuration),
 			Platform.Maccatalyst => new iOSDriver(configuration),
+#if WINDOWS
 			Platform.Winappsdk => new WindowsDriver(configuration),
+#endif
 			_ => throw new NotSupportedException($"Unsupported Device Platform: '{configuration.DevicePlatform}'")
 		};
 	}

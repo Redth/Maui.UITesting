@@ -69,11 +69,6 @@ public class iOSDriver : IDriver
 		grpc = new GrpcHost();
 	}
 
-    private void IdbCompanionProcess_OutputLine(object? sender, string e)
-    {
-        throw new NotImplementedException();
-    }
-
     public readonly string Udid;
 
 	readonly CompanionService.CompanionServiceClient idb;
@@ -149,10 +144,23 @@ public class iOSDriver : IDriver
 		return new DeviceInfo(width, height, density);
 	}
 
-	
 
-	public Task LaunchApp()
-		=> idb.launch().RequestStream<LaunchRequest, LaunchResponse>(
+
+	public async Task LaunchApp()
+	{
+		if (Configuration.DevicePlatform == Platform.Maccatalyst
+			|| Configuration.DevicePlatform == Platform.Macos)
+		{
+			await Process.Start(new ProcessStartInfo("/usr/bin/open", $"-n \"{Configuration.AppFilename}\"")
+			{
+				CreateNoWindow = true,
+				UseShellExecute = true
+			})!.WaitForExitAsync();
+
+			return;
+		}
+
+        await idb.launch().RequestStream<LaunchRequest, LaunchResponse>(
 			new LaunchRequest
 			{
 				Start = new LaunchRequest.Types.Start
@@ -161,6 +169,7 @@ public class iOSDriver : IDriver
 					ForegroundIfRunning = true,
 				}
 			});
+	}
 
 	public Task StopApp()
 		=> idb.terminateAsync(new TerminateRequest
@@ -313,7 +322,11 @@ public class iOSDriver : IDriver
 
 	public async void Dispose()
 	{
-		try { idbCompanionProcess?.Kill(); }
+		try
+		{
+			idbCompanionProcess?.Kill();
+			idbCompanionProcess?.WaitForExit();
+		}
 		catch { }
 
 		if (grpc is not null)

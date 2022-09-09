@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if WINDOWS
+using System;
 using AndroidSdk;
 using Grpc.Net.Client;
 using Microsoft.Maui.Automation.Remote;
@@ -218,4 +219,4 @@ namespace Microsoft.Maui.Automation.Driver
 		}
 	}
 }
-
+#endif
