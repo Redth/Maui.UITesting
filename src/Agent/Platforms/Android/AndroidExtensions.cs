@@ -51,12 +51,12 @@ namespace Microsoft.Maui.Automation
 
 		internal static string EnsureUniqueId(this Android.Views.View view)
 		{
-			var id = view.GetTag(AppHost.Resource.Id.maui_automation_unique_identifier)?.ToString();
+			var id = view.GetTag(Agent.Resource.Id.maui_automation_unique_identifier)?.ToString();
 
 			if (string.IsNullOrEmpty(id))
 			{
 				id = Guid.NewGuid().ToString();
-				view.SetTag(AppHost.Resource.Id.maui_automation_unique_identifier, id);
+				view.SetTag(Agent.Resource.Id.maui_automation_unique_identifier, id);
 			}
 
 			return id;

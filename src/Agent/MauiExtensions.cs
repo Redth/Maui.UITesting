@@ -55,21 +55,36 @@ namespace Microsoft.Maui.Automation
 			return null;
 		}
 
-		internal static string GetPlatformElementId(this Maui.IView view, IApplication application, string parentId = "", int currentDepth = -1, int maxDepth = -1)
+		internal static Element GetPlatformViewElement(this Maui.IView view, IApplication application, string parentId = "")
 		{
 #if ANDROID
 			if (view.Handler.PlatformView is Android.Views.View androidview)
-				return androidview.Id.ToString();
+				return androidview.GetElement(application, parentId, 1, 1);
 #elif IOS || MACCATALYST
 			if (view.Handler.PlatformView is UIKit.UIView uiview)
-				return uiview.Handle.ToString();
+				return uiview.GetElement(application, parentId, 1, 1);
 #elif WINDOWS
-			if (view.Handler.PlatformView is Microsoft.UI.Xaml.FrameworkElement fwElement)
-				return fwElement.GetHashCode().ToString();
+			if (view.Handler.PlatformView is Microsoft.UI.Xaml.FrameworkElement fwelement)
+				return fwelement.GetElement(application, parentId, 1, 1);
 #endif
-
 			return null;
 		}
+
+//		internal static string GetPlatformElementId(this Maui.IView view, IApplication application, string parentId = "", int currentDepth = -1, int maxDepth = -1)
+//		{
+//#if ANDROID
+//			if (view.Handler.PlatformView is Android.Views.View androidview)
+//				return androidview.EnsureUniqueId();
+//#elif IOS || MACCATALYST
+//			if (view.Handler.PlatformView is UIKit.UIView uiview)
+//				return uiview.Handle.ToString();
+//#elif WINDOWS
+//			if (view.Handler.PlatformView is Microsoft.UI.Xaml.FrameworkElement fwElement)
+//				return fwElement.GetAutomationUid();
+//#endif
+
+//			return null;
+//		}
 
 
 		internal static Element GetMauiElement(this Maui.IWindow window, IApplication application, string parentId = "", int currentDepth = -1, int maxDepth = -1)
@@ -95,12 +110,12 @@ namespace Microsoft.Maui.Automation
 
 		internal static Element GetMauiElement(this Maui.IView view, IApplication application, string parentId = "", int currentDepth = -1, int maxDepth = -1)
 		{
-			var platformElementId = view.GetPlatformElementId(application, parentId, currentDepth, maxDepth);
+			var platformElement = view.GetPlatformViewElement(application, parentId);
 
-			var e = new Element(application, Platform.Maui, platformElementId, view, parentId)
+			var e = new Element(application, Platform.Maui, platformElement.Id, view, parentId)
 			{
 				ParentId = parentId,
-				AutomationId = view.AutomationId ?? platformElementId,
+				AutomationId = view.AutomationId ?? platformElement.AutomationId,
 				Type = view.GetType().Name,
 				FullType = view.GetType().FullName,
 				Visible = view.Visibility == Visibility.Visible,
@@ -124,7 +139,7 @@ namespace Microsoft.Maui.Automation
 
 
 			if (maxDepth <= 0 || (currentDepth + 1 <= maxDepth))
-				e.Children.AddRange(view.GetChildren(application, parentId, currentDepth + 1, maxDepth));
+				e.Children.AddRange(view.GetChildren(application, e.Id, currentDepth + 1, maxDepth));
 
 			return e;
 		}

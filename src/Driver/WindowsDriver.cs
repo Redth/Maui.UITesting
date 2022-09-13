@@ -169,25 +169,27 @@ namespace Microsoft.Maui.Automation.Driver
 
 		public async Task Tap(Element element)
 		{
-			var we = Session.FindElements(OpenQA.Selenium.By.XPath("//*"))?.ToList();
+			var winElement = Session.FindElementByAccessibilityId(element.AutomationId);
+			winElement.Click();
+			//var we = Session.FindElements(OpenQA.Selenium.By.XPath("//*"))?.ToList();
 
-			we?.FirstOrDefault()?.Click();
+			//we?.FirstOrDefault()?.Click();
 
-			var platformElements = (await grpc.Client.GetElements(Platform.Winappsdk));
+			//var platformElements = (await grpc.Client.GetElements(Platform.Winappsdk));
 
-			var windowsElement = platformElements?.FirstOrDefault(e => e.Id == element.Id);
+			//var windowsElement = platformElements?.FirstOrDefault(e => e.Id == element.Id);
 
-			var x = (int)(windowsElement.X * 2.25);
-			var y = (int)(windowsElement.Y * 2.25);
-			var touchContact = new PointerInputDevice(PointerKind.Touch);
-			var touchSequence = new ActionSequence(touchContact, 0);
+			//var x = (int)(windowsElement.X * 2.25);
+			//var y = (int)(windowsElement.Y * 2.25);
+			//var touchContact = new PointerInputDevice(PointerKind.Touch);
+			//var touchSequence = new ActionSequence(touchContact, 0);
 
-			touchSequence.AddAction(touchContact.CreatePointerMove(CoordinateOrigin.Viewport, x, y, TimeSpan.Zero));
-			touchSequence.AddAction(touchContact.CreatePointerDown(PointerButton.TouchContact));
-			touchSequence.AddAction(touchContact.CreatePointerMove(CoordinateOrigin.Viewport, x, y, TimeSpan.FromMilliseconds(200)));
-			touchSequence.AddAction(touchContact.CreatePointerUp(PointerButton.TouchContact));
+			//touchSequence.AddAction(touchContact.CreatePointerMove(CoordinateOrigin.Viewport, x, y, TimeSpan.Zero));
+			//touchSequence.AddAction(touchContact.CreatePointerDown(PointerButton.TouchContact));
+			//touchSequence.AddAction(touchContact.CreatePointerMove(CoordinateOrigin.Viewport, x, y, TimeSpan.FromMilliseconds(200)));
+			//touchSequence.AddAction(touchContact.CreatePointerUp(PointerButton.TouchContact));
 
-			Session.PerformActions(new List<ActionSequence> { touchSequence });
+			//Session.PerformActions(new List<ActionSequence> { touchSequence });
 			//return Task.CompletedTask;
 		}
 

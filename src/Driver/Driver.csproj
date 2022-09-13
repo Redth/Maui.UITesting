@@ -4,6 +4,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <AssemblyName>Microsoft.Maui.Automation.Driver</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
@@ -23,11 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Microsoft.Maui.Automation.Core\Microsoft.Maui.Automation.Core.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="..\external\idb-companion.universal.tar.gz">
+    <EmbeddedResource Include="..\..\external\idb-companion.universal.tar.gz">
         <LogicalName>idb-companion.tar.gz</LogicalName>
     </EmbeddedResource>
   </ItemGroup>
@@ -35,5 +32,8 @@
     <None Remove="Xamarin.LibZipSharp" />
     <None Remove="SharpCompress" />
     <None Remove="Grpc.AspNetCore.Server" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Core\Core.csproj" />
   </ItemGroup>
 </Project>

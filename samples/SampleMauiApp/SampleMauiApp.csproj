@@ -40,8 +40,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\..\Microsoft.Maui.Automation.AppHost\Microsoft.Maui.Automation.AppHost.csproj" />
-	  <ProjectReference Include="..\..\Microsoft.Maui.Automation.Core\Microsoft.Maui.Automation.Core.csproj" />
+	  <ProjectReference Include="..\..\src\Agent\Agent.csproj" />
+	  <ProjectReference Include="..\..\src\Core\Core.csproj" />
 	</ItemGroup>
 
 </Project>

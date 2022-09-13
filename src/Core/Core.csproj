@@ -4,6 +4,7 @@
 		<TargetFramework>net6.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
+		<AssemblyName>Microsoft.Maui.Automation.Core</AssemblyName>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -17,9 +18,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Protobuf Include="..\proto\types.proto" />
-		<Protobuf Include="..\proto\remoteapp.proto" />
-		<Protobuf Include="..\proto\idb.proto" />
+		<Protobuf Include="..\..\proto\types.proto" />
+		<Protobuf Include="..\..\proto\remoteapp.proto" />
+		<Protobuf Include="..\..\proto\idb.proto" />
 	</ItemGroup>
 
 </Project>

@@ -4,8 +4,10 @@
 		<TargetFrameworks>net6.0;net6.0-ios;net6.0-android;net6.0-maccatalyst</TargetFrameworks>
 		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows')) and '$(MSBuildRuntimeType)' == 'Full'">$(TargetFrameworks);net6.0-windows10.0.19041</TargetFrameworks>
 		<TargetPlatformMinVersion Condition="$(TargetFramework.Contains('-windows'))">10.0.17763.0</TargetPlatformMinVersion>
+		<AssemblyName>Microsoft.Maui.Automation.Agent</AssemblyName>
 		<UseMaui>true</UseMaui>
 		<SingleProject>true</SingleProject>
+		
 
 		<SupportedOSPlatformVersion Condition="'$(TargetFramework)' == 'net6.0-ios'">14.2</SupportedOSPlatformVersion>
 		<SupportedOSPlatformVersion Condition="'$(TargetFramework)' == 'net6.0-maccatalyst'">14.0</SupportedOSPlatformVersion>
@@ -14,12 +16,16 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\Microsoft.Maui.Automation.Core\Microsoft.Maui.Automation.Core.csproj" />
+		<ProjectReference Include="..\Core\Core.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<Folder Include="Platforms\iOS\" />
 		<Folder Include="Platforms\MacCatalyst\" />
+	</ItemGroup>
+
+	<ItemGroup Condition="$(TargetFramework.Contains('-windows'))">
+		<FrameworkReference Include="Microsoft.WindowsDesktop.App"/>
 	</ItemGroup>
 
 </Project>

@@ -3,28 +3,32 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31724.407
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Maui.Automation.Core", "Microsoft.Maui.Automation.Core\Microsoft.Maui.Automation.Core.csproj", "{BBBCB071-A745-4746-ADB7-59B57983718A}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Maui.Automation.AppHost", "Microsoft.Maui.Automation.AppHost\Microsoft.Maui.Automation.AppHost.csproj", "{6D8AD0FF-33A3-46B3-BF24-C87332B6C281}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RemoteAutomationTests", "tests\RemoteAutomationTests\RemoteAutomationTests.csproj", "{878A4A30-E88E-4C91-9C41-EDF7AB4D1320}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SampleMauiApp", "samples\SampleMauiApp\SampleMauiApp.csproj", "{AFB868DD-DAA2-4002-A9FE-A2781E915A95}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Maui.Automation.Repl", "Microsoft.Maui.Automation.Repl\Microsoft.Maui.Automation.Repl.csproj", "{3B96F274-BD40-44B4-8CC3-C487D278F95F}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Proto", "Proto", "{99757F39-4185-4511-9D9C-527D2D35B37C}"
 	ProjectSection(SolutionItems) = preProject
+		proto\idb.proto = proto\idb.proto
 		proto\remoteapp.proto = proto\remoteapp.proto
 		proto\types.proto = proto\types.proto
-		proto\idb.proto = proto\idb.proto
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Maui.Automation.Driver", "Microsoft.Maui.Automation.Driver\Microsoft.Maui.Automation.Driver.csproj", "{E3CDFDA8-413A-4F0F-B41D-BC8120C637E6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core", "src\Core\Core.csproj", "{CFA05B53-B1D3-4A75-9BCF-C771430BD73B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Maui.Automation.Test", "Microsoft.Maui.Automation.Test\Microsoft.Maui.Automation.Test.csproj", "{4CFC183A-CA27-4031-881A-5DAC825D8F67}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Driver", "src\Driver\Driver.csproj", "{309CD902-FE2B-413E-8DFA-7C2D9749D944}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Maui.Automation.Interactive", "Microsoft.Maui.Automation.Interactive\Microsoft.Maui.Automation.Interactive.csproj", "{093EBB77-E6A4-4ADF-9963-5EF1BADF57E6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Repl", "src\Repl\Repl.csproj", "{9B24C861-AF9E-43E6-BC53-AACF162E6E4A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Source", "Source", "{A894D593-E899-4E85-B415-86927030BB9A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{B4FB98F8-23D7-41E9-8739-FEEB01B14086}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{ED0B60ED-CF04-4DFF-93D2-EA6B4BAEDA2E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Agent", "src\Agent\Agent.csproj", "{B875C9BC-BA7E-41E9-B38E-473D7A7A7587}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests", "src\Test\Tests.csproj", "{6B576EF4-14B0-45E7-93DA-C720AC2F6A30}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -32,14 +36,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{BBBCB071-A745-4746-ADB7-59B57983718A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BBBCB071-A745-4746-ADB7-59B57983718A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BBBCB071-A745-4746-ADB7-59B57983718A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BBBCB071-A745-4746-ADB7-59B57983718A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6D8AD0FF-33A3-46B3-BF24-C87332B6C281}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6D8AD0FF-33A3-46B3-BF24-C87332B6C281}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6D8AD0FF-33A3-46B3-BF24-C87332B6C281}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6D8AD0FF-33A3-46B3-BF24-C87332B6C281}.Release|Any CPU.Build.0 = Release|Any CPU
 		{878A4A30-E88E-4C91-9C41-EDF7AB4D1320}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{878A4A30-E88E-4C91-9C41-EDF7AB4D1320}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{878A4A30-E88E-4C91-9C41-EDF7AB4D1320}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -50,25 +46,40 @@ Global
 		{AFB868DD-DAA2-4002-A9FE-A2781E915A95}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AFB868DD-DAA2-4002-A9FE-A2781E915A95}.Release|Any CPU.Build.0 = Release|Any CPU
 		{AFB868DD-DAA2-4002-A9FE-A2781E915A95}.Release|Any CPU.Deploy.0 = Release|Any CPU
-		{3B96F274-BD40-44B4-8CC3-C487D278F95F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3B96F274-BD40-44B4-8CC3-C487D278F95F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3B96F274-BD40-44B4-8CC3-C487D278F95F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3B96F274-BD40-44B4-8CC3-C487D278F95F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E3CDFDA8-413A-4F0F-B41D-BC8120C637E6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E3CDFDA8-413A-4F0F-B41D-BC8120C637E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E3CDFDA8-413A-4F0F-B41D-BC8120C637E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E3CDFDA8-413A-4F0F-B41D-BC8120C637E6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4CFC183A-CA27-4031-881A-5DAC825D8F67}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4CFC183A-CA27-4031-881A-5DAC825D8F67}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4CFC183A-CA27-4031-881A-5DAC825D8F67}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4CFC183A-CA27-4031-881A-5DAC825D8F67}.Release|Any CPU.Build.0 = Release|Any CPU
-		{093EBB77-E6A4-4ADF-9963-5EF1BADF57E6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{093EBB77-E6A4-4ADF-9963-5EF1BADF57E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{093EBB77-E6A4-4ADF-9963-5EF1BADF57E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{093EBB77-E6A4-4ADF-9963-5EF1BADF57E6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CFA05B53-B1D3-4A75-9BCF-C771430BD73B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CFA05B53-B1D3-4A75-9BCF-C771430BD73B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CFA05B53-B1D3-4A75-9BCF-C771430BD73B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CFA05B53-B1D3-4A75-9BCF-C771430BD73B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{309CD902-FE2B-413E-8DFA-7C2D9749D944}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{309CD902-FE2B-413E-8DFA-7C2D9749D944}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{309CD902-FE2B-413E-8DFA-7C2D9749D944}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{309CD902-FE2B-413E-8DFA-7C2D9749D944}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9B24C861-AF9E-43E6-BC53-AACF162E6E4A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9B24C861-AF9E-43E6-BC53-AACF162E6E4A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9B24C861-AF9E-43E6-BC53-AACF162E6E4A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9B24C861-AF9E-43E6-BC53-AACF162E6E4A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B875C9BC-BA7E-41E9-B38E-473D7A7A7587}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B875C9BC-BA7E-41E9-B38E-473D7A7A7587}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B875C9BC-BA7E-41E9-B38E-473D7A7A7587}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{B875C9BC-BA7E-41E9-B38E-473D7A7A7587}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B875C9BC-BA7E-41E9-B38E-473D7A7A7587}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B875C9BC-BA7E-41E9-B38E-473D7A7A7587}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{6B576EF4-14B0-45E7-93DA-C720AC2F6A30}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6B576EF4-14B0-45E7-93DA-C720AC2F6A30}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6B576EF4-14B0-45E7-93DA-C720AC2F6A30}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6B576EF4-14B0-45E7-93DA-C720AC2F6A30}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{878A4A30-E88E-4C91-9C41-EDF7AB4D1320} = {ED0B60ED-CF04-4DFF-93D2-EA6B4BAEDA2E}
+		{AFB868DD-DAA2-4002-A9FE-A2781E915A95} = {B4FB98F8-23D7-41E9-8739-FEEB01B14086}
+		{CFA05B53-B1D3-4A75-9BCF-C771430BD73B} = {A894D593-E899-4E85-B415-86927030BB9A}
+		{309CD902-FE2B-413E-8DFA-7C2D9749D944} = {A894D593-E899-4E85-B415-86927030BB9A}
+		{9B24C861-AF9E-43E6-BC53-AACF162E6E4A} = {A894D593-E899-4E85-B415-86927030BB9A}
+		{B875C9BC-BA7E-41E9-B38E-473D7A7A7587} = {A894D593-E899-4E85-B415-86927030BB9A}
+		{6B576EF4-14B0-45E7-93DA-C720AC2F6A30} = {ED0B60ED-CF04-4DFF-93D2-EA6B4BAEDA2E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E7F4911D-EDE9-4855-A05C-8555F447244E}

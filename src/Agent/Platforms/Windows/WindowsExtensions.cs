@@ -1,18 +1,10 @@
-﻿using Microsoft.Maui.Controls;
+﻿using Microsoft.Maui.Controls.Platform;
 using Microsoft.Maui.Platform;
 using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Automation;
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Drawing;
-using System.Linq;
-using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
-using System.Xml.Linq;
-using static System.Net.Mime.MediaTypeNames;
+using static Idb.XctraceRecordRequest.Types;
 
 namespace Microsoft.Maui.Automation;
 
@@ -20,12 +12,15 @@ internal static class WindowsExtensions
 {
 	public static Element GetElement(this FrameworkElement fwElement, IApplication application, string parentId = "", int currentDepth = -1, int maxDepth = -1)
 	{
+		var uid = fwElement.EnsureUniqueId();
+		var automationId = fwElement.EnsureAutomationId();
+
 		var transform = fwElement.TransformToVisual(fwElement.XamlRoot.Content);
 		var position = transform.TransformPoint(new global::Windows.Foundation.Point(0, 0));
 
-		var element = new Element(application, Platform.Winappsdk, fwElement.GetHashCode().ToString(), fwElement, parentId)
+		var element = new Element(application, Platform.Winappsdk, uid, fwElement, parentId)
 		{
-			AutomationId = fwElement.GetType().Name,
+			AutomationId = automationId,
 			Visible = fwElement.Visibility == UI.Xaml.Visibility.Visible,
 			Enabled = fwElement.IsTapEnabled,
 			Focused = fwElement.FocusState != FocusState.Unfocused,
@@ -51,6 +46,9 @@ internal static class WindowsExtensions
 
 	public static Element GetElement(this Microsoft.UI.Xaml.Window window, IApplication application, int currentDepth = -1, int maxDepth = -1)
 	{
+		var uid = window.Content.EnsureUniqueId();
+		var automationId = window.Content.EnsureAutomationId();
+
 		var pos = window?.GetAppWindow()?.Position;
 		var size = window?.GetAppWindow()?.Size;
 		var x = pos?.X ?? -1;
@@ -58,9 +56,9 @@ internal static class WindowsExtensions
 		var w = size?.Width ?? -1;
 		var h = size?.Height ?? -1;
 
-		var element = new Element(application, Platform.Winappsdk, window.GetHashCode().ToString(), window)
+		var element = new Element(application, Platform.Winappsdk, uid, window)
 		{
-			AutomationId = window.GetType().Name,
+			AutomationId = automationId,
 			X = x,
 			Y = y,
 			Width = w,
@@ -80,7 +78,39 @@ internal static class WindowsExtensions
 		return element;
 	}
 
-	
+
+	internal static string EnsureAutomationId(this UIElement uielement)
+	{
+		var automationPeer = UI.Xaml.Automation.Peers.FrameworkElementAutomationPeer.FromElement(uielement);
+
+		var existingAutomationId = automationPeer?.GetAutomationId();
+
+		if (string.IsNullOrEmpty(existingAutomationId))
+		{
+			existingAutomationId = uielement.GetValue(AutomationProperties.AutomationIdProperty)?.ToString();
+
+			if (string.IsNullOrEmpty(existingAutomationId))
+			{
+				existingAutomationId = Guid.NewGuid().ToString();
+				uielement.SetValue(AutomationProperties.AutomationIdProperty, existingAutomationId);
+			}
+		}
+
+		return existingAutomationId ?? string.Empty;
+	}
+
+	internal static string EnsureUniqueId(this UIElement uielement)
+	{
+		var id = uielement.GetAutomationUid();
+
+		if (string.IsNullOrEmpty(id))
+		{
+			id = Guid.NewGuid().ToString();
+			uielement.SetAutomationUid(id);
+		}
+
+		return id;
+	}
 
 	public static Task<PerformActionResult> PerformAction(this UIElement uielement, string action, params string[] arguments)
 	{

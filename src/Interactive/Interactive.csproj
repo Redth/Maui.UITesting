@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <PackageId>Microsoft.Maui.Automation.Interactive</PackageId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Microsoft.Maui.Automation.Core\Microsoft.Maui.Automation.Core.csproj" />
+    <ProjectReference Include="..\Microsoft.Maui.Automation.Driver\Microsoft.Maui.Automation.Driver.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="Microsoft.DotNet.Interactive" />
+    <None Remove="Microsoft.DotNet.Interactive.CSharp" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.DotNet.Interactive" Version="1.0.0-beta.22452.2" />
+    <PackageReference Include="Microsoft.DotNet.Interactive.CSharp" Version="1.0.0-beta.22452.2" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="$(OutputPath)/Microsoft.Maui.Automation.Interactive.dll" Pack="true" PackagePath="interactive-extensions/dotnet" />
+    <None Include="$(OutputPath)/Microsoft.Maui.Automation.Core.dll" Pack="true" PackagePath="interactive-extensions/dotnet" />
+    <None Include="$(OutputPath)/Microsoft.Maui.Automation.Driver.dll" Pack="true" PackagePath="interactive-extensions/dotnet" />
+  </ItemGroup>
+</Project>
