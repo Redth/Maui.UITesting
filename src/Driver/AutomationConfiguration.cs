@@ -9,9 +9,9 @@ namespace Microsoft.Maui.Automation.Driver
     {
         public static AutomationConfiguration FromYaml(string yamlFilename)
         {
-            var serializer = new SharpYaml.Serialization.Serializer();
+            var serializer = new YamlDotNet.Serialization.Deserializer();
 
-            using var yaml = File.OpenRead(yamlFilename);
+            var yaml = File.ReadAllText(yamlFilename);
 
             return serializer.Deserialize<AutomationConfiguration>(yaml)
                 ?? throw new InvalidDataException($"Failed to load YAML configuration from: {yamlFilename}");

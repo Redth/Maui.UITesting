@@ -11,6 +11,13 @@
 
     public class DeviceInfo : IDeviceInfo
     {
+        public DeviceInfo()
+        {
+            ScreenWidth = 0;
+            ScreenHeight = 0;
+            ScreenDensity = 1;
+        }
+
         public DeviceInfo(ulong width, ulong height, double density)
         {
             ScreenWidth = width;

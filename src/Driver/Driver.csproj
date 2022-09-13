@@ -17,10 +17,10 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="SharpYaml" Version="2.1.0" />
     <PackageReference Include="SharpCompress" Version="0.32.2" />
     <PackageReference Include="Grpc.AspNetCore.Server" Version="2.49.0-pre1" />
 	  <PackageReference Include="Microsoft.WinAppDriver.Appium.WebDriver" Version="1.0.1-Preview" />
+	  <PackageReference Include="YamlDotNet" Version="12.0.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -32,6 +32,11 @@
     <None Remove="Xamarin.LibZipSharp" />
     <None Remove="SharpCompress" />
     <None Remove="Grpc.AspNetCore.Server" />
+    <None Remove="Declarative\" />
+    <None Remove="YamlDotNet" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Declarative\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core\Core.csproj" />
