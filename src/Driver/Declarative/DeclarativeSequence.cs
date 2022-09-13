@@ -1,4 +1,6 @@
 ﻿using System;
+using YamlDotNet.Core;
+using YamlDotNet.Core.Events;
 using YamlDotNet.Serialization;
 
 namespace Microsoft.Maui.Automation.Driver.Declarative;
@@ -42,8 +44,11 @@ public class NotVisibleAssertionStep : VisibilityAssertionStep
 }
 
 
-public abstract class VisibilityAssertionStep : AssertionStep
+public abstract class VisibilityAssertionStep : AssertionStep, YamlDotNet.Serialization.IYamlConvertible
 {
+    [YamlIgnore]
+    public string? Any { get; set; } = null;
+
     [YamlMember(Alias = "id", Order = 1, DefaultValuesHandling = DefaultValuesHandling.OmitNull)]
     public string? Id { get; set; } = null;
 
@@ -62,6 +67,31 @@ public abstract class VisibilityAssertionStep : AssertionStep
 
     [YamlMember(Alias = "optional", DefaultValuesHandling = DefaultValuesHandling.OmitDefaults)]
     public bool Optional { get; set; }
+
+    public void Read(IParser parser, Type expectedType, ObjectDeserializer nestedObjectDeserializer)
+    {
+        if (parser.TryConsume<Scalar>(out var scalar))
+        {
+            Any = scalar.Value;
+        }
+        else
+        {
+			var values = (VisibilityAssertionStep)nestedObjectDeserializer(typeof(VisibilityAssertionStep));
+
+            Id = values.Id;
+            AutomationId = values.AutomationId;
+            Text = values.Text;
+            Regex = values.Regex;
+            Index = values.Index;
+            Optional = values.Optional;
+		}
+
+    }
+
+    public void Write(IEmitter emitter, ObjectSerializer nestedObjectSerializer)
+    {
+		nestedObjectSerializer(this);
+	}
 
     protected void Run(IDriver driver, bool isVisible)
     {
