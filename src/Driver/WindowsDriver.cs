@@ -158,7 +158,7 @@ namespace Microsoft.Maui.Automation.Driver
 		{
 			//x = (int)(x * 2.25);
 			//y = (int)(y * 2.25);
-			
+
 			var touch = new RemoteTouchScreen(Session);
 			//touch.d
 			touch.Down(x, y);
@@ -211,13 +211,15 @@ namespace Microsoft.Maui.Automation.Driver
 			{
 				Session?.Close();
 				Session?.Dispose();
-			} catch { }
+			}
+			catch { }
 
 			try
 			{
 				appDriverProcess?.Kill();
 				appDriverProcess?.WaitForExit();
-			} catch { }
+			}
+			catch { }
 
 			if (grpc is not null)
 				await grpc.Stop();

@@ -36,11 +36,11 @@ Console.CancelKeyPress += (s, e) =>
 
 var config = new AutomationConfiguration
 {
-    AppAgentPort = 5000,
-    DevicePlatform = Platform.Maccatalyst,
-    AutomationPlatform = Platform.Maui,
-    Device = "mac",
-    AppId = "com.companyname.samplemauiapp",
+	AppAgentPort = 5000,
+	DevicePlatform = Platform.Maccatalyst,
+	AutomationPlatform = Platform.Maui,
+	Device = "mac",
+	AppId = "com.companyname.samplemauiapp",
 	AppFilename = "/Users/redth/code/Maui.UITesting/samples/SampleMauiApp/bin/Debug/net6.0-maccatalyst/maccatalyst-x64/SampleMauiApp.app"
 };
 
@@ -122,7 +122,7 @@ while (!ctsMain.Token.IsCancellationRequested)
 						AnsiConsole.WriteException(ex);
 					}
 				});
-				
+
 				break;
 			}
 		}
@@ -205,5 +205,5 @@ async Task<string?> ReadLineAsync(CancellationToken cancellationToken = default)
 	}
 
 	return null;
-	
+
 }

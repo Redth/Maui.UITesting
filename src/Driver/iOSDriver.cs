@@ -40,7 +40,7 @@ public class iOSDriver : IDriver
 		idbCompanionProcess = new ProcessRunner(idbCompanionPath, $"--boot {Configuration.Device}");
 		var bootResult = idbCompanionProcess.WaitForExit();
 		Console.WriteLine(bootResult.GetAllOutput());
-		
+
 
 		idbCompanionProcess = new ProcessRunner(idbCompanionPath, $"--udid {configuration.Device}");
 
@@ -57,7 +57,7 @@ public class iOSDriver : IDriver
 			if (output.Any(s => s?.Contains("\"grpc_swift_port\":10882") ?? false))
 				break;
 		}
-		
+
 		var channel = GrpcChannel.ForAddress($"http://{address}:10882");
 		idb = new Idb.CompanionService.CompanionServiceClient(channel);
 
@@ -69,7 +69,7 @@ public class iOSDriver : IDriver
 		grpc = new GrpcHost();
 	}
 
-    public readonly string Udid;
+	public readonly string Udid;
 
 	readonly CompanionService.CompanionServiceClient idb;
 	readonly GrpcHost grpc;
@@ -113,10 +113,10 @@ public class iOSDriver : IDriver
 
 		var payload = new Payload();
 		payload.FilePath = Configuration.AppFilename;
-		
+
 
 		return idb.install().RequestStream<InstallRequest, InstallResponse>(
-			new []
+			new[]
 			{
 				new InstallRequest { Destination = InstallRequest.Types.Destination.App },
 				new InstallRequest { Payload = payload }
@@ -160,7 +160,7 @@ public class iOSDriver : IDriver
 			return;
 		}
 
-        await idb.launch().RequestStream<LaunchRequest, LaunchResponse>(
+		await idb.launch().RequestStream<LaunchRequest, LaunchResponse>(
 			new LaunchRequest
 			{
 				Start = new LaunchRequest.Types.Start

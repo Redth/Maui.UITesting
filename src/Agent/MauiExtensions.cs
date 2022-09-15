@@ -49,7 +49,7 @@ namespace Microsoft.Maui.Automation
 			if (window.Handler.PlatformView is UIKit.UIWindow uiwindow)
 				return uiwindow.GetElement(application, 1, 1);
 #elif WINDOWS
-            if (window.Handler.PlatformView is Microsoft.UI.Xaml.Window xamlwindow)
+			if (window.Handler.PlatformView is Microsoft.UI.Xaml.Window xamlwindow)
 				return xamlwindow.GetElement(application, 1, 1);
 #endif
 			return null;

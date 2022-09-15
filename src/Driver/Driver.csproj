@@ -1,40 +1,42 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <AssemblyName>Microsoft.Maui.Automation.Driver</AssemblyName>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<AssemblyName>Microsoft.Maui.Automation.Driver</AssemblyName>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="AndroidSdk" Version="0.5.2" />
-    <PackageReference Include="Grpc.AspNetCore.Web" Version="2.48.0" />
-    <PackageReference Include="Grpc.Net.Client" Version="2.48.0" />
-    <PackageReference Include="Spectre.Console" Version="0.44.0" />
-    <PackageReference Include="Google.Protobuf" Version="3.21.5" />
-    <PackageReference Include="Grpc.Tools" Version="2.48.1">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="SharpCompress" Version="0.32.2" />
-    <PackageReference Include="Grpc.AspNetCore.Server" Version="2.49.0-pre1" />
-	  <PackageReference Include="Microsoft.WinAppDriver.Appium.WebDriver" Version="1.0.1-Preview" />
-	  <PackageReference Include="YamlDotNet" Version="12.0.0" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="AndroidSdk" Version="0.5.2" />
+		<PackageReference Include="Grpc.AspNetCore.Web" Version="2.48.0" />
+		<PackageReference Include="Grpc.Net.Client" Version="2.48.0" />
+		<PackageReference Include="Google.Protobuf" Version="3.21.5" />
+		<PackageReference Include="Grpc.Tools" Version="2.48.1">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="SharpCompress" Version="0.32.2" />
+		<PackageReference Include="Grpc.AspNetCore.Server" Version="2.49.0-pre1" />
+		<PackageReference Include="Microsoft.WinAppDriver.Appium.WebDriver" Version="1.0.1-Preview" />
+		<PackageReference Include="YamlDotNet" Version="12.0.0" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <EmbeddedResource Include="..\..\external\idb-companion.universal.tar.gz">
-        <LogicalName>idb-companion.tar.gz</LogicalName>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <None Remove="Xamarin.LibZipSharp" />
-    <None Remove="SharpCompress" />
-    <None Remove="Grpc.AspNetCore.Server" />
-    <None Remove="YamlDotNet" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Core\Core.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<EmbeddedResource Include="..\..\external\idb-companion.universal.tar.gz">
+			<LogicalName>idb-companion.tar.gz</LogicalName>
+		</EmbeddedResource>
+	</ItemGroup>
+	<ItemGroup>
+		<None Remove="Xamarin.LibZipSharp" />
+		<None Remove="SharpCompress" />
+		<None Remove="Grpc.AspNetCore.Server" />
+		<None Remove="YamlDotNet" />
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\Core\Core.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+		<EditorConfigFiles Remove="C:\code\Maui.UITesting\src\Driver\.editorconfig" />
+	</ItemGroup>
 </Project>

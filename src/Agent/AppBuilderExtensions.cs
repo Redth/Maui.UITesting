@@ -12,46 +12,46 @@ using System.Net.Http;
 
 namespace Microsoft.Maui.Automation
 {
-    public static class AutomationAppBuilderExtensions
-    {
-        static GrpcRemoteAppAgent client;
+	public static class AutomationAppBuilderExtensions
+	{
+		static GrpcRemoteAppAgent client;
 
-        static IApplication CreateApp(
-            Maui.IApplication app
+		static IApplication CreateApp(
+			Maui.IApplication app
 #if ANDROID
-            , Android.App.Application application
+			, Android.App.Application application
 #endif
-            )
-        {
+			)
+		{
 
-            var platformApp = Automation.App.CreateForCurrentPlatform
-                (
+			var platformApp = Automation.App.CreateForCurrentPlatform
+				(
 #if ANDROID
-                application
+				application
 #endif
-                );
+				);
 
-            var platform = Automation.App.GetCurrentPlatform();
+			var platform = Automation.App.GetCurrentPlatform();
 
-            var multiApp = new MultiPlatformApplication(Platform.Maui, new[]
-            {
-                ( Platform.Maui, new MauiApplication(platformApp, app)),
-                ( platform, platformApp )
-            });
+			var multiApp = new MultiPlatformApplication(Platform.Maui, new[]
+			{
+				( Platform.Maui, new MauiApplication(platformApp, app)),
+				( platform, platformApp )
+			});
 
-            return multiApp;
-        }
+			return multiApp;
+		}
 
-        public static void StartAutomationServiceListener(this Maui.IApplication mauiApplication, string address)
-        {
-            var multiApp = CreateApp(mauiApplication
+		public static void StartAutomationServiceListener(this Maui.IApplication mauiApplication, string address)
+		{
+			var multiApp = CreateApp(mauiApplication
 #if ANDROID
-                , (Android.App.Application.Context as Android.App.Application)
-                    ?? Microsoft.Maui.MauiApplication.Current
+				, (Android.App.Application.Context as Android.App.Application)
+					?? Microsoft.Maui.MauiApplication.Current
 #endif
-                );
+				);
 
-            client = new GrpcRemoteAppAgent(multiApp, address);
+			client = new GrpcRemoteAppAgent(multiApp, address);
 		}
 
 	}

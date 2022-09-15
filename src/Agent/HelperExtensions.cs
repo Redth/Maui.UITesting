@@ -5,46 +5,46 @@ using System.Linq;
 
 namespace Microsoft.Maui.Automation
 {
-    public static class App
-    {
-        public static Maui.IApplication GetCurrentMauiApplication()
-            =>
+	public static class App
+	{
+		public static Maui.IApplication GetCurrentMauiApplication()
+			=>
 #if IOS || MACCATALYST
-                Maui.MauiUIApplicationDelegate.Current.Application;
+				Maui.MauiUIApplicationDelegate.Current.Application;
 #elif ANDROID
-                Maui.MauiApplication.Current.Application;
+				Maui.MauiApplication.Current.Application;
 #elif WINDOWS
-                Maui.MauiWinUIApplication.Current.Application;
+				Maui.MauiWinUIApplication.Current.Application;
 #else
-                null;
+				null;
 #endif
 
-        public static Platform GetCurrentPlatform()
-            =>
+		public static Platform GetCurrentPlatform()
+			=>
 #if IOS || MACCATALYST
-                Platform.Ios;
+				Platform.Ios;
 #elif ANDROID
-                Platform.Android;
+				Platform.Android;
 #elif WINDOWS
-                Platform.Winappsdk;
+				Platform.Winappsdk;
 #else
-                Platform.Maui;
+				Platform.Maui;
 #endif
 
-        public static IApplication CreateForCurrentPlatform
-            (
+		public static IApplication CreateForCurrentPlatform
+			(
 #if ANDROID
-            Android.App.Application application
+				Android.App.Application application
 #endif
-            ) =>
+			) =>
 #if IOS || MACCATALYST
-                new iOSApplication();
+				new iOSApplication();
 #elif ANDROID
-            new AndroidApplication(application);
+				new AndroidApplication(application);
 #elif WINDOWS
-            new WindowsAppSdkApplication();
+				new WindowsAppSdkApplication();
 #else
-            throw new PlatformNotSupportedException();
+			throw new PlatformNotSupportedException();
 #endif
-    }
+	}
 }

@@ -42,6 +42,6 @@ namespace Microsoft.Maui.Automation
 		public override Task<PerformActionResult> PerformAction(string action, string elementId, params string[] arguments)
 			=> GetApp(DefaultPlatform).PerformAction(action, elementId, arguments);
 
-    }
+	}
 }
 

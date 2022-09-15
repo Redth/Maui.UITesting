@@ -8,29 +8,29 @@ public class AppDriverBuilder
 		if (!f.Exists)
 			throw new FileNotFoundException(f.FullName);
 
-		var config = new AutomationConfiguration();
+		IAutomationConfiguration config;
 
 		if (f.Extension.Equals(".yaml", StringComparison.OrdinalIgnoreCase))
 			config = AutomationConfiguration.FromYaml(f.FullName);
 		else if (f.Extension.Equals(".json", StringComparison.OrdinalIgnoreCase))
 			config = AutomationConfiguration.FromJson(f.FullName);
 		else
-			throw new NotSupportedException("Unsupported configuration file type.  Must be .json or .yaml");
+			throw new NotSupportedException("Unsupported configuration file type. Must be .json or .yaml");
 
 		return new AppDriverBuilder(config);
-    }
+	}
+
+	public readonly IAutomationConfiguration Configuration;
 
 	public AppDriverBuilder()
 	{
 		Configuration = new AutomationConfiguration();
 	}
 
-    public AppDriverBuilder(IAutomationConfiguration configuration)
-    {
+	public AppDriverBuilder(IAutomationConfiguration configuration)
+	{
 		Configuration = configuration;
-    }
-
-    public readonly IAutomationConfiguration Configuration;
+	}
 
 	public AppDriverBuilder AppId(string appId)
 	{
@@ -38,29 +38,29 @@ public class AppDriverBuilder
 		return this;
 	}
 
-    public AppDriverBuilder AppFilename(string appFilename)
-    {
+	public AppDriverBuilder AppFilename(string appFilename)
+	{
 		Configuration.AppFilename = appFilename;
-        return this;
-    }
+		return this;
+	}
 
-    public AppDriverBuilder Device(string device)
-    {
+	public AppDriverBuilder Device(string device)
+	{
 		Configuration.Device = device;
-        return this;
-    }
+		return this;
+	}
 
-    public AppDriverBuilder DevicePlatform(Platform devicePlatform)
-    {
+	public AppDriverBuilder DevicePlatform(Platform devicePlatform)
+	{
 		Configuration.DevicePlatform = devicePlatform;
-        return this;
-    }
+		return this;
+	}
 
-    public AppDriverBuilder AutomationPlatform(Platform automationPlatform)
-    {
+	public AppDriverBuilder AutomationPlatform(Platform automationPlatform)
+	{
 		Configuration.AutomationPlatform = automationPlatform;
-        return this;
-    }
+		return this;
+	}
 
 	public IDriver Build()
 		=> new AppDriver(Configuration);

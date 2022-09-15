@@ -30,7 +30,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Agent", "src\Agent\Agent.cs
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests", "src\Test\Tests.csproj", "{6B576EF4-14B0-45E7-93DA-C720AC2F6A30}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Interactive", "src\Interactive\Interactive.csproj", "{829C2D5E-1407-484C-897A-F7A684F74523}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Interactive", "src\Interactive\Interactive.csproj", "{829C2D5E-1407-484C-897A-F7A684F74523}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{147247DC-1980-49EB-9C40-D7873D6A7209}"
+	ProjectSection(SolutionItems) = preProject
+		src\.editorconfig = src\.editorconfig
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -11,7 +11,7 @@ public interface IRequestMessage : IRequestIdentity, Google.Protobuf.IMessage
 
 public interface IRequestIdentity
 {
-    string RequestId { get; set; }
+	string RequestId { get; set; }
 }
 
 public partial class ElementsRequest : IRequestMessage

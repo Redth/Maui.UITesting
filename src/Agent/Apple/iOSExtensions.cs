@@ -98,19 +98,19 @@ internal static class iOSExtensions
 		return e;
 	}
 
-    public static Task<PerformActionResult> PerformAction(this UIKit.UIView view, string action, string elementId, params string[] arguments)
-    {
-        if (action == Actions.Tap)
-        {
+	public static Task<PerformActionResult> PerformAction(this UIKit.UIView view, string action, string elementId, params string[] arguments)
+	{
+		if (action == Actions.Tap)
+		{
 			if (view is UIControl ctrl)
 			{
 				ctrl.InvokeOnMainThread(() =>
 					ctrl.SendActionForControlEvents(UIControlEvent.TouchUpInside));
-                return Task.FromResult(PerformActionResult.Ok());
-            }
-        }
+				return Task.FromResult(PerformActionResult.Ok());
+			}
+		}
 
-        throw new NotSupportedException($"PerformAction {action} is not supported.");
-    }
+		throw new NotSupportedException($"PerformAction {action} is not supported.");
+	}
 }
 #endif
