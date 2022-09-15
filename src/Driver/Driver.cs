@@ -29,6 +29,8 @@
 
 		public abstract Task LongPress(int x, int y);
 
+		public abstract Task LongPress(Element element);
+
 		public abstract Task OpenUri(string uri);
 
 		public abstract Task<IEnumerable<Element>> FindElements(string propertyName, string pattern, bool isExpression = false, string ancestorId = "");

@@ -24,6 +24,8 @@
 
 		Task LongPress(int x, int y);
 
+		Task LongPress(Element element);
+
 		Task Tap(Element element);
 
 		Task KeyPress(char keyCode);

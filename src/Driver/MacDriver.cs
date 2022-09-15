@@ -1,7 +1,6 @@
 ﻿using AndroidSdk;
 using Grpc.Net.Client;
 using Microsoft.Maui.Automation.Remote;
-using Spectre.Console.Cli;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -96,6 +95,9 @@ public class MacDriver : IDriver
 
 	public Task LongPress(int x, int y)
 		=> Task.CompletedTask;
+
+	public Task LongPress(Element element)
+			=> Tap(element);
 
 	public Task Swipe((int x, int y) start, (int x, int y) end)
 		=> Task.CompletedTask;

@@ -110,6 +110,10 @@ namespace Microsoft.Maui.Automation.Driver
 			return Task.CompletedTask;
 		}
 
+		public Task LongPress(Element element)
+			=> Tap(element);
+
+
 		public Task OpenUri(string uri)
 		{
 			Session.Navigate().GoToUrl(uri);

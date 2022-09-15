@@ -1,7 +1,6 @@
 ﻿using AndroidSdk;
 using Grpc.Net.Client;
 using Microsoft.Maui.Automation.Remote;
-using Spectre.Console.Cli;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -236,6 +235,9 @@ public class iOSDriver : IDriver
 
 	public Task LongPress(int x, int y)
 		=> press(x, y, TimeSpan.FromSeconds(3));
+
+	public Task LongPress(Element element)
+			=> Tap(element);
 
 	async Task press(int x, int y, TimeSpan holdDelay)
 	{

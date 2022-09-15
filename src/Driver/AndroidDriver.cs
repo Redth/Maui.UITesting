@@ -2,7 +2,6 @@
 using Grpc.Net.Client;
 using Idb;
 using Microsoft.Maui.Automation.Remote;
-using Spectre.Console.Cli;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -146,6 +145,10 @@ public class AndroidDriver : IDriver
 		Adb.Shell($"input swipe {x} {y} {x} {y} 3000", Device);
 		return Task.CompletedTask;
 	}
+
+	public Task LongPress(Element element)
+		=> grpc.Client.PerformAction(Configuration.AutomationPlatform, Actions.Tap, element.Id);
+
 
 	public Task OpenUri(string uri)
 	{

@@ -59,6 +59,9 @@ public class AppDriver : Driver
 	public override Task LongPress(int x, int y)
 		=> Driver.LongPress(x, y);
 
+	public override Task LongPress(Element element)
+		=> Driver.LongPress(element);
+
 	public override Task OpenUri(string uri)
 		=> Driver.OpenUri(uri);
 

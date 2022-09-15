@@ -15,6 +15,7 @@ var driver = new AppDriverBuilder()
 	.Device("")
 	.Build();
 
+await driver.Elements().FirstById("").Tap();
 
 Task<string?>? readTask = null;
 CancellationTokenSource ctsMain = new CancellationTokenSource();

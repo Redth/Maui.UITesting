@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFramework>net6.0</TargetFramework>
@@ -8,8 +8,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\Microsoft.Maui.Automation.Core\Microsoft.Maui.Automation.Core.csproj" />
-		<ProjectReference Include="..\Microsoft.Maui.Automation.Driver\Microsoft.Maui.Automation.Driver.csproj" />
 		<ProjectReference Include="..\Core\Core.csproj" />
 		<ProjectReference Include="..\Driver\Driver.csproj" />
 	</ItemGroup>
