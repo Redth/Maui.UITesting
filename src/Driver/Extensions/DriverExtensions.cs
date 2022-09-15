@@ -58,6 +58,15 @@ public static class DriverExtensions
 		return new DriverTask<IEnumerable<Element>>(elements.Driver, Task.FromResult(results));
 	}
 
+	public static async Task<DriverTask<IEnumerable<Element>>> By(this DriverTask<IEnumerable<Element>> elements, Predicate<Element> predicate)
+	{
+		var actualElements = await elements;
+
+		var results = actualElements.Where(e => predicate(e));
+
+		return new DriverTask<IEnumerable<Element>>(elements.Driver, Task.FromResult(results));
+	}
+
 	public static async Task<DriverTask> Tap(this Task<DriverTask<Element?>> element)
 	{
 		var e = await element;
