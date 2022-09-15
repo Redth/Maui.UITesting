@@ -10,6 +10,8 @@
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.Maui.Automation.Core\Microsoft.Maui.Automation.Core.csproj" />
     <ProjectReference Include="..\Microsoft.Maui.Automation.Driver\Microsoft.Maui.Automation.Driver.csproj" />
+    <ProjectReference Include="..\Core\Core.csproj" />
+    <ProjectReference Include="..\Driver\Driver.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="Microsoft.DotNet.Interactive" />

@@ -10,17 +10,17 @@ namespace Microsoft.Maui.Automation.Test
 {
 	public class Tests
 	{
-		readonly AppDriver driver;
+		readonly IDriver driver;
 
 		public Tests()
 		{
-			driver = new AppDriver(
-				new AutomationConfiguration(
-					"com.companyname.samplemauiapp",
-					"C:\\code\\Maui.UITesting\\samples\\SampleMauiApp\\bin\\Debug\\net6.0-android\\com.companyname.samplemauiapp-Signed.apk",
-					Platform.Android,
-					automationPlatform: Platform.Maui,
-					device: "emulator-5554"));
+			driver = new AppDriverBuilder()
+				.AppId("com.companyname.samplemauiapp")
+				.AppFilename("C:\\code\\Maui.UITesting\\samples\\SampleMauiApp\\bin\\Debug\\net6.0-android\\com.companyname.samplemauiapp-Signed.apk")
+				.DevicePlatform(Platform.Android)
+				.AutomationPlatform(Platform.Maui)
+				.Device("emulator-5554")
+				.Build();
 		}
 
 		[Fact]

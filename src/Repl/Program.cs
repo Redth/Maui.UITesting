@@ -6,6 +6,11 @@ using Microsoft.Maui.Automation.Remote;
 using Spectre.Console;
 using System.Net;
 
+	.AutomationPlatform(Platform.Maui)
+	.Device("")
+	.Build();
+
+
 Task<string?>? readTask = null;
 CancellationTokenSource ctsMain = new CancellationTokenSource();
 
@@ -14,8 +19,13 @@ Console.CancelKeyPress += (s, e) =>
 	ctsMain.Cancel();
 };
 
-var platform = Platform.Maui;
 
+//var config = new AutomationConfiguration
+//{
+//	AppAgentPort = 5000,
+//	DevicePlatform = Platform.Winappsdk,
+//	AutomationPlatform = platform,
+//	Device = "windows",
 
 var config = new AutomationConfiguration
 {

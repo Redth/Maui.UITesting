@@ -25,7 +25,7 @@
 	</ItemGroup>
 
 	<ItemGroup Condition="$(TargetFramework.Contains('-windows'))">
-		<FrameworkReference Include="Microsoft.WindowsDesktop.App"/>
+		<FrameworkReference Include="Microsoft.WindowsDesktop.App" />
 	</ItemGroup>
 
 </Project>
