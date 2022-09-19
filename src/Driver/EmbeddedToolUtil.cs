@@ -22,14 +22,38 @@ namespace Microsoft.Maui.Automation.Driver
 
 				// If not there, check for mac pattern inside Contents/Info.plist
 				if (!File.Exists(plistFile))
-                    plistFile = Path.Combine(file.FullName + "/", "Contents", "Info.plist");
+					plistFile = Path.Combine(file.FullName + "/", "Contents", "Info.plist");
 
 				if (!File.Exists(plistFile))
 					return null;
 
-                var rootDict = (NSDictionary)PropertyListParser.Parse(file);
-                return rootDict.ObjectForKey("CFBundleIdentifier")?.ToString();
-            }
+				var rootDict = (NSDictionary)PropertyListParser.Parse(file);
+				return rootDict.ObjectForKey("CFBundleIdentifier")?.ToString();
+			}
+
+			return null;
+		}
+
+		public static string? GetPackageId(string apkFile)
+		{
+			using var zip = ZipFile.OpenRead(apkFile);
+
+			foreach (var entry in zip.Entries)
+			{
+				if (entry.FullName.Equals("AndroidManifest.xml", StringComparison.OrdinalIgnoreCase))
+				{
+					using var s = entry.Open();
+					using var ms = new MemoryStream();
+
+					s.CopyTo(ms);
+
+					var data = ms.ToArray();
+
+					var manifestReader = new AndroidManifestReader(data);
+					var manifestElement = manifestReader.Manifest.Element("root")?.Element("manifest");
+					return manifestElement?.Attribute("package")?.Value;
+				}
+			}
 
 			return null;
 		}

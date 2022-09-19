@@ -18,6 +18,10 @@ public class AndroidDriver : IDriver
 	{
 		Configuration = configuration;
 
+		if (string.IsNullOrEmpty(Configuration.AppId))
+			Configuration.AppId = AppUtil.GetPackageId(Configuration.AppFilename)
+				?? throw new Exception("AppId not found");
+
 		int port = 5000;
 		//var address = IPAddress.Any.ToString();
 		var adbDeviceSerial = configuration.Device;

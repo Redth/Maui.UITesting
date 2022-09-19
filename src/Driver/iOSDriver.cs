@@ -34,11 +34,11 @@ public class iOSDriver : IDriver
 
 		Name = $"iOS ({configuration.Device})";
 
-        if (string.IsNullOrEmpty(Configuration.AppId))
-            Configuration.AppId = AppUtil.GetBundleIdentifier(Configuration.AppFilename)
-                ?? throw new Exception("AppId not found");
+		if (string.IsNullOrEmpty(Configuration.AppId))
+			Configuration.AppId = AppUtil.GetBundleIdentifier(Configuration.AppFilename)
+				?? throw new Exception("AppId not found");
 
-        idbCompanionPath = UnpackIdb();
+		idbCompanionPath = UnpackIdb();
 
 		idbCompanionProcess = new ProcessRunner(idbCompanionPath, $"--boot {Configuration.Device}");
 		var bootResult = idbCompanionProcess.WaitForExit();
