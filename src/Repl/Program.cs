@@ -8,17 +8,12 @@ using System.Net;
 
 
 var driver = new AppDriverBuilder()
-	.AppId("")
-	.AppFilename("")
+	//.AppId("com.companyname.samplemauiapp")
+	.AppFilename("/Users/redth/code/Maui.UITesting/samples/SampleMauiApp/bin/Debug/net6.0-maccatalyst/maccatalyst-x64/SampleMauiApp.app")
 	.DevicePlatform(Platform.Ios)
 	.AutomationPlatform(Platform.Maui)
-	.Device("")
+	.Device("mac")
 	.Build();
-
-await driver
-	.Elements()
-	.FirstById("")
-	.Tap();
 
 Task<string?>? readTask = null;
 CancellationTokenSource ctsMain = new CancellationTokenSource();
@@ -38,15 +33,15 @@ Console.CancelKeyPress += (s, e) =>
 //	AppId = "D05ADD49-B96D-49E5-979C-FA3A3F42F8E0_9zz4h110yvjzm!App"
 //};
 
-var config = new AutomationConfiguration
-{
-	AppAgentPort = 5000,
-	DevicePlatform = Platform.Maccatalyst,
-	AutomationPlatform = Platform.Maui,
-	Device = "mac",
-	AppId = "com.companyname.samplemauiapp",
-	AppFilename = "/Users/redth/code/Maui.UITesting/samples/SampleMauiApp/bin/Debug/net6.0-maccatalyst/maccatalyst-x64/SampleMauiApp.app"
-};
+//var config = new AutomationConfiguration
+//{
+//	AppAgentPort = 5000,
+//	DevicePlatform = Platform.Maccatalyst,
+//	AutomationPlatform = Platform.Maui,
+//	Device = "mac",
+//	AppId = "com.companyname.samplemauiapp",
+//	AppFilename = "/Users/redth/code/Maui.UITesting/samples/SampleMauiApp/bin/Debug/net6.0-maccatalyst/maccatalyst-x64/SampleMauiApp.app"
+//};
 
 
 await driver.InstallApp();
@@ -59,18 +54,18 @@ var mappings = new Dictionary<string, Func<Task>>
 	{ "test3", async () =>
 		{
 
-			// Find the button by its MAUI AutomationId property
-			var button = await driver.FirstByAutomationId("buttonOne");
 
-			// Tap the button to increment the counter
-			await driver.Tap(button);
+			await driver
+				.Elements()
+				.FirstById("buttonOne")
+				.Tap();
 
-			// Find the label we expect to have changed
-			var label = await driver.By(e =>
-				e.Type == "Label"
-				&& e.Text.Contains("1"));
 
-			Console.WriteLine((label?.FirstOrDefault())?.Text);
+			var label = await driver
+				.Elements()
+				.FirstBy(e => e.Type == "Label" && e.Text.Contains("1"));
+
+			Console.WriteLine(label?.Text);
 		}
 	},
 	{ "test2", async () =>

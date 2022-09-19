@@ -67,11 +67,20 @@ public static class DriverExtensions
 		return new DriverTask<IEnumerable<Element>>(elements.Driver, Task.FromResult(results));
 	}
 
-	public static async Task<DriverTask> Tap(this Task<DriverTask<Element?>> element)
+    public static async Task<DriverTask<Element?>> FirstBy(this DriverTask<IEnumerable<Element>> elements, Predicate<Element> predicate)
+    {
+		var actualElements = await elements;
+        var results = actualElements.FirstOrDefault(e => predicate(e));
+
+        return new DriverTask<Element?>(elements.Driver, Task.FromResult(results));
+    }
+
+    public static async Task<DriverTask> Tap(this Task<DriverTask<Element?>> element)
 	{
 		var e = await element;
 		return await e.Tap();
 	}
+
 	public static async Task<DriverTask> Tap(this DriverTask<Element?> element)
 	{
 		var p = await element;
@@ -92,6 +101,19 @@ public static class DriverExtensions
 
 		return new DriverTask(element.Driver, element.Driver.LongPress(p!));
 	}
+
+    public static async Task<DriverTask> InputText(this Task<DriverTask<Element?>> element, string text)
+    {
+        var e = await element;
+		return await e.InputText(text);
+    }
+
+    public static async Task<DriverTask> InputText(this DriverTask<Element?> element, string text)
+    {
+        var p = await element;
+
+        return new DriverTask(element.Driver, element.Driver.InputText(text));
+    }
 }
 
 public class DriverTask<T>

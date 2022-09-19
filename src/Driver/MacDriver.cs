@@ -30,6 +30,10 @@ public class MacDriver : IDriver
 
 		Name = $"Mac ({configuration.Device})";
 
+		if (string.IsNullOrEmpty(Configuration.AppId))
+			Configuration.AppId = AppUtil.GetBundleIdentifier(Configuration.AppFilename)
+				?? throw new Exception("AppId not found");
+
 		var channel = GrpcChannel.ForAddress($"http://{address}:10882");
 		grpc = new GrpcHost();
 	}

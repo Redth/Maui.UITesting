@@ -44,9 +44,9 @@ namespace Microsoft.Maui.Automation.Driver
 
 		public AutomationConfiguration(string appId, string appFilename, Platform devicePlatform, string? device = null, Platform? automationPlatform = null)
 		{
-			AppId = appId;
 			AppFilename = appFilename;
-			DevicePlatform = devicePlatform;
+            AppId = appId;
+            DevicePlatform = devicePlatform;
 			if (!string.IsNullOrEmpty(device))
 				Device = device;
 			AutomationPlatform = automationPlatform ?? devicePlatform;
