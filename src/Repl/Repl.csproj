@@ -10,8 +10,8 @@
 
 	<ItemGroup>
 		<PackageReference Include="Grpc.Net.Client" Version="2.48.0" />
-		<PackageReference Include="Spectre.Console" Version="0.44.0" />
-		<PackageReference Include="Google.Protobuf" Version="3.21.5" />
+		<PackageReference Include="Spectre.Console" Version="0.45.0" />
+		<PackageReference Include="Google.Protobuf" Version="3.21.6" />
 		<PackageReference Include="Grpc.Tools" Version="2.48.1">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
