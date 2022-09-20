@@ -1,14 +1,6 @@
-﻿using System;
-using AndroidSdk;
-using Grpc.Net.Client;
-using Microsoft.Maui.Automation.Remote;
-using System.Net;
+﻿using Microsoft.Maui.Automation.Remote;
 using OpenQA.Selenium.Appium.Windows;
 using OpenQA.Selenium.Remote;
-using OpenQA.Selenium.Appium.MultiTouch;
-using OpenQA.Selenium.Interactions;
-using OpenQA.Selenium.Appium.Interactions;
-using PointerInputDevice = OpenQA.Selenium.Appium.Interactions.PointerInputDevice;
 
 namespace Microsoft.Maui.Automation.Driver
 {
@@ -55,7 +47,8 @@ namespace Microsoft.Maui.Automation.Driver
 
 			grpc = new GrpcHost();
 
-			Session = new WindowsDriver<WindowsElement>(new Uri("http://127.0.0.1:4723"), appCapabilities);
+			Session = new Lazy<WindowsDriver<WindowsElement>>(() =>
+				new WindowsDriver<WindowsElement>(new Uri("http://127.0.0.1:4723"), appCapabilities));
 		}
 
 		private void AppDriverProcess_OutputLine(object? sender, string e)
@@ -65,7 +58,7 @@ namespace Microsoft.Maui.Automation.Driver
 
 		readonly ProcessRunner appDriverProcess;
 
-		readonly WindowsDriver<WindowsElement> Session;
+		readonly Lazy<WindowsDriver<WindowsElement>> Session;
 
 		readonly GrpcHost grpc;
 
@@ -79,7 +72,7 @@ namespace Microsoft.Maui.Automation.Driver
 
 		public Task ClearAppState()
 		{
-			Session.ResetApp();
+			Session.Value.ResetApp();
 			return Task.CompletedTask;
 		}
 
@@ -90,7 +83,7 @@ namespace Microsoft.Maui.Automation.Driver
 
 		public Task InputText(string text)
 		{
-			Session.Keyboard.SendKeys(text);
+			Session.Value.Keyboard.SendKeys(text);
 			return Task.CompletedTask;
 		}
 
@@ -103,7 +96,7 @@ namespace Microsoft.Maui.Automation.Driver
 
 		public Task KeyPress(char keyCode)
 		{
-			Session.PressKeyCode(keyCode);
+			Session.Value.PressKeyCode(keyCode);
 			return Task.CompletedTask;
 		}
 
@@ -115,7 +108,7 @@ namespace Microsoft.Maui.Automation.Driver
 
 		public Task LongPress(int x, int y)
 		{
-			var touch = new RemoteTouchScreen(Session);
+			var touch = new RemoteTouchScreen(Session.Value);
 			touch.Down(x, y);
 			Thread.Sleep(3000);
 			touch.Up(x, y);
@@ -128,13 +121,13 @@ namespace Microsoft.Maui.Automation.Driver
 
 		public Task OpenUri(string uri)
 		{
-			Session.Navigate().GoToUrl(uri);
+			Session.Value.Navigate().GoToUrl(uri);
 			return Task.CompletedTask;
 		}
 
 		public Task PullFile(string remoteFile, string localDirectory)
 		{
-			var data = Session.PullFile(remoteFile);
+			var data = Session.Value.PullFile(remoteFile);
 
 			if (data is not null)
 			{
@@ -151,19 +144,19 @@ namespace Microsoft.Maui.Automation.Driver
 
 		public Task RemoveApp()
 		{
-			Session.RemoveApp(Configuration.AppId);
+			Session.Value.RemoveApp(Configuration.AppId);
 			return Task.CompletedTask;
 		}
 
 		public Task StopApp()
 		{
-			Session.CloseApp();
+			Session.Value.CloseApp();
 			return Task.CompletedTask;
 		}
 
 		public Task Swipe((int x, int y) start, (int x, int y) end)
 		{
-			var touch = new RemoteTouchScreen(Session);
+			var touch = new RemoteTouchScreen(Session.Value);
 			touch.Down(start.x, start.y);
 			Thread.Sleep(2000);
 			touch.Up(end.x, end.y);
@@ -175,7 +168,7 @@ namespace Microsoft.Maui.Automation.Driver
 			//x = (int)(x * 2.25);
 			//y = (int)(y * 2.25);
 
-			var touch = new RemoteTouchScreen(Session);
+			var touch = new RemoteTouchScreen(Session.Value);
 			//touch.d
 			touch.Down(x, y);
 			Thread.Sleep(100);
@@ -185,7 +178,7 @@ namespace Microsoft.Maui.Automation.Driver
 
 		public async Task Tap(Element element)
 		{
-			var winElement = Session.FindElementByAccessibilityId(element.AutomationId);
+			var winElement = Session.Value.FindElementByAccessibilityId(element.AutomationId);
 			winElement.Click();
 			//var we = Session.FindElements(OpenQA.Selenium.By.XPath("//*"))?.ToList();
 
@@ -225,8 +218,8 @@ namespace Microsoft.Maui.Automation.Driver
 		{
 			try
 			{
-				Session?.Close();
-				Session?.Dispose();
+				Session?.Value?.Close();
+				Session?.Value?.Dispose();
 			}
 			catch { }
 
