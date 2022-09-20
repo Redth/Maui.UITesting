@@ -89,8 +89,9 @@ namespace Microsoft.Maui.Automation.Driver
 
 		public Task InstallApp()
 		{
-			//Session.InstallApp(Configuration.AppFilename);
-
+			var moduleFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "WindowsPowerShell", "v1.0", "Modules", "Appx", "Appx.psd1");
+			var ps1 = $"Import-Module -SkipEditionCheck '{moduleFile}'; Add-AppxPackage -Path {Configuration.AppFilename} -AllowUnsigned -ForceApplicationShutdown -ForceUpdateFromAnyVersion";
+			PowershellUtil.Run(ps1);
 			return Task.CompletedTask;
 		}
 
