@@ -75,10 +75,21 @@ public class MacDriver : IDriver
 
 
 	public Task PushFile(string localFile, string destinationDirectory)
-		=> Task.CompletedTask;
+	{
+		var bundleRoot = Path.Combine(Configuration.AppFilename, "Contents");
+		var dest = Path.Combine(bundleRoot, Path.GetFileName(localFile));
+		File.Copy(localFile, dest);
+		return Task.CompletedTask;
+	}
 
 	public Task PullFile(string remoteFile, string localDirectory)
-		=> Task.CompletedTask;
+	{
+        var bundleRoot = Path.Combine(Configuration.AppFilename, "Contents");
+		var src = Path.Combine(bundleRoot, remoteFile);
+		var dest = Path.Combine(localDirectory, Path.GetFileName(remoteFile));
+		File.Copy(src, dest);
+        return Task.CompletedTask;
+	}
 
 
 	public Task InputText(string text)
@@ -95,7 +106,6 @@ public class MacDriver : IDriver
 
 	public Task Tap(Element element)
 		=> grpc.Client.PerformAction(Configuration.AutomationPlatform, Actions.Tap, element.Id);
-
 
 	public Task LongPress(int x, int y)
 		=> Task.CompletedTask;
