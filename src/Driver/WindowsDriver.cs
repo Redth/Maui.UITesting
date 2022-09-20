@@ -23,6 +23,18 @@ namespace Microsoft.Maui.Automation.Driver
 		{
 			Configuration = configuration;
 
+			var appFile = configuration.AppFilename;
+
+			if (string.IsNullOrEmpty(configuration.AppId))
+			{
+				if (Path.GetExtension(appFile).Equals(".msix"))
+				{
+					// Infer id from appx manifest
+					var appId = AppUtil.GetAppxId(appFile);
+					if (!string.IsNullOrEmpty(appId))
+						Configuration.AppId = appId;
+				}
+			}
 
 			var appDriverPath = configuration.Get(ConfigurationKeys.WinAppDriverExePath, null);
 

@@ -3,6 +3,8 @@ using System.IO;
 using System.IO.Compression;
 using System.Reflection;
 using System.Text;
+using System.Xml.Linq;
+using System.Xml.XPath;
 using Claunia.PropertyList;
 using Newtonsoft.Json.Linq;
 using SharpCompress.Readers;
@@ -52,6 +54,32 @@ namespace Microsoft.Maui.Automation.Driver
 					var manifestReader = new AndroidManifestReader(data);
 					var manifestElement = manifestReader.Manifest.Element("root")?.Element("manifest");
 					return manifestElement?.Attribute("package")?.Value;
+				}
+			}
+
+			return null;
+		}
+
+		public static string? GetAppxId(string msixFilename)
+		{
+			using var zip = ZipFile.OpenRead(msixFilename);
+
+			foreach (var entry in zip.Entries)
+			{
+				if (entry.FullName.Equals("AppxManifest.xml", StringComparison.OrdinalIgnoreCase))
+				{
+					using var s = entry.Open();
+					var doc = XDocument.Load(s);
+					var ns = doc.Root.GetDefaultNamespace();
+					var name = ns.NamespaceName;
+
+					var rootElem = doc.Root;
+
+					var identityName = rootElem?.Element(ns + "Identity")?.Attribute("Name")?.Value;
+					var appId = rootElem?.Element(ns + "Applications")?.Element(ns + "Application")?.Attribute("Id")?.Value;
+					
+					if (!string.IsNullOrEmpty(identityName) && !string.IsNullOrEmpty(appId))
+						return $"{identityName}!{appId}";
 				}
 			}
 
