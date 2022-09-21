@@ -8,6 +8,8 @@
 
 		Task<IDeviceInfo> GetDeviceInfo();
 
+		Task Start(bool forceReInstall = false, bool clearAppState = false);
+
 		Task InstallApp();
 
 		Task RemoveApp();

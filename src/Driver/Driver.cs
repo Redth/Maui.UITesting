@@ -21,6 +21,16 @@
 
 		public abstract Task InputText(string text);
 
+		public async Task Start(bool forceReInstall = false, bool clearAppState = false)
+		{
+			await StopApp();
+			if (forceReInstall)
+				await RemoveApp();
+			if (clearAppState)
+				await ClearAppState();
+			await InstallApp();
+			await LaunchApp();
+		}
 		public abstract Task InstallApp();
 
 		public abstract Task KeyPress(char keyCode);
