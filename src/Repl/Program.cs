@@ -8,11 +8,8 @@ using System.Net;
 
 
 var driver = new AppDriverBuilder()
-	//.AppId("com.companyname.samplemauiapp")
-	.AppFilename("/Users/redth/code/Maui.UITesting/samples/SampleMauiApp/bin/Debug/net6.0-maccatalyst/maccatalyst-x64/SampleMauiApp.app")
-	.DevicePlatform(Platform.Ios)
-	.AutomationPlatform(Platform.Maui)
-	.Device("mac")
+	.AppFilename(@"C:\code\Maui.UITesting\samples\SampleMauiApp\bin\Debug\net7.0-android\com.companyname.samplemauiapp-Signed.apk")
+	.Device("emulator-5554")
 	.Build();
 
 Task<string?>? readTask = null;
@@ -24,28 +21,7 @@ Console.CancelKeyPress += (s, e) =>
 };
 
 
-//var config = new AutomationConfiguration
-//{
-//	AppAgentPort = 5000,
-//	DevicePlatform = Platform.Winappsdk,
-//	AutomationPlatform = platform,
-//	Device = "windows",
-//	AppId = "D05ADD49-B96D-49E5-979C-FA3A3F42F8E0_9zz4h110yvjzm!App"
-//};
-
-//var config = new AutomationConfiguration
-//{
-//	AppAgentPort = 5000,
-//	DevicePlatform = Platform.Maccatalyst,
-//	AutomationPlatform = Platform.Maui,
-//	Device = "mac",
-//	AppId = "com.companyname.samplemauiapp",
-//	AppFilename = "/Users/redth/code/Maui.UITesting/samples/SampleMauiApp/bin/Debug/net6.0-maccatalyst/maccatalyst-x64/SampleMauiApp.app"
-//};
-
-
-await driver.InstallApp();
-await driver.LaunchApp();
+await driver.Start();
 
 var mappings = new Dictionary<string, Func<Task>>
 {
@@ -55,16 +31,15 @@ var mappings = new Dictionary<string, Func<Task>>
 		{
 			await driver
 				.Elements()
-				.FirstById("buttonOne")
+				.FirstByAutomationId("buttonOne")
 				.Tap();
 
-
-			var label = await driver
+			var labelText = await driver
 				.Elements()
 				.FirstBy(e => e.Type == "Label" && e.Text.Contains("1"))
-				.Element();
+				.GetText();
 
-			Console.WriteLine(label?.Text);
+			Console.WriteLine(labelText);
 		}
 	}
 };
