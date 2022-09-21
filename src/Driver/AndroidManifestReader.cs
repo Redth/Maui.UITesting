@@ -30,7 +30,7 @@ internal class AndroidManifestReader
 
     private readonly byte[] _xml;
 
-    private XDocument _manifest;
+    private XDocument? _manifest;
 
     /// <summary>Reads and returns the uncompressed Xml Manifest</summary>
     public XDocument Manifest => _manifest ?? (_manifest = ReadManifest());
@@ -46,7 +46,7 @@ internal class AndroidManifestReader
         result.Add(new XElement("root"));
 
         var tagStack = new Stack<XElement>();
-        tagStack.Push(result.Root);
+        tagStack.Push(result.Root!);
 
         var tagOffset = FindStartOfTags();
         while (tagOffset < _xml.Length)
@@ -97,7 +97,7 @@ internal class AndroidManifestReader
     private int ReadStartTag(int offset, out XElement element)
     {
         const int startTagDataSize = 9 * 4;
-        element = new XElement(ReadTagName(offset));
+        element = new XElement(ReadTagName(offset)!);
         var bytesConsumed = startTagDataSize;
 
         var attributesCount = BitConverter.ToInt32(_xml, offset + 7 * 4);
@@ -134,7 +134,7 @@ internal class AndroidManifestReader
             ? RetrieveFromStringTable(attributeValueStringIndex)
             : attributeResourceId.ToString();
 
-        attribute = new XAttribute(attrName, attrValue);
+        attribute = new XAttribute(attrName!, attrValue!);
         return 20;
     }
 
@@ -148,7 +148,7 @@ internal class AndroidManifestReader
                 $"Malformed XML: expecting {expectedTagName} but found {tagName}");
     }
 
-    private string ReadTagName(int tagOffset)
+    private string? ReadTagName(int tagOffset)
     {
         var nameIndexOffset = tagOffset + 5 * 4;
         var nameStringIndex = BitConverter.ToInt32(_xml, nameIndexOffset);
@@ -170,7 +170,7 @@ internal class AndroidManifestReader
     /// offset strOff.  This offset points to the 16 bit string length, which 
     /// is followed by that number of 16 bit (Unicode) chars. </summary>
     /// <returns></returns>
-    private string RetrieveFromStringTable(int strInd)
+    private string? RetrieveFromStringTable(int strInd)
     {
         if (strInd < 0) return null;
 

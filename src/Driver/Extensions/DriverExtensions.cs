@@ -76,6 +76,11 @@ public static class DriverExtensions
 		return await p.Value;
     }
 
+    public static async Task<Element?> Element(this DriverTask<Element?> element)
+    {
+        return await element;
+    }
+
     public static async Task<DriverTask> Tap(this Task<DriverTask<Element?>> element)
 	{
 		var e = await element;

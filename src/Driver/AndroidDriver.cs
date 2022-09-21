@@ -56,13 +56,12 @@ public class AndroidDriver : IDriver
 
 	readonly AndroidSdk.AndroidSdkManager androidSdkManager;
 	protected readonly string Device;
-	private bool disposedValue;
 
 	public IAutomationConfiguration Configuration { get; }
 
 	public string Name { get; }
 
-	string AppId => Configuration.AppId;
+	string AppId => Configuration.AppId ?? throw new ArgumentNullException("AppId");
 
 	public Task Back()
 	{
@@ -81,7 +80,7 @@ public class AndroidDriver : IDriver
 
 	public Task InstallApp()
 	{
-		Adb.Install(new System.IO.FileInfo(Configuration.AppFilename), Device);
+		Adb.Install(new System.IO.FileInfo(Configuration.AppFilename ?? throw new FileNotFoundException()), Device);
 		return Task.CompletedTask;
 	}
 

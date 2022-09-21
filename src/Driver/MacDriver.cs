@@ -76,6 +76,9 @@ public class MacDriver : IDriver
 
 	public Task PushFile(string localFile, string destinationDirectory)
 	{
+		if (string.IsNullOrEmpty(Configuration.AppFilename))
+			throw new FileNotFoundException("AppFilename");
+
 		var bundleRoot = Path.Combine(Configuration.AppFilename, "Contents");
 		var dest = Path.Combine(bundleRoot, Path.GetFileName(localFile));
 		File.Copy(localFile, dest);
@@ -84,6 +87,9 @@ public class MacDriver : IDriver
 
 	public Task PullFile(string remoteFile, string localDirectory)
 	{
+        if (string.IsNullOrEmpty(Configuration.AppFilename))
+            throw new FileNotFoundException("AppFilename");
+
         var bundleRoot = Path.Combine(Configuration.AppFilename, "Contents");
 		var src = Path.Combine(bundleRoot, remoteFile);
 		var dest = Path.Combine(localDirectory, Path.GetFileName(remoteFile));

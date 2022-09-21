@@ -13,9 +13,14 @@ namespace Microsoft.Maui.Automation.Driver
 {
 	public static class AppUtil
 	{
-		public static string? GetBundleIdentifier(string appFile)
+		public static string? GetBundleIdentifier(string? appFile)
 		{
+			if (string.IsNullOrEmpty(appFile))
+				return null;
+
 			var file = new FileInfo(appFile);
+			if (!file.Exists)
+				return null;
 
 			if (appFile.EndsWith(".app", StringComparison.InvariantCultureIgnoreCase))
 			{
@@ -36,8 +41,11 @@ namespace Microsoft.Maui.Automation.Driver
 			return null;
 		}
 
-		public static string? GetPackageId(string apkFile)
+		public static string? GetPackageId(string? apkFile)
 		{
+			if (string.IsNullOrEmpty(apkFile) || !File.Exists(apkFile))
+				return null;
+
 			using var zip = ZipFile.OpenRead(apkFile);
 
 			foreach (var entry in zip.Entries)
@@ -70,9 +78,8 @@ namespace Microsoft.Maui.Automation.Driver
 				{
 					using var s = entry.Open();
 					var doc = XDocument.Load(s);
-					var ns = doc.Root.GetDefaultNamespace();
-					var name = ns.NamespaceName;
-
+					var ns = doc.Root?.GetDefaultNamespace() ?? XNamespace.None;
+					
 					var rootElem = doc.Root;
 
 					var identityName = rootElem?.Element(ns + "Identity")?.Attribute("Name")?.Value;

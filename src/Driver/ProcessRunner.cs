@@ -69,7 +69,7 @@ internal class ProcessRunner
 	public void Kill()
 		=> process?.Kill();
 
-	public event EventHandler<string> OutputLine;
+	public event EventHandler<string>? OutputLine;
 
 	public IEnumerable<string> Output
 		=> standardOutput.Concat(standardError);

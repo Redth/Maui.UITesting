@@ -52,56 +52,108 @@ namespace Microsoft.Maui.Automation.Driver
 			AutomationPlatform = automationPlatform ?? devicePlatform;
 		}
 
-		public string AppAgentAddress
+		public string? AppAgentAddress
 		{
-			get => GetOrDefault(nameof(AppAgentAddress), IPAddress.Loopback.ToString()).ToString();
-			set => this[nameof(AppAgentAddress)] = value;
+			get => GetOrDefault(nameof(AppAgentAddress), IPAddress.Loopback.ToString())?.ToString();
+			set => Set(nameof(AppAgentAddress), value);
 		}
 
 		public int AppAgentPort
 		{
-			get => int.Parse(GetOrDefault(nameof(AppAgentPort), 5000).ToString());
+			get => GetOrDefaultInt(nameof(AppAgentPort), 5000);
 			set => this[nameof(AppAgentPort)] = value;
 		}
 
-		public string Device
+		public string? Device
 		{
-			get => GetOrDefault(nameof(Device), IPAddress.Any.ToString()).ToString();
-			set => this[nameof(Device)] = value;
+			get => GetOrDefault(nameof(Device), IPAddress.Any.ToString())?.ToString();
+			set => Set(nameof(Device), value);
 		}
 
 		public Platform DevicePlatform
 		{
-			get => Enum.Parse<Platform>(GetOrDefault(nameof(DevicePlatform), "maccatalyst").ToString());
-			set => this[nameof(DevicePlatform)] = Enum.GetName<Platform>(value) ?? nameof(Platform.Maui);
+			get => GetOrDefaultEnum<Platform>(nameof(DevicePlatform), Platform.Winappsdk);
+			set => Set(nameof(DevicePlatform), value);
 		}
 
 		public Platform AutomationPlatform
 		{
-			get => Enum.Parse<Platform>(GetOrDefault(nameof(AutomationPlatform), "maccatalyst").ToString());
+			get => GetOrDefaultEnum<Platform>(nameof(AutomationPlatform), Platform.Maui);
 			set => this[nameof(AutomationPlatform)] = Enum.GetName<Platform>(value) ?? nameof(Platform.Maui);
 		}
 
-		public string AppId
+		public string? AppId
 		{
-			get => GetOrDefault(nameof(AppId), "").ToString();
-			set => this[nameof(AppId)] = value;
+			get => GetOrDefault(nameof(AppId), null)?.ToString();
+			set => Set(nameof(AppId), value);
 		}
 
-		public string AppFilename
+		public string? AppFilename
 		{
-			get => GetOrDefault(nameof(AppFilename), "").ToString();
-			set => this[nameof(AppFilename)] = value;
+			get => GetOrDefault(nameof(AppFilename), null)?.ToString();
+			set => Set(nameof(AppFilename), value);
 		}
 
-		public string Get(string key, string defaultValue)
+		public string? Get(string key, string? defaultValue)
 			=> GetOrDefault(key, defaultValue)?.ToString();
 
-		private object GetOrDefault(string key, object defaultValue)
+        int GetOrDefaultInt(string key, int defaultValue)
+        {
+            var str = GetOrDefault(key, (string?)null)?.ToString();
+
+            if (string.IsNullOrEmpty(str))
+                return defaultValue;
+
+            if (int.TryParse(str, out var v))
+                return v;
+
+            return defaultValue;
+        }
+
+		T GetOrDefaultEnum<T>(string key, T defaultValue) where T : struct
+		{
+			var str = GetOrDefault(key, (string?)null)?.ToString();
+
+			if (string.IsNullOrEmpty(str))
+				return defaultValue;
+
+			if (Enum.TryParse<T>(str, out var v))
+				return v;
+
+			return defaultValue;
+		}
+
+		private object? GetOrDefault(string key, object? defaultValue)
 		{
 			if (this.ContainsKey(key))
 				return this[key];
 			return defaultValue;
+		}
+
+		void Set(string key, string? value)
+		{
+			if (!string.IsNullOrEmpty(value))
+			{
+				this[key] = value;
+			}
+			else
+			{
+				if (this.ContainsKey(key))
+					this.Remove(key);
+			}
+		}
+
+        void Set(string key, object? value)
+		{
+            if (value is not null)
+			{
+				this[key] = value;
+			}
+            else
+            {
+                if (this.ContainsKey(key))
+                    this.Remove(key);
+            }
 		}
 	}
 }
