@@ -110,7 +110,7 @@ namespace Microsoft.Maui.Automation
                 }
 				else
 				{
-					var result = await app.PerformAction(request.Action, request.Arguments.ToArray());
+					var result = await app.PerformAction(request.Action, request.ElementId, request.Arguments.ToArray());
 					response.Status = result.Status;
 					response.Results.AddRange(response.Results);
 				}
