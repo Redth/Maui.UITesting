@@ -203,13 +203,8 @@ namespace Microsoft.Maui.Automation.Driver
 			//return Task.CompletedTask;
 		}
 
-		public async Task<string?> GetProperty(string elementId, string propertyName)
-		{
-			var r = await grpc.Client.PerformAction(Configuration.AutomationPlatform,
-				Actions.GetProperty, elementId, propertyName);
-
-			return r.Results?.FirstOrDefault();
-		}
+		public Task<string?> GetProperty(string elementId, string propertyName)
+			=> grpc.Client.GetProperty(Configuration.AutomationPlatform, elementId, propertyName);
 
 		public Task<IEnumerable<Element>> GetElements()
 			=> grpc.Client.GetElements(Configuration.AutomationPlatform);

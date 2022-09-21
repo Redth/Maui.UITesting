@@ -298,7 +298,7 @@ public class iOSDriver : IDriver
 				}
 			});
 
-	public Task<string> GetProperty(string elementId, string propertyName)
+	public Task<string?> GetProperty(string elementId, string propertyName)
 			=> grpc.Client.GetProperty(Configuration.AutomationPlatform, elementId, propertyName);
 
 	public Task<IEnumerable<Element>> GetElements()
