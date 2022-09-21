@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SampleMauiApp.LoginPage"
+             Title="LoginPage">
+    <VerticalStackLayout>
+        <Entry x:Name="entryUsername" Placeholder="Username" AutomationId="entryUsername" />
+        <Entry x:Name="entryPassword" Placeholder="Password" IsPassword="True" AutomationId="entryPassword" />
+
+        <Button Text="Login" AutomationId="buttonLogin" Clicked="Button_Clicked" />
+
+        <ActivityIndicator x:Name="loginActivity" IsVisible="false" IsRunning="False" IsEnabled="False" />
+    </VerticalStackLayout>
+</ContentPage>
