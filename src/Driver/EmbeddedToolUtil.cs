@@ -13,6 +13,59 @@ namespace Microsoft.Maui.Automation.Driver
 {
 	public static class AppUtil
 	{
+		internal static Platform InferDevicePlatformFromFilename(string? appFile)
+		{
+			if (string.IsNullOrEmpty(appFile))
+				throw new ArgumentNullException("AppFilename");
+
+			var file = new FileInfo(appFile);
+			if (!file.Exists)
+				throw new ArgumentNullException("AppFilename");
+
+			return file.Extension.ToLowerInvariant() switch
+			{
+				".apk" => Platform.Android,
+				".app" => InferApplePlatform(appFile),
+				".msix" => Platform.Winappsdk,
+				_ => throw new ArgumentOutOfRangeException("Unable to infer Device platform, try specifying explicitly in the config.")
+			};
+		}
+
+
+		public static Platform InferApplePlatform(string? appFile)
+		{
+			if (string.IsNullOrEmpty(appFile))
+				throw new ArgumentNullException("AppFilename");
+
+			var file = new FileInfo(appFile);
+			if (!file.Exists)
+				throw new ArgumentNullException("AppFilename");
+
+			if (appFile.EndsWith(".app", StringComparison.InvariantCultureIgnoreCase))
+			{
+				var plistFile = Path.Combine(file.FullName + "/", "Contents", "Info.plist");
+				if (File.Exists(plistFile))
+				{
+					var rootDict = (NSDictionary)PropertyListParser.Parse(file);
+					var dtplatformName = rootDict.ObjectForKey("DTPlatformName")?.ToString();
+
+					if (!string.IsNullOrEmpty(dtplatformName))
+					{
+						if (dtplatformName.Equals("maccatalyst", StringComparison.OrdinalIgnoreCase))
+							return Platform.Maccatalyst;
+
+						return Platform.Macos;
+					}
+				}
+
+				// iOS and ipad apps have the info.plist in the bundle root
+				plistFile = Path.Combine(file.FullName + "/", "Info.plist");
+				if (File.Exists(plistFile))
+					return Platform.Ios;
+			}
+			throw new ArgumentOutOfRangeException("Unknown Apple Platform");
+		}
+
 		public static string? GetBundleIdentifier(string? appFile)
 		{
 			if (string.IsNullOrEmpty(appFile))

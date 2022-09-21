@@ -45,8 +45,8 @@ namespace Microsoft.Maui.Automation.Driver
 		public AutomationConfiguration(string appId, string appFilename, Platform devicePlatform, string? device = null, Platform? automationPlatform = null)
 		{
 			AppFilename = appFilename;
-            AppId = appId;
-            DevicePlatform = devicePlatform;
+			AppId = appId;
+			DevicePlatform = devicePlatform;
 			if (!string.IsNullOrEmpty(device))
 				Device = device;
 			AutomationPlatform = automationPlatform ?? devicePlatform;
@@ -72,7 +72,7 @@ namespace Microsoft.Maui.Automation.Driver
 
 		public Platform DevicePlatform
 		{
-			get => GetOrDefaultEnum<Platform>(nameof(DevicePlatform), Platform.Winappsdk);
+			get => GetOrDefaultEnum<Platform>(nameof(DevicePlatform), AppUtil.InferDevicePlatformFromFilename(AppFilename));
 			set => Set(nameof(DevicePlatform), value);
 		}
 
@@ -97,18 +97,18 @@ namespace Microsoft.Maui.Automation.Driver
 		public string? Get(string key, string? defaultValue)
 			=> GetOrDefault(key, defaultValue)?.ToString();
 
-        int GetOrDefaultInt(string key, int defaultValue)
-        {
-            var str = GetOrDefault(key, (string?)null)?.ToString();
+		int GetOrDefaultInt(string key, int defaultValue)
+		{
+			var str = GetOrDefault(key, (string?)null)?.ToString();
 
-            if (string.IsNullOrEmpty(str))
-                return defaultValue;
+			if (string.IsNullOrEmpty(str))
+				return defaultValue;
 
-            if (int.TryParse(str, out var v))
-                return v;
+			if (int.TryParse(str, out var v))
+				return v;
 
-            return defaultValue;
-        }
+			return defaultValue;
+		}
 
 		T GetOrDefaultEnum<T>(string key, T defaultValue) where T : struct
 		{
@@ -143,17 +143,17 @@ namespace Microsoft.Maui.Automation.Driver
 			}
 		}
 
-        void Set(string key, object? value)
+		void Set(string key, object? value)
 		{
-            if (value is not null)
+			if (value is not null)
 			{
 				this[key] = value;
 			}
-            else
-            {
-                if (this.ContainsKey(key))
-                    this.Remove(key);
-            }
+			else
+			{
+				if (this.ContainsKey(key))
+					this.Remove(key);
+			}
 		}
 	}
 }
