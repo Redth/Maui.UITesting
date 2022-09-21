@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Maui.Automation.Driver;
 
-public static class DriverExtensions
+public static partial class DriverExtensions
 {
 	public static async Task<Element?> FirstById(this IDriver driver, string id)
 	{
@@ -67,15 +67,15 @@ public static class DriverExtensions
 		return new DriverTask<IEnumerable<Element>>(elements.Driver, Task.FromResult(results));
 	}
 
-    public static async Task<DriverTask<Element?>> FirstBy(this DriverTask<IEnumerable<Element>> elements, Predicate<Element> predicate)
-    {
+	public static async Task<DriverTask<Element?>> FirstBy(this DriverTask<IEnumerable<Element>> elements, Predicate<Element> predicate)
+	{
 		var actualElements = await elements;
-        var results = actualElements.FirstOrDefault(e => predicate(e));
+		var results = actualElements.FirstOrDefault(e => predicate(e));
 
-        return new DriverTask<Element?>(elements.Driver, Task.FromResult(results));
-    }
+		return new DriverTask<Element?>(elements.Driver, Task.FromResult(results));
+	}
 
-    public static async Task<DriverTask> Tap(this Task<DriverTask<Element?>> element)
+	public static async Task<DriverTask> Tap(this Task<DriverTask<Element?>> element)
 	{
 		var e = await element;
 		return await e.Tap();
@@ -102,50 +102,18 @@ public static class DriverExtensions
 		return new DriverTask(element.Driver, element.Driver.LongPress(p!));
 	}
 
-    public static async Task<DriverTask> InputText(this Task<DriverTask<Element?>> element, string text)
-    {
-        var e = await element;
+	public static async Task<DriverTask> InputText(this Task<DriverTask<Element?>> element, string text)
+	{
+		var e = await element;
 		return await e.InputText(text);
-    }
-
-    public static async Task<DriverTask> InputText(this DriverTask<Element?> element, string text)
-    {
-        var p = await element;
-
-        return new DriverTask(element.Driver, element.Driver.InputText(text));
-    }
-}
-
-public class DriverTask<T>
-{
-	public DriverTask(IDriver driver, Task<T> value)
-	{
-		Value = value;
-		Driver = driver;
-
 	}
 
-	public readonly Task<T> Value;
-
-	public readonly IDriver Driver;
-
-	public TaskAwaiter<T> GetAwaiter()
-		=> Value.GetAwaiter();
-}
-
-public class DriverTask
-{
-	public DriverTask(IDriver driver, Task value)
+	public static async Task<DriverTask> InputText(this DriverTask<Element?> element, string text)
 	{
-		Value = value;
-		Driver = driver;
+		var p = await element;
 
+		return new DriverTask(element.Driver, element.Driver.InputText(text));
 	}
 
-	public readonly Task Value;
-
-	public readonly IDriver Driver;
-
-	public TaskAwaiter GetAwaiter()
-		=> Value.GetAwaiter();
 }
+
