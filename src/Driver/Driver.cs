@@ -33,11 +33,9 @@
 
 		public abstract Task OpenUri(string uri);
 
-		public abstract Task<IEnumerable<Element>> FindElements(string propertyName, string pattern, bool isExpression = false, string ancestorId = "");
-
 		public abstract Task<IEnumerable<Element>> GetElements();
 
-		public abstract Task<string> GetProperty(string elementId, string propertyName);
+		public abstract Task<string?> GetProperty(string elementId, string propertyName);
 
 		public abstract Task<PerformActionResult> PerformAction(string action, string elementId, params string[] arguments);
 
@@ -54,5 +52,7 @@
 		public abstract Task Tap(int x, int y);
 
 		public abstract Task Tap(Element element);
+
+		public abstract Task<string[]> Backdoor(string fullyQualifiedTypeName, string staticMethodName, string[] args);
 	}
 }

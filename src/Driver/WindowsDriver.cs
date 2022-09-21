@@ -19,7 +19,7 @@ namespace Microsoft.Maui.Automation.Driver
 
 			if (string.IsNullOrEmpty(configuration.AppId))
 			{
-				if (Path.GetExtension(appFile).Equals(".msix"))
+				if (!string.IsNullOrEmpty(appFile) && Path.GetExtension(appFile).Equals(".msix"))
 				{
 					// Infer id from appx manifest
 					var appId = AppUtil.GetAppxId(appFile);
@@ -56,7 +56,7 @@ namespace Microsoft.Maui.Automation.Driver
 			Console.WriteLine(e);
 		}
 
-		readonly ProcessRunner appDriverProcess;
+		readonly ProcessRunner? appDriverProcess;
 
 		readonly Lazy<WindowsDriver<WindowsElement>> Session;
 
@@ -177,7 +177,7 @@ namespace Microsoft.Maui.Automation.Driver
 			return Task.CompletedTask;
 		}
 
-		public async Task Tap(Element element)
+		public Task Tap(Element element)
 		{
 			var winElement = Session.Value.FindElementByAccessibilityId(element.AutomationId);
 			winElement.Click();
@@ -200,22 +200,22 @@ namespace Microsoft.Maui.Automation.Driver
 			//touchSequence.AddAction(touchContact.CreatePointerUp(PointerButton.TouchContact));
 
 			//Session.PerformActions(new List<ActionSequence> { touchSequence });
-			//return Task.CompletedTask;
+			return Task.CompletedTask;
 		}
 
-		public Task<string> GetProperty(string elementId, string propertyName)
+		public Task<string?> GetProperty(string elementId, string propertyName)
 			=> grpc.Client.GetProperty(Configuration.AutomationPlatform, elementId, propertyName);
 
 		public Task<IEnumerable<Element>> GetElements()
 			=> grpc.Client.GetElements(Configuration.AutomationPlatform);
 
-		public Task<IEnumerable<Element>> FindElements(string propertyName, string pattern, bool isExpression = false, string ancestorId = "")
-			=> grpc.Client.FindElements(Configuration.AutomationPlatform, propertyName, pattern, isExpression, ancestorId);
-
 		public Task<PerformActionResult> PerformAction(string action, string elementId, params string[] arguments)
 			=> grpc.Client.PerformAction(Configuration.AutomationPlatform, action, elementId, arguments);
 
-		public async void Dispose()
+        public Task<string[]> Backdoor(string fullyQualifiedTypeName, string staticMethodName, string[] args)
+			=> grpc.Client.Backdoor(Configuration.AutomationPlatform, fullyQualifiedTypeName, staticMethodName, args);
+
+        public async void Dispose()
 		{
 			try
 			{

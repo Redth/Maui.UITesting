@@ -29,16 +29,13 @@ public class AppDriver : Driver
 	public override Task ClearAppState()
 		=> Driver.ClearAppState();
 
-	public override Task<IEnumerable<Element>> FindElements(string propertyName, string pattern, bool isExpression = false, string ancestorId = "")
-		=> Driver.FindElements(propertyName, pattern, isExpression, propertyName);
-
 	public override Task<IDeviceInfo> GetDeviceInfo()
 		=> Driver.GetDeviceInfo();
 
 	public override Task<IEnumerable<Element>> GetElements()
 		=> Driver.GetElements();
 
-	public override Task<string> GetProperty(string elementId, string propertyName)
+	public override Task<string?> GetProperty(string elementId, string propertyName)
 		=> Driver.GetProperty(elementId, propertyName);
 
 	public override Task<PerformActionResult> PerformAction(string action, string elementId, params string[] arguments)
@@ -88,4 +85,7 @@ public class AppDriver : Driver
 
 	public override void Dispose()
 		=> Driver.Dispose();
+
+	public override Task<string[]> Backdoor(string fullyQualifiedTypeName, string staticMethodName, string[] args)
+		=> Driver.Backdoor(fullyQualifiedTypeName, staticMethodName, args);
 }

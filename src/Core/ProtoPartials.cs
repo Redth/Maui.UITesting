@@ -22,18 +22,6 @@ public partial class ElementsResponse : IResponseMessage
 {
 }
 
-public partial class PropertyRequest : IRequestMessage
-{
-}
-
-public partial class PropertyResponse : IResponseMessage
-{
-}
-
-public partial class FindElementsRequest : IRequestMessage
-{
-}
-
 
 public partial class PerformActionRequest : IRequestMessage
 {

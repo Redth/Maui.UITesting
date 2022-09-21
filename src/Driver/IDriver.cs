@@ -38,12 +38,13 @@
 
 		Task OpenUri(string uri);
 
-		Task<string> GetProperty(string elementId, string propertyName);
+        Task<IEnumerable<Element>> GetElements();
 
-		Task<IEnumerable<Element>> GetElements();
-
-		Task<IEnumerable<Element>> FindElements(string propertyName, string pattern, bool isExpression = false, string ancestorId = "");
+        Task<string?> GetProperty(string elementId, string propertyName);
 
 		Task<PerformActionResult> PerformAction(string action, string elementId, params string[] arguments);
-	}
+
+		Task<string[]> Backdoor(string fullyQualifiedTypeName, string staticMethodName, string[] args);
+
+    }
 }

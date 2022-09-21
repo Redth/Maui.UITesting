@@ -3,21 +3,26 @@
 	public static class Actions
 	{
 		public const string Tap = "TAP";
-
+		public const string GetProperty = "GETPROPERTY";
+		public const string Backdoor = "BACKDOOR";
 	}
+
 	public partial class PerformActionResult
 	{
 		public const int SuccessStatus = 0;
 		public const int ErrorStatus = -1;
 
-		public static PerformActionResult Ok(string result = "")
-			=> new PerformActionResult { Result = result, Status = SuccessStatus };
+		public static PerformActionResult Ok(params string[] results)
+			=> new PerformActionResult { Results = results ?? new string[0], Status = SuccessStatus };
 
-		public static PerformActionResult Error(string result = "", int status = ErrorStatus)
-			=> new PerformActionResult { Result = result, Status = status };
+		public static PerformActionResult Error(int status, params string[] results)
+			=> new PerformActionResult { Results = results ?? new string[0], Status = status };
 
-		public int Status { get; set; } = ErrorStatus;
+        public static PerformActionResult Error(params string[] results)
+            => new PerformActionResult { Results = results ?? new string[0], Status = ErrorStatus };
 
-		public string Result { get; set; } = string.Empty;
+        public int Status { get; set; } = ErrorStatus;
+
+		public string[] Results { get; set; } = new string[0];
 	}
 }

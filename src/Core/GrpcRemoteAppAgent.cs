@@ -19,16 +19,12 @@ namespace Microsoft.Maui.Automation
 		readonly IApplication Application;
 
 		readonly AsyncDuplexStreamingCall<ElementsResponse, ElementsRequest> elementsCall;
-		readonly AsyncDuplexStreamingCall<ElementsResponse, FindElementsRequest> findElementsCall;
-		readonly AsyncDuplexStreamingCall<PropertyResponse, PropertyRequest> getPropertyCall;
 		readonly AsyncDuplexStreamingCall<PerformActionResponse, PerformActionRequest> performActionCall;
-
-		readonly Task elementsCallTask;
-		readonly Task findElementsCallTask;
-		readonly Task getPropertyCallTask;
+        
+        readonly Task elementsCallTask;
 		readonly Task performActionCallTask;
-
-		private bool disposedValue;
+        
+        private bool disposedValue;
 
 		public GrpcRemoteAppAgent(IApplication application, string address)
 		{
@@ -38,41 +34,14 @@ namespace Microsoft.Maui.Automation
 			client = new RemoteApp.RemoteAppClient(grpc);
 
 			elementsCall = client.GetElementsRoute();
-			findElementsCall = client.FindElementsRoute();
-			getPropertyCall = client.GetPropertyRoute();
 			performActionCall = client.PerformActionRoute();
-
-			elementsCallTask = Task.Run(async () =>
+            
+            elementsCallTask = Task.Run(async () =>
 			{
 				while (await elementsCall.ResponseStream.MoveNext())
 				{
 					var response = await HandleElementsRequest(elementsCall.ResponseStream.Current);
 					await elementsCall.RequestStream.WriteAsync(response);
-				}
-			});
-
-			findElementsCallTask = Task.Run(async () =>
-			{
-				try
-				{
-					while (await findElementsCall.ResponseStream.MoveNext())
-					{
-						var response = await HandleFindElementsRequest(findElementsCall.ResponseStream.Current);
-						await findElementsCall.RequestStream.WriteAsync(response);
-					}
-				}
-				catch (Exception ex)
-				{
-					throw ex;
-				}
-			});
-
-			getPropertyCallTask = Task.Run(async () =>
-			{
-				while (await getPropertyCall.ResponseStream.MoveNext())
-				{
-					var response = await HandleGetPropertyRequest(getPropertyCall.ResponseStream.Current);
-					await getPropertyCall.RequestStream.WriteAsync(response);
 				}
 			});
 
@@ -84,7 +53,7 @@ namespace Microsoft.Maui.Automation
 					await performActionCall.RequestStream.WriteAsync(response);
 				}
 			});
-		}
+        }
 
 		async Task<ElementsResponse> HandleElementsRequest(ElementsRequest request)
 		{
@@ -105,48 +74,6 @@ namespace Microsoft.Maui.Automation
 			return response;
 		}
 
-		async Task<ElementsResponse> HandleFindElementsRequest(FindElementsRequest request)
-		{
-			var response = new ElementsResponse();
-			response.RequestId = request.RequestId;
-
-			try
-			{
-				// Get the elements from the running app host
-				var elements = await GetApp(request.Platform).FindElements(e =>
-					e.PropertyMatches(request.PropertyName, request.Pattern, request.IsExpression));
-				response.Elements.AddRange(elements);
-			}
-			catch (Exception ex)
-			{
-				Console.WriteLine(ex);
-			}
-
-			return response;
-		}
-
-		async Task<PropertyResponse> HandleGetPropertyRequest(PropertyRequest request)
-		{
-			var response = new PropertyResponse();
-			response.Platform = request.Platform;
-			response.RequestId = request.RequestId;
-
-			try
-			{
-				// Get the elements from the running app host
-				var v = await GetApp(request.Platform).GetProperty(request.ElementId, request.PropertyName);
-
-				response.Value = v;
-			}
-			catch (Exception ex)
-			{
-				Console.WriteLine(ex);
-				response.Value = string.Empty;
-			}
-			return response;
-
-		}
-
 		async Task<PerformActionResponse> HandlePerformActionRequest(PerformActionRequest request)
 		{
 			var response = new PerformActionResponse();
@@ -156,20 +83,48 @@ namespace Microsoft.Maui.Automation
 			try
 			{
 				// Get the elements from the running app host
-				var result = await GetApp(request.Platform).PerformAction(request.Action, request.ElementId, request.Arguments.ToArray());
-				response.Status = result.Status;
-				response.Result = result.Result;
+				var app = GetApp(request.Platform);
+
+				if (request.Action == Actions.GetProperty)
+				{
+					var propertyName = request.Arguments.FirstOrDefault();
+
+					if (string.IsNullOrEmpty(propertyName))
+						throw new ArgumentNullException("PropertyName");
+
+					var propertyValue = await app.GetProperty(request.ElementId, propertyName);
+					response.Status = PerformActionResult.SuccessStatus;
+					response.Results.Add(propertyValue);
+				}
+				else if (request.Action == Actions.Backdoor)
+				{
+					var fullyQualifiedTypeName = request.Arguments.FirstOrDefault();
+					var staticMethodName = request.Arguments.Skip(1).FirstOrDefault();
+					var remainingArgs = request.Arguments.Skip(2);
+
+					var result = await app.Backdoor(fullyQualifiedTypeName, staticMethodName, remainingArgs.ToArray());
+
+                    response.Status = PerformActionResult.SuccessStatus;
+					if (result?.Any() ?? false)
+	                    response.Results.AddRange(result?.ToArray());
+                }
+				else
+				{
+					var result = await app.PerformAction(request.Action, request.Arguments.ToArray());
+					response.Status = result.Status;
+					response.Results.AddRange(response.Results);
+				}
 			}
 			catch (Exception ex)
 			{
 				response.Status = PerformActionResult.ErrorStatus;
-				response.Result = ex.Message;
+				response.Results.Add(ex.Message);
 			}
 
 			return response;
 		}
 
-		IApplication GetApp(Platform platform)
+        IApplication GetApp(Platform platform)
 		{
 			var unsupportedText = $"Platform {platform} is not supported on this app agent";
 
@@ -193,7 +148,7 @@ namespace Microsoft.Maui.Automation
 				if (disposing)
 				{
 					elementsCall.Dispose();
-					findElementsCall.Dispose();
+					performActionCall.Dispose();
 				}
 
 				disposedValue = true;

@@ -51,10 +51,8 @@ var mappings = new Dictionary<string, Func<Task>>
 {
 	{ "tree", Tree },
 	{ "windows", Windows },
-	{ "test3", async () =>
+	{ "test", async () =>
 		{
-
-
 			await driver
 				.Elements()
 				.FirstById("buttonOne")
@@ -63,41 +61,13 @@ var mappings = new Dictionary<string, Func<Task>>
 
 			var label = await driver
 				.Elements()
-				.FirstBy(e => e.Type == "Label" && e.Text.Contains("1"));
+				.FirstBy(e => e.Type == "Label" && e.Text.Contains("1"))
+				.Element();
 
 			Console.WriteLine(label?.Text);
 		}
-	},
-	{ "test2", async () =>
-		{
-			var button = await driver.FirstByAutomationId("buttonOne");
-
-			await driver.Tap(button!);
-
-			var label = await driver.FirstByAutomationId("labelCount");
-
-			Console.WriteLine(label.Text);
-		}
-	},
-	{ "test", async () =>
-		{
-			var elements = await driver.FindElements("AutomationId", "buttonOne");
-
-			foreach (var w in elements)
-			{
-				var tree = new Tree(w.ToTable(ConfigureTable));
-
-				AnsiConsole.Write(tree);
-			}
-		}
 	}
 };
-
-
-//var button = await driver.FirstByAutomationId("buttonOne");
-
-// Tap the button to increment the counter
-//await driver.Tap(button);
 
 
 while (!ctsMain.Token.IsCancellationRequested)

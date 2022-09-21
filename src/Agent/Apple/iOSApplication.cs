@@ -97,7 +97,7 @@ namespace Microsoft.Maui.Automation
 		}
 
 		public override Task<PerformActionResult> PerformAction(string action, string elementId, params string[] arguments)
-			=> Task.FromResult(new PerformActionResult { Result = String.Empty, Status = -1 });
+			=> Task.FromResult(new PerformActionResult { Status = -1 });
 
 		void Traverse(IEnumerable<Element> elements, IList<Element> matches, Predicate<Element> matcher)
 		{

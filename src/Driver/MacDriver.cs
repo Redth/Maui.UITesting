@@ -76,6 +76,9 @@ public class MacDriver : IDriver
 
 	public Task PushFile(string localFile, string destinationDirectory)
 	{
+		if (string.IsNullOrEmpty(Configuration.AppFilename))
+			throw new FileNotFoundException("AppFilename");
+
 		var bundleRoot = Path.Combine(Configuration.AppFilename, "Contents");
 		var dest = Path.Combine(bundleRoot, Path.GetFileName(localFile));
 		File.Copy(localFile, dest);
@@ -84,6 +87,9 @@ public class MacDriver : IDriver
 
 	public Task PullFile(string remoteFile, string localDirectory)
 	{
+        if (string.IsNullOrEmpty(Configuration.AppFilename))
+            throw new FileNotFoundException("AppFilename");
+
         var bundleRoot = Path.Combine(Configuration.AppFilename, "Contents");
 		var src = Path.Combine(bundleRoot, remoteFile);
 		var dest = Path.Combine(localDirectory, Path.GetFileName(remoteFile));
@@ -116,20 +122,20 @@ public class MacDriver : IDriver
 	public Task Swipe((int x, int y) start, (int x, int y) end)
 		=> Task.CompletedTask;
 
-	public Task<string> GetProperty(string elementId, string propertyName)
+	public Task<string?> GetProperty(string elementId, string propertyName)
 			=> grpc.Client.GetProperty(Configuration.AutomationPlatform, elementId, propertyName);
 
 	public Task<IEnumerable<Element>> GetElements()
 		=> grpc.Client.GetElements(Configuration.AutomationPlatform);
 
-	public Task<IEnumerable<Element>> FindElements(string propertyName, string pattern, bool isExpression = false, string ancestorId = "")
-		=> grpc.Client.FindElements(Configuration.AutomationPlatform, propertyName, pattern, isExpression, ancestorId);
-
 	public Task<PerformActionResult> PerformAction(string action, string elementId, params string[] arguments)
 		=> grpc.Client.PerformAction(Configuration.AutomationPlatform, action, elementId, arguments);
 
+    public Task<string[]> Backdoor(string fullyQualifiedTypeName, string staticMethodName, string[] args)
+        => grpc.Client.Backdoor(Configuration.AutomationPlatform, fullyQualifiedTypeName, staticMethodName, args);
 
-	public async void Dispose()
+
+    public async void Dispose()
 	{
 		if (grpc is not null)
 			await grpc.Stop();

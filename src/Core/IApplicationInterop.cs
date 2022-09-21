@@ -16,5 +16,7 @@ namespace Microsoft.Maui.Automation
 		public Task<PerformActionResult> PerformAction(string action, string elementId, params string[] arguments);
 
 		public Task<PerformActionResult> PerformAction(string action, params string[] arguments);
+
+		public Task<string[]> Backdoor(string fullyQualifiedTypeName, string staticMethodName, string[] args);
 	}
 }
