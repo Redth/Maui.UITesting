@@ -39,7 +39,12 @@ public class AndroidDriver : Driver
 		Device = adbDeviceSerial;
 		Pm.AdbSerial = adbDeviceSerial;
 
-		Name = $"Android ({Adb.GetDeviceName(Device)})";
+		var adbName = adbDeviceSerial;
+		try {
+			adbName = Adb.GetDeviceName(Device);
+		} catch { }
+
+		Name = $"Android ({adbName})";
 
 		var forwardResult = Adb.RunCommand("-s", $"\"{Device}\"", "reverse", $"tcp:{port}", $"tcp:{port}")?.GetAllOutput();
 		System.Diagnostics.Debug.WriteLine(forwardResult);
@@ -76,7 +81,14 @@ public class AndroidDriver : Driver
 
 	public override Task InstallApp()
 	{
-		Adb.Install(new System.IO.FileInfo(Configuration.AppFilename ?? throw new FileNotFoundException()), Device);
+		try
+		{
+			Adb.Install(new System.IO.FileInfo(Configuration.AppFilename ?? throw new FileNotFoundException()), Device);
+		}
+		catch (SdkToolFailedExitException adbException)
+		{
+			throw adbException;
+		}
 		return Task.CompletedTask;
 	}
 
@@ -194,7 +206,7 @@ public class AndroidDriver : Driver
 
 
 	public override Task<IEnumerable<Element>> GetElements()
-		=> grpc.Client.GetElements(Configuration.AutomationPlatform);
+		=> base.SetDriver(grpc.Client.GetElements(Configuration.AutomationPlatform));
 
 	public override Task<string?> GetProperty(string elementId, string propertyName)
 		=> grpc.Client.GetProperty(Configuration.AutomationPlatform, elementId, propertyName);

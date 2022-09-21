@@ -32,9 +32,6 @@ public class AppDriver : Driver
 	public override Task<IDeviceInfo> GetDeviceInfo()
 		=> Driver.GetDeviceInfo();
 
-	public override Task<IEnumerable<Element>> GetElements()
-		=> Driver.GetElements();
-
 	public override Task<string?> GetProperty(string elementId, string propertyName)
 		=> Driver.GetProperty(elementId, propertyName);
 
@@ -88,4 +85,7 @@ public class AppDriver : Driver
 
 	public override Task<string[]> Backdoor(string fullyQualifiedTypeName, string staticMethodName, string[] args)
 		=> Driver.Backdoor(fullyQualifiedTypeName, staticMethodName, args);
+
+	public override Task<IEnumerable<Element>> GetElements()
+		=> Driver.GetElements();
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Maui.Automation.Driver;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -33,4 +34,6 @@ public partial class Element
 
 	public IApplication? Application { get; set; }
 	public object? PlatformElement { get; set; }
+
+	public IDriver? Driver { get; set; }
 }

@@ -16,14 +16,14 @@ namespace Microsoft.Maui.Automation.Remote
 		
 		TaskCompletionSource<IAsyncStreamWriter<ElementsRequest>> elementsRequestStream = new ();
 		TaskCompletionSource<IAsyncStreamWriter<PerformActionRequest>> performActionRequestStream = new();
-        
-        public override Task GetElementsRoute(IAsyncStreamReader<ElementsResponse> requestStream, IServerStreamWriter<ElementsRequest> responseStream, ServerCallContext context)
+		
+		public override Task GetElementsRoute(IAsyncStreamReader<ElementsResponse> requestStream, IServerStreamWriter<ElementsRequest> responseStream, ServerCallContext context)
 			=> BuildRoute(elementsRequestStream, requestStream, responseStream, context, pendingResponses);
 
 		public override Task PerformActionRoute(IAsyncStreamReader<PerformActionResponse> requestStream, IServerStreamWriter<PerformActionRequest> responseStream, ServerCallContext context)
 			=> BuildRoute(performActionRequestStream, requestStream, responseStream, context, pendingResponses);
 
-        public async Task<IEnumerable<Element>> GetElements(Platform platform)
+		public async Task<IEnumerable<Element>> GetElements(Platform platform)
 		{
 			var response = await BuildRequest<ElementsRequest, ElementsResponse>(
 				elementsRequestStream,
@@ -86,7 +86,7 @@ namespace Microsoft.Maui.Automation.Remote
 			return r.Results?.FirstOrDefault();
 		}
 
-        async Task<TResponse?> BuildRequest<TRequest, TResponse>(
+		async Task<TResponse?> BuildRequest<TRequest, TResponse>(
 			TaskCompletionSource<IAsyncStreamWriter<TRequest>> tcsRequestStream,
 			TRequest request)
 			where TResponse : class, IResponseMessage

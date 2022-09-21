@@ -9,7 +9,7 @@ using System.Net;
 
 var driver = new AppDriverBuilder()
 	.AppFilename(@"C:\code\Maui.UITesting\samples\SampleMauiApp\bin\Debug\net7.0-android\com.companyname.samplemauiapp-Signed.apk")
-	.Device("emulator-5554")
+	.Device("9B141FFAZ008CJ")
 	.Build();
 
 Task<string?>? readTask = null;
@@ -29,17 +29,38 @@ var mappings = new Dictionary<string, Func<Task>>
 	{ "windows", Windows },
 	{ "test", async () =>
 		{
+			
 			await driver
-				.Elements()
-				.FirstByAutomationId("buttonOne")
+				.First(e => e.AutomationId == "buttonOne")
 				.Tap();
 
-			var labelText = await driver
-				.Elements()
-				.FirstBy(e => e.Type == "Label" && e.Text.Contains("1"))
-				.GetText();
+			var label = await driver.First(
+				Query
+					.By(e => e.Type == "Label")
+					.ThenBy(e => e.Text.Contains("1")));
+
+			var labelText = label.Text;
 
 			Console.WriteLine(labelText);
+		}
+	},
+	{ "perf", async () =>
+		{
+			var ind = new List<double>();
+
+			var start = DateTime.UtcNow;
+			for (int i = 0; i < 1000; i++)
+			{
+				var indstart = DateTime.UtcNow;
+				var f = await driver.First(e => e.Type == "Label" && e.Text.Contains("count"));
+				var t = f.Text;
+				var indtotal = DateTime.UtcNow - indstart;
+				ind.Add(indtotal.TotalMilliseconds);
+			}
+			var total = DateTime.UtcNow - start;
+
+			var avg = ind.Average();
+			Console.WriteLine($"Time: {total.TotalMilliseconds}  Avg: {avg}");
 		}
 	}
 };

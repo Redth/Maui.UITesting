@@ -43,6 +43,28 @@
 
 		public abstract Task OpenUri(string uri);
 
+		protected async Task<IEnumerable<Element>> SetDriver(Task<IEnumerable<Element>> elements)
+		{
+			var allElements = await elements;
+			foreach (var element in allElements)
+			{
+				element.Driver = this;
+				if (element.Children.Any())
+					SetDriver(element.Children);
+			}
+			return allElements;
+		}
+
+		void SetDriver(IEnumerable<Element> elements)
+		{
+			foreach (var element in elements)
+			{
+				element.Driver = this;
+				if (element.Children.Any())
+					SetDriver(element.Children);
+			}
+		}
+
 		public abstract Task<IEnumerable<Element>> GetElements();
 
 		public abstract Task<string?> GetProperty(string elementId, string propertyName);
@@ -64,5 +86,6 @@
 		public abstract Task Tap(Element element);
 
 		public abstract Task<string[]> Backdoor(string fullyQualifiedTypeName, string staticMethodName, string[] args);
+
 	}
 }

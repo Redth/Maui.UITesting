@@ -122,7 +122,7 @@ public class MacDriver : Driver
 			=> grpc.Client.GetProperty(Configuration.AutomationPlatform, elementId, propertyName);
 
 	public override Task<IEnumerable<Element>> GetElements()
-		=> grpc.Client.GetElements(Configuration.AutomationPlatform);
+		=> base.SetDriver(grpc.Client.GetElements(Configuration.AutomationPlatform));
 
 	public override Task<PerformActionResult> PerformAction(string action, string elementId, params string[] arguments)
 		=> grpc.Client.PerformAction(Configuration.AutomationPlatform, action, elementId, arguments);
