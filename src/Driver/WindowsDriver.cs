@@ -4,17 +4,15 @@ using OpenQA.Selenium.Remote;
 
 namespace Microsoft.Maui.Automation.Driver
 {
-	public class WindowsDriver : IDriver
+	public class WindowsDriver : Driver
 	{
 		public static class ConfigurationKeys
 		{
 			public const string WinAppDriverExePath = "windows-winappdriver-exe-path";
 		}
 
-		public WindowsDriver(IAutomationConfiguration configuration)
+		public WindowsDriver(IAutomationConfiguration configuration) : base(configuration)
 		{
-			Configuration = configuration;
-
 			var appFile = configuration.AppFilename;
 
 			if (string.IsNullOrEmpty(configuration.AppId))
@@ -63,31 +61,29 @@ namespace Microsoft.Maui.Automation.Driver
 		readonly GrpcHost grpc;
 
 
-		public string Name => "Windows";
+		public override string Name => "Windows";
 
-		public IAutomationConfiguration Configuration { get; }
-
-		public Task Back()
+		public override Task Back()
 			=> Task.CompletedTask;
 
-		public Task ClearAppState()
+		public override Task ClearAppState()
 		{
 			Session.Value.ResetApp();
 			return Task.CompletedTask;
 		}
 
-		public Task<IDeviceInfo> GetDeviceInfo()
+		public override Task<IDeviceInfo> GetDeviceInfo()
 		{
 			return Task.FromResult<IDeviceInfo>(new DeviceInfo(0, 0, 0));
 		}
 
-		public Task InputText(string text)
+		public override Task InputText(string text)
 		{
 			Session.Value.Keyboard.SendKeys(text);
 			return Task.CompletedTask;
 		}
 
-		public Task InstallApp()
+		public override Task InstallApp()
 		{
 			var moduleFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "WindowsPowerShell", "v1.0", "Modules", "Appx", "Appx.psd1");
 			var ps1 = $"Import-Module -SkipEditionCheck '{moduleFile}'; Add-AppxPackage -Path {Configuration.AppFilename} -AllowUnsigned -ForceApplicationShutdown -ForceUpdateFromAnyVersion";
@@ -95,19 +91,19 @@ namespace Microsoft.Maui.Automation.Driver
 			return Task.CompletedTask;
 		}
 
-		public Task KeyPress(char keyCode)
+		public override Task KeyPress(char keyCode)
 		{
 			Session.Value.PressKeyCode(keyCode);
 			return Task.CompletedTask;
 		}
 
-		public Task LaunchApp()
+		public override Task LaunchApp()
 		{
 			//Session.LaunchApp();
 			return Task.CompletedTask;
 		}
 
-		public Task LongPress(int x, int y)
+		public override Task LongPress(int x, int y)
 		{
 			var touch = new RemoteTouchScreen(Session.Value);
 			touch.Down(x, y);
@@ -116,17 +112,17 @@ namespace Microsoft.Maui.Automation.Driver
 			return Task.CompletedTask;
 		}
 
-		public Task LongPress(Element element)
+		public override Task LongPress(Element element)
 			=> Tap(element);
 
 
-		public Task OpenUri(string uri)
+		public override Task OpenUri(string uri)
 		{
 			Session.Value.Navigate().GoToUrl(uri);
 			return Task.CompletedTask;
 		}
 
-		public Task PullFile(string remoteFile, string localDirectory)
+		public override Task PullFile(string remoteFile, string localDirectory)
 		{
 			var data = Session.Value.PullFile(remoteFile);
 
@@ -138,24 +134,24 @@ namespace Microsoft.Maui.Automation.Driver
 			return Task.CompletedTask;
 		}
 
-		public Task PushFile(string localFile, string destinationDirectory)
+		public override Task PushFile(string localFile, string destinationDirectory)
 		{
 			throw new NotSupportedException();
 		}
 
-		public Task RemoveApp()
+		public override Task RemoveApp()
 		{
 			Session.Value.RemoveApp(Configuration.AppId);
 			return Task.CompletedTask;
 		}
 
-		public Task StopApp()
+		public override Task StopApp()
 		{
 			Session.Value.CloseApp();
 			return Task.CompletedTask;
 		}
 
-		public Task Swipe((int x, int y) start, (int x, int y) end)
+		public override Task Swipe((int x, int y) start, (int x, int y) end)
 		{
 			var touch = new RemoteTouchScreen(Session.Value);
 			touch.Down(start.x, start.y);
@@ -164,7 +160,7 @@ namespace Microsoft.Maui.Automation.Driver
 			return Task.CompletedTask;
 		}
 
-		public Task Tap(int x, int y)
+		public override Task Tap(int x, int y)
 		{
 			//x = (int)(x * 2.25);
 			//y = (int)(y * 2.25);
@@ -177,7 +173,7 @@ namespace Microsoft.Maui.Automation.Driver
 			return Task.CompletedTask;
 		}
 
-		public Task Tap(Element element)
+		public override Task Tap(Element element)
 		{
 			var winElement = Session.Value.FindElementByAccessibilityId(element.AutomationId);
 			winElement.Click();
@@ -203,19 +199,19 @@ namespace Microsoft.Maui.Automation.Driver
 			return Task.CompletedTask;
 		}
 
-		public Task<string?> GetProperty(string elementId, string propertyName)
+		public override Task<string?> GetProperty(string elementId, string propertyName)
 			=> grpc.Client.GetProperty(Configuration.AutomationPlatform, elementId, propertyName);
 
-		public Task<IEnumerable<Element>> GetElements()
+		public override Task<IEnumerable<Element>> GetElements()
 			=> grpc.Client.GetElements(Configuration.AutomationPlatform);
 
-		public Task<PerformActionResult> PerformAction(string action, string elementId, params string[] arguments)
+		public override Task<PerformActionResult> PerformAction(string action, string elementId, params string[] arguments)
 			=> grpc.Client.PerformAction(Configuration.AutomationPlatform, action, elementId, arguments);
 
-        public Task<string[]> Backdoor(string fullyQualifiedTypeName, string staticMethodName, string[] args)
+		public override Task<string[]> Backdoor(string fullyQualifiedTypeName, string staticMethodName, string[] args)
 			=> grpc.Client.Backdoor(Configuration.AutomationPlatform, fullyQualifiedTypeName, staticMethodName, args);
 
-        public async void Dispose()
+		public override async void Dispose()
 		{
 			try
 			{

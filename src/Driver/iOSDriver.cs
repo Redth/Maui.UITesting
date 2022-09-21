@@ -17,30 +17,24 @@ using System.Drawing;
 
 namespace Microsoft.Maui.Automation.Driver;
 
-public class iOSDriver : IDriver
+public class iOSDriver : Driver
 {
-	public iOSDriver(IAutomationConfiguration configuration)
+	public iOSDriver(IAutomationConfiguration configuration) : base(configuration)
 	{
-		Configuration = configuration;
-
 		var port = configuration.AppAgentPort;
 		var address = configuration.AppAgentAddress;
-
-		if (configuration.DevicePlatform == Platform.Maccatalyst
-			|| configuration.DevicePlatform == Platform.Macos)
-			configuration.Device = "mac";
 
 		ArgumentNullException.ThrowIfNull(configuration.Device);
 
 		Name = $"iOS ({configuration.Device})";
 
-		if (string.IsNullOrEmpty(Configuration.AppId))
-			Configuration.AppId = AppUtil.GetBundleIdentifier(Configuration.AppFilename)
+		if (string.IsNullOrEmpty(configuration.AppId))
+			configuration.AppId = AppUtil.GetBundleIdentifier(configuration.AppFilename)
 				?? throw new Exception("AppId not found");
 
 		idbCompanionPath = UnpackIdb();
 
-		idbCompanionProcess = new ProcessRunner(idbCompanionPath, $"--boot {Configuration.Device}");
+		idbCompanionProcess = new ProcessRunner(idbCompanionPath, $"--boot {configuration.Device}");
 		var bootResult = idbCompanionProcess.WaitForExit();
 		Console.WriteLine(bootResult.GetAllOutput());
 
@@ -79,11 +73,9 @@ public class iOSDriver : IDriver
 	readonly string idbCompanionPath;
 	readonly ProcessRunner idbCompanionProcess;
 
-	public string Name { get; }
+	public override string Name { get; }
 
-	public IAutomationConfiguration Configuration { get; }
-
-	public async Task ClearAppState()
+	public override async Task ClearAppState()
 	{
 		var req = new RmRequest
 		{
@@ -108,7 +100,7 @@ public class iOSDriver : IDriver
 		});
 	}
 
-	public Task InstallApp()
+	public override Task InstallApp()
 	{
 		if (Configuration.DevicePlatform == Platform.Maccatalyst
 			|| Configuration.DevicePlatform == Platform.Macos)
@@ -130,13 +122,13 @@ public class iOSDriver : IDriver
 			});
 	}
 
-	public Task RemoveApp()
+	public override Task RemoveApp()
 		=> idb.uninstallAsync(new UninstallRequest
 		{
 			BundleId = Configuration.AppId
 		}).ResponseAsync;
 
-	public async Task<IDeviceInfo> GetDeviceInfo()
+	public override async Task<IDeviceInfo> GetDeviceInfo()
 	{
 		var desc = await idb.describeAsync(new Idb.TargetDescriptionRequest { FetchDiagnostics = true });
 
@@ -149,7 +141,7 @@ public class iOSDriver : IDriver
 
 
 
-	public async Task LaunchApp()
+	public override async Task LaunchApp()
 	{
 		if (Configuration.DevicePlatform == Platform.Maccatalyst
 			|| Configuration.DevicePlatform == Platform.Macos)
@@ -174,20 +166,20 @@ public class iOSDriver : IDriver
 			});
 	}
 
-	public Task StopApp()
+	public override Task StopApp()
 		=> idb.terminateAsync(new TerminateRequest
 		{
 			BundleId = Configuration.AppId
 		}).ResponseAsync;
 
-	public Task OpenUri(string uri)
+	public override Task OpenUri(string uri)
 		=> idb.open_urlAsync(new OpenUrlRequest
 		{
 			Url = uri
 		}).ResponseAsync;
 
 
-	public Task PushFile(string localFile, string destinationDirectory)
+	public override Task PushFile(string localFile, string destinationDirectory)
 		=> idb.push().SendStream(new PushRequest
 		{
 			Inner = new PushRequest.Types.Inner
@@ -205,7 +197,7 @@ public class iOSDriver : IDriver
 			}
 		});
 
-	public Task PullFile(string remoteFile, string localDirectory)
+	public override Task PullFile(string remoteFile, string localDirectory)
 		=> idb.pull(new PullRequest
 		{
 			Container = new FileContainer
@@ -221,26 +213,26 @@ public class iOSDriver : IDriver
 		});
 
 
-	public Task InputText(string text)
+	public override Task InputText(string text)
 		=> idb.hid().SendStream<HIDEvent, HIDResponse>(text.AsHidEvents().ToArray());
 
-	public Task Back()
+	public override Task Back()
 		=> Task.CompletedTask;
 
-	public Task KeyPress(char keyCode)
+	public override Task KeyPress(char keyCode)
 		=> idb.hid().SendStream<HIDEvent, HIDResponse>(keyCode.AsHidEvents().ToArray());
 
-	public Task Tap(int x, int y)
+	public override Task Tap(int x, int y)
 		=> press(x, y, TimeSpan.FromMilliseconds(50));
 
-	public Task Tap(Element element)
+	public override Task Tap(Element element)
 		=> grpc.Client.PerformAction(Configuration.AutomationPlatform, Actions.Tap, element.Id);
 
 
-	public Task LongPress(int x, int y)
+	public override Task LongPress(int x, int y)
 		=> press(x, y, TimeSpan.FromSeconds(3));
 
-	public Task LongPress(Element element)
+	public override Task LongPress(Element element)
 			=> Tap(element);
 
 	async Task press(int x, int y, TimeSpan holdDelay)
@@ -279,7 +271,7 @@ public class iOSDriver : IDriver
 			});
 	}
 
-	public Task Swipe((int x, int y) start, (int x, int y) end)
+	public override Task Swipe((int x, int y) start, (int x, int y) end)
 		=> idb.hid().SendStream(
 			new HIDEvent
 			{
@@ -298,16 +290,16 @@ public class iOSDriver : IDriver
 				}
 			});
 
-	public Task<string?> GetProperty(string elementId, string propertyName)
+	public override Task<string?> GetProperty(string elementId, string propertyName)
 			=> grpc.Client.GetProperty(Configuration.AutomationPlatform, elementId, propertyName);
 
-	public Task<IEnumerable<Element>> GetElements()
+	public override Task<IEnumerable<Element>> GetElements()
 		=> grpc.Client.GetElements(Configuration.AutomationPlatform);
 
-	public Task<PerformActionResult> PerformAction(string action, string elementId, params string[] arguments)
+	public override Task<PerformActionResult> PerformAction(string action, string elementId, params string[] arguments)
 		=> grpc.Client.PerformAction(Configuration.AutomationPlatform, action, elementId, arguments);
 
-	public Task<string[]> Backdoor(string fullyQualifiedTypeName, string staticMethodName, string[] args)
+	public override Task<string[]> Backdoor(string fullyQualifiedTypeName, string staticMethodName, string[] args)
 		=> grpc.Client.Backdoor(Configuration.AutomationPlatform, fullyQualifiedTypeName, staticMethodName, args);
 
 	string UnpackIdb()
@@ -326,7 +318,7 @@ public class iOSDriver : IDriver
 		return exePath;
 	}
 
-	public async void Dispose()
+	public override async void Dispose()
 	{
 		try
 		{

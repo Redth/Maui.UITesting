@@ -18,19 +18,17 @@ using System.Drawing;
 namespace Microsoft.Maui.Automation.Driver;
 
 
-public class MacDriver : IDriver
+public class MacDriver : Driver
 {
-	public MacDriver(IAutomationConfiguration configuration)
+	public MacDriver(IAutomationConfiguration configuration) : base(configuration)
 	{
-		Configuration = configuration;
-
 		var port = configuration.AppAgentPort;
 		var address = configuration.AppAgentAddress;
 
 
 		Name = $"Mac ({configuration.Device})";
 
-		if (string.IsNullOrEmpty(Configuration.AppId))
+		if (string.IsNullOrEmpty(configuration.AppId))
 			Configuration.AppId = AppUtil.GetBundleIdentifier(Configuration.AppFilename)
 				?? throw new Exception("AppId not found");
 
@@ -40,33 +38,31 @@ public class MacDriver : IDriver
 
 	readonly GrpcHost grpc;
 
-	public string Name { get; }
+	public override string Name { get; }
 
-	public IAutomationConfiguration Configuration { get; }
-
-	public Task ClearAppState()
+	public override Task ClearAppState()
 		=> Task.CompletedTask;
 
-	public Task InstallApp()
+	public override Task InstallApp()
 		=> Task.CompletedTask;
 
-	public Task RemoveApp()
+	public override Task RemoveApp()
 		=> Task.CompletedTask;
 
-	public Task<IDeviceInfo> GetDeviceInfo()
+	public override Task<IDeviceInfo> GetDeviceInfo()
 		=> Task.FromResult<IDeviceInfo>(new DeviceInfo());
 
-	public Task LaunchApp()
+	public override Task LaunchApp()
 		=> Process.Start(new ProcessStartInfo("/usr/bin/open", $"-n \"{Configuration.AppFilename}\"")
 		{
 			CreateNoWindow = true,
 			UseShellExecute = true
 		})!.WaitForExitAsync();
 
-	public Task StopApp()
+	public override Task StopApp()
 		=> Task.CompletedTask;
 
-	public Task OpenUri(string uri)
+	public override Task OpenUri(string uri)
 		=> Process.Start(new ProcessStartInfo("/usr/bin/open", $"{uri}")
 		{
 			CreateNoWindow = true,
@@ -74,7 +70,7 @@ public class MacDriver : IDriver
 		})!.WaitForExitAsync();
 
 
-	public Task PushFile(string localFile, string destinationDirectory)
+	public override Task PushFile(string localFile, string destinationDirectory)
 	{
 		if (string.IsNullOrEmpty(Configuration.AppFilename))
 			throw new FileNotFoundException("AppFilename");
@@ -85,57 +81,57 @@ public class MacDriver : IDriver
 		return Task.CompletedTask;
 	}
 
-	public Task PullFile(string remoteFile, string localDirectory)
+	public override Task PullFile(string remoteFile, string localDirectory)
 	{
-        if (string.IsNullOrEmpty(Configuration.AppFilename))
-            throw new FileNotFoundException("AppFilename");
+		if (string.IsNullOrEmpty(Configuration.AppFilename))
+			throw new FileNotFoundException("AppFilename");
 
-        var bundleRoot = Path.Combine(Configuration.AppFilename, "Contents");
+		var bundleRoot = Path.Combine(Configuration.AppFilename, "Contents");
 		var src = Path.Combine(bundleRoot, remoteFile);
 		var dest = Path.Combine(localDirectory, Path.GetFileName(remoteFile));
 		File.Copy(src, dest);
-        return Task.CompletedTask;
+		return Task.CompletedTask;
 	}
 
 
-	public Task InputText(string text)
+	public override Task InputText(string text)
 		=> Task.CompletedTask;
 
-	public Task Back()
+	public override Task Back()
 		=> Task.CompletedTask;
 
-	public Task KeyPress(char keyCode)
+	public override Task KeyPress(char keyCode)
 		=> Task.CompletedTask;
 
-	public Task Tap(int x, int y)
+	public override Task Tap(int x, int y)
 		=> Task.CompletedTask;
 
-	public Task Tap(Element element)
+	public override Task Tap(Element element)
 		=> grpc.Client.PerformAction(Configuration.AutomationPlatform, Actions.Tap, element.Id);
 
-	public Task LongPress(int x, int y)
+	public override Task LongPress(int x, int y)
 		=> Task.CompletedTask;
 
-	public Task LongPress(Element element)
+	public override Task LongPress(Element element)
 			=> Tap(element);
 
-	public Task Swipe((int x, int y) start, (int x, int y) end)
+	public override Task Swipe((int x, int y) start, (int x, int y) end)
 		=> Task.CompletedTask;
 
-	public Task<string?> GetProperty(string elementId, string propertyName)
+	public override Task<string?> GetProperty(string elementId, string propertyName)
 			=> grpc.Client.GetProperty(Configuration.AutomationPlatform, elementId, propertyName);
 
-	public Task<IEnumerable<Element>> GetElements()
+	public override Task<IEnumerable<Element>> GetElements()
 		=> grpc.Client.GetElements(Configuration.AutomationPlatform);
 
-	public Task<PerformActionResult> PerformAction(string action, string elementId, params string[] arguments)
+	public override Task<PerformActionResult> PerformAction(string action, string elementId, params string[] arguments)
 		=> grpc.Client.PerformAction(Configuration.AutomationPlatform, action, elementId, arguments);
 
-    public Task<string[]> Backdoor(string fullyQualifiedTypeName, string staticMethodName, string[] args)
-        => grpc.Client.Backdoor(Configuration.AutomationPlatform, fullyQualifiedTypeName, staticMethodName, args);
+	public override Task<string[]> Backdoor(string fullyQualifiedTypeName, string staticMethodName, string[] args)
+		=> grpc.Client.Backdoor(Configuration.AutomationPlatform, fullyQualifiedTypeName, staticMethodName, args);
 
 
-    public async void Dispose()
+	public override async void Dispose()
 	{
 		if (grpc is not null)
 			await grpc.Stop();
