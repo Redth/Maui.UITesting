@@ -67,6 +67,13 @@ namespace Microsoft.Maui.Automation
 
 		public abstract Task<PerformActionResult> PerformAction(string action, string elementId, params string[] arguments);
 
+		public Task<string[]> Backdoor(string fullyQualifiedTypeName, string staticMethodName, string[] args)
+		{
+			var t = Type.GetType(fullyQualifiedTypeName);
+			var m = t?.GetMethod(staticMethodName, System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public);
+			var result = m?.Invoke(null, args);
+			return Task.FromResult(result as string[] ?? new string[0] );
+		}
 
-	}
+    }
 }

@@ -32,11 +32,6 @@ public static class DriverExtensions
 		return elements.Find(matching);
 	}
 
-
-	public static Task<IEnumerable<Element>> ByType(this IDriver driver, string elementType)
-		=> driver.FindElements("Type", elementType);
-
-
 	public static DriverTask<IEnumerable<Element>> Elements(this IDriver driver)
 		=> new(driver, driver.GetElements());
 
@@ -73,6 +68,12 @@ public static class DriverExtensions
         var results = actualElements.FirstOrDefault(e => predicate(e));
 
         return new DriverTask<Element?>(elements.Driver, Task.FromResult(results));
+    }
+
+    public static async Task<Element?> Element(this Task<DriverTask<Element?>> element)
+    {
+        var p = await element;
+		return await p.Value;
     }
 
     public static async Task<DriverTask> Tap(this Task<DriverTask<Element?>> element)

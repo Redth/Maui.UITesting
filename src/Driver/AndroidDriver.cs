@@ -197,17 +197,18 @@ public class AndroidDriver : IDriver
 		=> androidSdkManager.PackageManager.ListPackages()
 			.Any(p => p.PackageName?.Equals(AppId, StringComparison.OrdinalIgnoreCase) ?? false);
 
-	public Task<string> GetProperty(string elementId, string propertyName)
-		=> grpc.Client.GetProperty(Configuration.AutomationPlatform, elementId, propertyName);
 
 	public Task<IEnumerable<Element>> GetElements()
-		=> grpc.Client.GetElements(Configuration.AutomationPlatform);
+        => grpc.Client.GetElements(Configuration.AutomationPlatform);
 
-	public Task<IEnumerable<Element>> FindElements(string propertyName, string pattern, bool isExpression = false, string ancestorId = "")
-		=> grpc.Client.FindElements(Configuration.AutomationPlatform, propertyName, pattern, isExpression, ancestorId);
+    public Task<string?> GetProperty(string elementId, string propertyName)
+		=> grpc.Client.GetProperty(Configuration.AutomationPlatform, elementId, propertyName);
 
 	public Task<PerformActionResult> PerformAction(string action, string elementId, params string[] arguments)
 		=> grpc.Client.PerformAction(Configuration.AutomationPlatform, action, elementId, arguments);
+
+    public Task<string[]> Backdoor(string fullyQualifiedTypeName, string staticMethodName, string[] args)
+        => grpc.Client.Backdoor(Configuration.AutomationPlatform, fullyQualifiedTypeName, staticMethodName, args);
 
 	public async void Dispose()
 	{

@@ -203,19 +203,24 @@ namespace Microsoft.Maui.Automation.Driver
 			//return Task.CompletedTask;
 		}
 
-		public Task<string> GetProperty(string elementId, string propertyName)
-			=> grpc.Client.GetProperty(Configuration.AutomationPlatform, elementId, propertyName);
+		public async Task<string?> GetProperty(string elementId, string propertyName)
+		{
+			var r = await grpc.Client.PerformAction(Configuration.AutomationPlatform,
+				Actions.GetProperty, elementId, propertyName);
+
+			return r.Results?.FirstOrDefault();
+		}
 
 		public Task<IEnumerable<Element>> GetElements()
 			=> grpc.Client.GetElements(Configuration.AutomationPlatform);
 
-		public Task<IEnumerable<Element>> FindElements(string propertyName, string pattern, bool isExpression = false, string ancestorId = "")
-			=> grpc.Client.FindElements(Configuration.AutomationPlatform, propertyName, pattern, isExpression, ancestorId);
-
 		public Task<PerformActionResult> PerformAction(string action, string elementId, params string[] arguments)
 			=> grpc.Client.PerformAction(Configuration.AutomationPlatform, action, elementId, arguments);
 
-		public async void Dispose()
+        public Task<string[]> Backdoor(string fullyQualifiedTypeName, string staticMethodName, string[] args)
+			=> grpc.Client.Backdoor(Configuration.AutomationPlatform, fullyQualifiedTypeName, staticMethodName, args);
+
+        public async void Dispose()
 		{
 			try
 			{

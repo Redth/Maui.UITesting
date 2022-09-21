@@ -13,30 +13,6 @@ message ElementsResponse {
 	repeated Element elements = 2;
 }
 
-
-message FindElementsRequest {
-	string requestId = 1;
-	Platform platform = 2;
-	string propertyName = 3;
-	string pattern = 4;
-	optional bool isExpression = 5;
-	optional string ancestorId = 6;
-}
-
-message PropertyRequest {
-	string requestId = 1;
-	Platform platform = 2;
-	string elementId = 3;
-	string propertyName = 4;
-}
-
-message PropertyResponse {
-	string requestId = 1;
-	Platform platform = 2;
-	optional string value = 3;
-}
-
-
 message PerformActionRequest {
 	string requestId = 1;
 	Platform platform = 2;
@@ -49,17 +25,12 @@ message PerformActionResponse {
 	string requestId = 1;
 	Platform platform = 2;
 	int32 status = 3;
-	string result = 4;
+	repeated string results = 4;
 }
-
 
 service RemoteApp {
 
 	// Client calls and reads request objects and streams response objects
 	rpc GetElementsRoute(stream ElementsResponse) returns (stream ElementsRequest) {}
-	rpc FindElementsRoute(stream ElementsResponse) returns (stream FindElementsRequest) {}
-
-	rpc GetPropertyRoute(stream PropertyResponse) returns (stream PropertyRequest) {}
-
 	rpc PerformActionRoute(stream PerformActionResponse) returns (stream PerformActionRequest) {}
 }

@@ -116,20 +116,20 @@ public class MacDriver : IDriver
 	public Task Swipe((int x, int y) start, (int x, int y) end)
 		=> Task.CompletedTask;
 
-	public Task<string> GetProperty(string elementId, string propertyName)
+	public Task<string?> GetProperty(string elementId, string propertyName)
 			=> grpc.Client.GetProperty(Configuration.AutomationPlatform, elementId, propertyName);
 
 	public Task<IEnumerable<Element>> GetElements()
 		=> grpc.Client.GetElements(Configuration.AutomationPlatform);
 
-	public Task<IEnumerable<Element>> FindElements(string propertyName, string pattern, bool isExpression = false, string ancestorId = "")
-		=> grpc.Client.FindElements(Configuration.AutomationPlatform, propertyName, pattern, isExpression, ancestorId);
-
 	public Task<PerformActionResult> PerformAction(string action, string elementId, params string[] arguments)
 		=> grpc.Client.PerformAction(Configuration.AutomationPlatform, action, elementId, arguments);
 
+    public Task<string[]> Backdoor(string fullyQualifiedTypeName, string staticMethodName, string[] args)
+        => grpc.Client.Backdoor(Configuration.AutomationPlatform, fullyQualifiedTypeName, staticMethodName, args);
 
-	public async void Dispose()
+
+    public async void Dispose()
 	{
 		if (grpc is not null)
 			await grpc.Stop();
