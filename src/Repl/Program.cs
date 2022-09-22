@@ -31,17 +31,18 @@ var mappings = new Dictionary<string, Func<Task>>
 		{
 			
 			await driver
-				.First(e => e.AutomationId == "buttonOne")
+				.First(e => e.AutomationId == "entryUsername")
+				.InputText("xamarin");
+
+            await driver
+                .First(e => e.AutomationId == "entryPassword")
+                .InputText("1234");
+
+			await driver
+				.First(e => e.AutomationId == "buttonLogin")
 				.Tap();
 
-			var label = await driver.First(
-				Query
-					.By(e => e.Type == "Label")
-					.ThenBy(e => e.Text.Contains("1")));
 
-			var labelText = label.Text;
-
-			Console.WriteLine(labelText);
 		}
 	},
 	{ "perf", async () =>
