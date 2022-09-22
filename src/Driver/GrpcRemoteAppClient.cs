@@ -18,10 +18,12 @@ namespace Microsoft.Maui.Automation.Remote
 		TaskCompletionSource<IAsyncStreamWriter<PerformActionRequest>> performActionRequestStream = new();
 		
 		public override Task GetElementsRoute(IAsyncStreamReader<ElementsResponse> requestStream, IServerStreamWriter<ElementsRequest> responseStream, ServerCallContext context)
-			=> BuildRoute(elementsRequestStream, requestStream, responseStream, context, pendingResponses);
+			=> BuildRoute(elementsRequestStream, requestStream, responseStream, context, pendingResponses,
+				() => elementsRequestStream = new TaskCompletionSource<IAsyncStreamWriter<ElementsRequest>>());
 
 		public override Task PerformActionRoute(IAsyncStreamReader<PerformActionResponse> requestStream, IServerStreamWriter<PerformActionRequest> responseStream, ServerCallContext context)
-			=> BuildRoute(performActionRequestStream, requestStream, responseStream, context, pendingResponses);
+			=> BuildRoute(performActionRequestStream, requestStream, responseStream, context, pendingResponses,
+				() => performActionRequestStream = new TaskCompletionSource<IAsyncStreamWriter<PerformActionRequest>>());
 
 		public async Task<IEnumerable<Element>> GetElements(Platform platform)
 		{
@@ -112,26 +114,32 @@ namespace Microsoft.Maui.Automation.Remote
 			IAsyncStreamReader<TResponse> requestStream,
 			IServerStreamWriter<TRequest> responseStream,
 			ServerCallContext context,
-			Dictionary<string, TaskCompletionSource<TResponse>> pendingResponses)
+			Dictionary<string, TaskCompletionSource<TResponse>> pendingResponses,
+			Action callback)
 			where TResponse : IResponseMessage
 			where TRequest : IRequestMessage
 		{
-
-			tcsRequestStream.TrySetResult(responseStream);
-
-			while (await requestStream.MoveNext(CancellationToken.None).ConfigureAwait(false))
+			try
 			{
-				var requestId = requestStream.Current.RequestId;
+				tcsRequestStream.TrySetResult(responseStream);
 
-				if (!string.IsNullOrEmpty(requestId) && pendingResponses.ContainsKey(requestId))
+				while (await requestStream.MoveNext(CancellationToken.None).ConfigureAwait(false))
 				{
-					var tcs = pendingResponses[requestId];
-					pendingResponses.Remove(requestId);
-					tcs.TrySetResult(requestStream.Current);
+					var requestId = requestStream.Current.RequestId;
+
+					if (!string.IsNullOrEmpty(requestId) && pendingResponses.ContainsKey(requestId))
+					{
+						var tcs = pendingResponses[requestId];
+						pendingResponses.Remove(requestId);
+						tcs.TrySetResult(requestStream.Current);
+					}
 				}
 			}
-
-			tcsRequestStream = new TaskCompletionSource<IAsyncStreamWriter<TRequest>>();
+			catch { }
+			finally
+			{
+				callback();
+			}
 		}
 	}
 }
