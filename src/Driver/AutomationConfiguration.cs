@@ -72,7 +72,7 @@ namespace Microsoft.Maui.Automation.Driver
 
 		public Platform DevicePlatform
 		{
-			get => GetOrDefaultEnum<Platform>(nameof(DevicePlatform), AppUtil.InferDevicePlatformFromFilename(AppFilename));
+			get => GetOrDefaultEnum<Platform>(nameof(DevicePlatform),() => AppUtil.InferDevicePlatformFromFilename(AppFilename));
 			set => Set(nameof(DevicePlatform), value);
 		}
 
@@ -111,16 +111,19 @@ namespace Microsoft.Maui.Automation.Driver
 		}
 
 		T GetOrDefaultEnum<T>(string key, T defaultValue) where T : struct
+			=> GetOrDefaultEnum<T>(key, () => defaultValue);
+
+		T GetOrDefaultEnum<T>(string key, Func<T> defaultValue) where T : struct
 		{
 			var str = GetOrDefault(key, (string?)null)?.ToString();
 
 			if (string.IsNullOrEmpty(str))
-				return defaultValue;
+				return defaultValue();
 
 			if (Enum.TryParse<T>(str, out var v))
 				return v;
 
-			return defaultValue;
+			return defaultValue();
 		}
 
 		private object? GetOrDefault(string key, object? defaultValue)
