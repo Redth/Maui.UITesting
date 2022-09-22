@@ -31,18 +31,27 @@ var mappings = new Dictionary<string, Func<Task>>
 		{
 			
 			await driver
-				.First(e => e.AutomationId == "entryUsername")
+				.First(By.AutomationId("entryUsername"))
 				.InputText("xamarin");
 
 			await driver
-				.First(e => e.AutomationId == "entryPassword")
+				.First(By.AutomationId("entryPassword"))
 				.InputText("1234");
 
 			await driver
-				.First(e => e.AutomationId == "buttonLogin")
+				.First(By.ContainingText("Login"))
 				.Tap();
 
+			await driver.None(By.AutomationId("entryUsername"));
 
+			var label = await driver.First(By.ContainingText("Hello, World!"));
+
+
+			await driver.First(By.AutomationId("buttonOne")).Tap();
+
+			await driver.Any(By.Type("Label").ThenContainingText("Current count: 1"));
+
+			Console.WriteLine(label.Text);
 		}
 	},
 	{ "perf", async () =>
@@ -66,6 +75,7 @@ var mappings = new Dictionary<string, Func<Task>>
 	}
 };
 
+await mappings["test"]();
 
 while (!ctsMain.Token.IsCancellationRequested)
 {
