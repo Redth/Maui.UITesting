@@ -63,7 +63,7 @@ public class iOSDriver : Driver
 
 		Name = $"iOS ({configuration.Device} [{Udid}])";
 
-		grpc = new GrpcHost();
+		grpc = new GrpcHost(configuration);
 	}
 
 	public readonly string Udid;

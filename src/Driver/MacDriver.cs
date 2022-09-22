@@ -38,7 +38,7 @@ public class MacDriver : Driver
         //var connectResponse = idb.connect(new Idb.ConnectRequest());
         //Udid = connectResponse.Companion.Udid;
 
-        grpc = new GrpcHost();
+        grpc = new GrpcHost(configuration);
 	}
 
     //public readonly string Udid;

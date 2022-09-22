@@ -12,7 +12,7 @@ public class GrpcHost
 {
 	public GrpcHost(IAutomationConfiguration configuration)
 	{
-		var builder = CreateHostBuilder(this);
+		var builder = CreateHostBuilder(this, configuration);
 
 		host = builder.Build();
 		host.Start();

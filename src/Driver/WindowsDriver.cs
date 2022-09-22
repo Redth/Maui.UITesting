@@ -47,7 +47,7 @@ namespace Microsoft.Maui.Automation.Driver
 			appCapabilities.SetCapability("platformName", "Windows");
 			appCapabilities.SetCapability("platformVersion", "1.0");
 
-			grpc = new GrpcHost();
+			grpc = new GrpcHost(configuration);
 
 			Session = new Lazy<WindowsDriver<WindowsElement>>(() =>
 				new WindowsDriver<WindowsElement>(new Uri("http://127.0.0.1:4723"), appCapabilities));
