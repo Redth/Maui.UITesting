@@ -1,15 +1,10 @@
 ﻿#if IOS || MACCATALYST
-using Microsoft.Maui.Controls;
-using Microsoft.Maui.Controls.PlatformConfiguration;
-using Microsoft.Maui.Controls.PlatformConfiguration.AndroidSpecific;
-using Microsoft.Maui.Controls.PlatformConfiguration.GTKSpecific;
+using CoreGraphics;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using UIKit;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace Microsoft.Maui.Automation;
 
@@ -54,18 +49,22 @@ internal static class iOSExtensions
 
 	public static Element GetElement(this UIKit.UIView uiView, IApplication application, string parentId = "", int currentDepth = -1, int maxDepth = -1)
 	{
+		var viewFrame = uiView.Frame.ToFrame();
+		var windowFrame = uiView.Window.ConvertRectToView(uiView.Frame, null).ToFrame();
+		
+		var nsWindow = UINSWindow.From(uiView.Window);
+		var screenFrame = nsWindow.ConvertRectToScreen(uiView.Frame).ToFrame();
+
+
 		var e = new Element(application, Platform.Ios, uiView.Handle.ToString(), uiView, parentId)
 		{
 			AutomationId = uiView.AccessibilityIdentifier ?? string.Empty,
 			Visible = !uiView.Hidden,
 			Enabled = uiView.UserInteractionEnabled,
 			Focused = uiView.Focused,
-
-			X = (int)uiView.Frame.X,
-			Y = (int)uiView.Frame.Y,
-
-			Width = (int)uiView.Frame.Width,
-			Height = (int)uiView.Frame.Height,
+			ViewFrame = viewFrame,
+			WindowFrame = windowFrame,
+			ScreenFrame = screenFrame,
 			Text = uiView.GetText() ?? string.Empty
 		};
 
@@ -79,13 +78,29 @@ internal static class iOSExtensions
 		return e;
 	}
 
+	public static Frame ToFrame(this CGRect rect)
+		=> new Frame
+		{
+			X = (int)rect.X,
+			Y = (int)rect.Y,
+			Width = (int)rect.Width,
+			Height = (int)rect.Height,
+		};
+
 	public static Element GetElement(this UIWindow window, IApplication application, int currentDepth = -1, int maxDepth = -1)
 	{
+		var nsWindow = UINSWindow.From(window);
+
+		var viewFrame = window.Frame.ToFrame();
+		var windowFrame = nsWindow.Frame.ToFrame();
+		var screenFrame = nsWindow.ConvertRectToScreen(window.Frame).ToFrame();
+
 		var e = new Element(application, Platform.Ios, window.Handle.ToString(), window)
 		{
 			AutomationId = window.AccessibilityIdentifier ?? window.Handle.ToString(),
-			Width = (int)window.Frame.Width,
-			Height = (int)window.Frame.Height,
+			ViewFrame = viewFrame,
+			WindowFrame	= windowFrame,
+			ScreenFrame = screenFrame,
 			Text = string.Empty
 		};
 
@@ -97,7 +112,6 @@ internal static class iOSExtensions
 		}
 		return e;
 	}
-
 	public static Task<PerformActionResult> PerformAction(this UIKit.UIView view, string action, string elementId, params string[] arguments)
 	{
 		if (action == Actions.Tap)

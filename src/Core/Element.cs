@@ -24,11 +24,9 @@ public partial class Element
 		Visible = false;
 		Enabled = false;
 		Focused = false;
-		X = -1;
-		Y = -1;
-		Platform = platform;
-		Width = -1;
-		Height = -1;
+		ViewFrame = new Frame();
+		WindowFrame = new Frame();
+		ScreenFrame = new Frame();
 		PlatformElement = platformElement;
 	}
 

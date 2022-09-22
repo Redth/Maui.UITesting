@@ -1,10 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Maui.Controls;
-using Microsoft.Maui.Platform;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace Microsoft.Maui.Automation
 {
@@ -100,9 +95,19 @@ namespace Microsoft.Maui.Automation
 				Id = platformElement.Id,
 				AutomationId = platformElement.AutomationId ?? platformElement.Id,
 				Type = window.GetType().Name,
-
-				Width = platformElement.Width,
-				Height = platformElement.Height,
+				WindowFrame = platformElement.WindowFrame,
+				ScreenFrame = platformElement.ScreenFrame,
+#if NET7_0_OR_GREATER
+				ViewFrame = new Frame
+				{
+					X = (int)window.X,
+					Y = (int)window.Y,
+					Width = (int)window.Width,
+					Height = (int)window.Height,
+				},
+#else
+				ViewFrame = platformElement.ViewFrame,
+#endif
 				Text = platformElement.Text ?? ""
 			};
 
@@ -125,11 +130,15 @@ namespace Microsoft.Maui.Automation
 				Visible = view.Visibility == Visibility.Visible,
 				Enabled = view.IsEnabled,
 				Focused = view.IsFocused,
-
-				X = (int)view.Frame.X,
-				Y = (int)view.Frame.Y,
-				Width = (int)view.Frame.Width,
-				Height = (int)view.Frame.Height,
+				WindowFrame = platformElement.WindowFrame,
+				ScreenFrame = platformElement.ScreenFrame,
+				ViewFrame = new Frame
+				{
+					X = (int)view.Frame.X,
+					Y = (int)view.Frame.X,
+					Width = (int)view.Frame.Width,
+					Height = (int)view.Frame.Height,
+				}
 			};
 
 			if (view is Microsoft.Maui.IText text && !string.IsNullOrEmpty(text.Text))

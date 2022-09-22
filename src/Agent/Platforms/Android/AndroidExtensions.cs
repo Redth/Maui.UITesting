@@ -1,15 +1,12 @@
 ﻿using Android.App;
-using Android.Content;
-using Android.Hardware.Lights;
 using Android.Views;
-using AndroidX.Core.View.Accessibility;
 using Java.Lang;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace Microsoft.Maui.Automation
 {
@@ -96,24 +93,34 @@ namespace Microsoft.Maui.Automation
 
 		public static Element GetElement(this Android.Views.View androidview, IApplication application, string parentId = "", int currentDepth = -1, int maxDepth = -1)
 		{
+			var frames = androidview.GetFrames();
+
 			var e = new Element(application, Platform.Android, androidview.EnsureUniqueId(), androidview, parentId)
 			{
 				AutomationId = androidview.GetAutomationId(),
 				Enabled = androidview.Enabled,
 				Visible = androidview.Visibility == ViewStates.Visible,
 				Focused = androidview.Selected,
-				Width = androidview.MeasuredWidth,
-				Height = androidview.MeasuredHeight,
+				ViewFrame = frames.viewFrame,
+				WindowFrame = frames.windowFrame,
+				ScreenFrame = frames.screenFrame,
 				Text = androidview.GetText(),
 			};
 
-			var loc = new int[2];
-			androidview?.GetLocationInWindow(loc);
-
-			if (loc != null && loc.Length >= 2)
+			var windowLoc = new int[2];
+			androidview?.GetLocationInWindow(windowLoc);
+			if (windowLoc != null && windowLoc.Length >= 2)
 			{
-				e.X = loc[0];
-				e.Y = loc[1];
+				e.WindowFrame.X = windowLoc[0];
+				e.WindowFrame.Y = windowLoc[1];
+			}
+
+			var screenLoc = new int[2];
+			androidview?.GetLocationOnScreen(screenLoc);
+			if (screenLoc != null && screenLoc.Length >= 2)
+			{
+				e.ScreenFrame.X = screenLoc[0];
+				e.ScreenFrame.Y = screenLoc[1];
 			}
 
 			if (maxDepth <= 0 || (currentDepth + 1 <= maxDepth))
@@ -121,15 +128,49 @@ namespace Microsoft.Maui.Automation
 			return e;
 		}
 
+		public static (Frame viewFrame, Frame windowFrame, Frame screenFrame) GetFrames(this Android.Views.View view)
+		{
+			if (view is null)
+				return (new Frame(), new Frame(), new Frame());
+
+			var viewFrame = new Frame {
+				X = (int)view.GetX(),
+				Y = (int)view.GetY(),
+				Width = view.MeasuredWidth,
+				Height = view.MeasuredHeight
+			};
+			var windowFrame = new Frame { Width = view.MeasuredWidth, Height = view.MeasuredHeight };
+			var screenFrame = new Frame { Width = view.MeasuredWidth, Height = view.MeasuredHeight };
+
+			var windowLoc = new int[2];
+			view?.GetLocationInWindow(windowLoc);
+			if (windowLoc != null && windowLoc.Length >= 2)
+			{
+				windowFrame.X = windowLoc[0];
+				windowFrame.Y = windowLoc[1];
+			}
+
+			var screenLoc = new int[2];
+			view?.GetLocationOnScreen(screenLoc);
+			if (screenLoc != null && screenLoc.Length >= 2)
+			{
+				screenFrame.X = screenLoc[0];
+				screenFrame.Y = screenLoc[1];
+			}
+
+			return (viewFrame, windowFrame, screenFrame);
+		}
+
 		public static Element GetElement(this Activity activity, IApplication application, int currentDepth = -1, int maxDepth = -1)
 		{
+			var frames = activity.GetRootView()?.GetFrames() ?? (new Frame(), new Frame(), new Frame());
+
 			var e = new Element(application, Platform.Android, activity.GetWindowId(), activity)
 			{
 				AutomationId = activity.GetAutomationId(),
-				X = (int)(activity.Window?.DecorView?.GetX() ?? -1f),
-				Y = (int)(activity.Window?.DecorView?.GetY() ?? -1f),
-				Width = activity.Window?.DecorView?.Width ?? -1,
-				Height = activity.Window?.DecorView?.Height ?? -1,
+				ViewFrame = frames.viewFrame,
+				WindowFrame = frames.windowFrame,
+				ScreenFrame = frames.screenFrame,
 				Text = activity.Title
 			};
 

@@ -4,6 +4,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Automation;
 using System;
 using System.Threading.Tasks;
+using Windows.UI.WebUI;
 using static Idb.XctraceRecordRequest.Types;
 
 namespace Microsoft.Maui.Automation;
@@ -24,10 +25,26 @@ internal static class WindowsExtensions
 			Visible = fwElement.Visibility == UI.Xaml.Visibility.Visible,
 			Enabled = fwElement.IsTapEnabled,
 			Focused = fwElement.FocusState != FocusState.Unfocused,
-			X = (int)position.X,
-			Y = (int)position.Y,
-			Width = (int)fwElement.ActualSize.X,
-			Height = (int)fwElement.ActualSize.Y
+			ViewFrame = new Frame
+			{
+				X = (int)fwElement.ActualOffset.X,
+				Y = (int)fwElement.ActualOffset.Y,
+				Width = (int)fwElement.ActualSize.X,
+				Height = (int)fwElement.ActualSize.Y
+			},
+			WindowFrame = new Frame
+			{
+				X = (int)position.X,
+				Y = (int)position.Y,
+				Width = (int)fwElement.ActualSize.X,
+				Height = (int)fwElement.ActualSize.Y
+			},
+			ScreenFrame = new Frame {
+				X = (int)position.X,
+				Y = (int)position.Y,
+				Width = (int)fwElement.ActualSize.X,
+				Height = (int)fwElement.ActualSize.Y
+			}
 		};
 
 		if (maxDepth <= 0 || (currentDepth + 1 <= maxDepth))
@@ -59,10 +76,27 @@ internal static class WindowsExtensions
 		var element = new Element(application, Platform.Winappsdk, uid, window)
 		{
 			AutomationId = automationId,
-			X = x,
-			Y = y,
-			Width = w,
-			Height = h,
+			ViewFrame = new Frame
+			{
+				X = x,
+				Y = y,
+				Width = w,
+				Height = h
+			},
+			WindowFrame = new Frame
+			{
+				X = x,
+				Y = y,
+				Width = w,
+				Height = h
+			},
+			ScreenFrame = new Frame
+			{
+				X = x,
+				Y = y,
+				Width = w,
+				Height = h
+			},
 			Text = window.Title ?? string.Empty
 		};
 

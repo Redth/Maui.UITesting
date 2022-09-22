@@ -2,6 +2,13 @@
 
 option csharp_namespace = "Microsoft.Maui.Automation";
 
+message Frame {
+	int32 x = 1;
+	int32 y = 2;
+	int32 width = 3;
+	int32 height = 4;
+}
+
 message Element {
 	string id = 1;
 	optional string parentId = 2;
@@ -17,12 +24,11 @@ message Element {
 	bool enabled = 9;
 	bool focused = 10;
 
-	int32 x = 11;
-	int32 y = 12;
-	int32 width = 13;
-	int32 height = 14;
+	Frame viewFrame = 11;
+	Frame windowFrame = 12;
+	Frame screenFrame = 13;
 
-	repeated Element children = 16;
+	repeated Element children = 14;
 }
 
 enum Platform {
