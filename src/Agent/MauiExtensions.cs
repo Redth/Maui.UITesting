@@ -31,6 +31,10 @@ namespace Microsoft.Maui.Automation
 
 				return children.ToArray();
 			}
+			else if (view is Microsoft.Maui.Controls.NavigationPage navigationPage)
+			{
+                return new[] { navigationPage.CurrentPage.GetMauiElement(application, parentId, currentDepth, maxDepth) };
+            }
 			else if (view is IContentView content && content?.Content is Maui.IView contentView)
 			{
 				return new[] { contentView.GetMauiElement(application, parentId, currentDepth, maxDepth) };
