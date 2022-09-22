@@ -9,7 +9,7 @@ namespace SampleMauiApp
 		{
 			InitializeComponent();
 
-			MainPage = new MainPage();
+			MainPage = new NavigationPage(new LoginPage());
 
 			//#if ANDROID
 			this.StartAutomationServiceListener("http://localhost:5000");
