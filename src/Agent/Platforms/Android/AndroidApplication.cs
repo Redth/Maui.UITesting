@@ -62,7 +62,9 @@ namespace Microsoft.Maui.Automation
 
 		public override async Task<PerformActionResult> PerformAction(string action, string elementId, params string[] arguments)
 		{
-			var element = await this.FirstById(elementId);
+            var elements = await this.GetElements();
+            var element = elements.Find(e => e.Id == elementId).FirstOrDefault();
+
 			if (element?.PlatformElement is Android.Views.View androidView)
 				return await androidView.PerformAction(action, elementId, arguments);
 

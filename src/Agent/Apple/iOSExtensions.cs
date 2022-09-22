@@ -109,6 +109,14 @@ internal static class iOSExtensions
 				return Task.FromResult(PerformActionResult.Ok());
 			}
 		}
+		else if (action == Actions.InputText)
+		{
+			if (view is IUITextInput inputView)
+			{
+				var text = arguments.FirstOrDefault();
+				inputView.InsertText(text);
+			}
+		}
 
 		throw new NotSupportedException($"PerformAction {action} is not supported.");
 	}
