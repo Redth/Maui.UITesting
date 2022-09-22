@@ -213,8 +213,11 @@ public class iOSDriver : Driver
 		});
 
 
-	public override Task InputText(string text)
-		=> idb.hid().SendStream<HIDEvent, HIDResponse>(text.AsHidEvents().ToArray());
+	public override async Task InputText(Element element, string text)
+	{
+		await Tap(element);
+		await idb.hid().SendStream<HIDEvent, HIDResponse>(text.AsHidEvents().ToArray());
+	}
 
 	public override Task Back()
 		=> Task.CompletedTask;

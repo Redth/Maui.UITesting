@@ -103,10 +103,10 @@ public class AndroidDriver : Driver
 		throw new NotImplementedException();
 	}
 
-	public override Task InputText(string text)
+	public override async Task InputText(Element element, string text)
 	{
+		await Tap(element);
 		Adb.Shell($"input text {text}", Device);
-		return Task.CompletedTask;
 	}
 
 	public override Task KeyPress(char keyCode)

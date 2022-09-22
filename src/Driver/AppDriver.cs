@@ -12,7 +12,7 @@ public class AppDriver : Driver
 			Platform.Android => new AndroidDriver(configuration),
 			Platform.Ios => new iOSDriver(configuration),
 			Platform.Tvos => new iOSDriver(configuration),
-			Platform.Maccatalyst => new iOSDriver(configuration),
+			Platform.Maccatalyst => new MacDriver(configuration),
 			Platform.Winappsdk => new WindowsDriver(configuration),
 			_ => throw new NotSupportedException($"Unsupported Device Platform: '{configuration.DevicePlatform}'")
 		};
@@ -38,8 +38,8 @@ public class AppDriver : Driver
 	public override Task<PerformActionResult> PerformAction(string action, string elementId, params string[] arguments)
 		=> Driver.PerformAction(action, elementId, arguments);
 
-	public override Task InputText(string text)
-		=> Driver.InputText(text);
+	public override Task InputText(Element element, string text)
+		=> Driver.InputText(element, text);
 
 	public override Task InstallApp()
 		=> Driver.InstallApp();

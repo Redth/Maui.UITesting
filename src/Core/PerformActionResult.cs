@@ -1,13 +1,7 @@
 ﻿namespace Microsoft.Maui.Automation
 {
-	public static class Actions
-	{
-		public const string Tap = "TAP";
-		public const string GetProperty = "GETPROPERTY";
-		public const string Backdoor = "BACKDOOR";
-	}
 
-	public partial class PerformActionResult
+    public partial class PerformActionResult
 	{
 		public const int SuccessStatus = 0;
 		public const int ErrorStatus = -1;

@@ -19,7 +19,7 @@
 
 		public abstract Task<IDeviceInfo> GetDeviceInfo();
 
-		public abstract Task InputText(string text);
+		public abstract Task InputText(Element element, string text);
 
 		public async Task Start(bool forceReInstall = false, bool clearAppState = false)
 		{

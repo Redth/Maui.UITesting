@@ -77,10 +77,10 @@ namespace Microsoft.Maui.Automation.Driver
 			return Task.FromResult<IDeviceInfo>(new DeviceInfo(0, 0, 0));
 		}
 
-		public override Task InputText(string text)
+		public override async Task InputText(Element element, string text)
 		{
+			await Tap(element);
 			Session.Value.Keyboard.SendKeys(text);
-			return Task.CompletedTask;
 		}
 
 		public override Task InstallApp()

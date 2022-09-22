@@ -36,7 +36,7 @@
 
 		Task Back();
 
-		Task InputText(string text);
+		Task InputText(Element element, string text);
 
 		Task OpenUri(string uri);
 
