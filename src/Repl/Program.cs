@@ -9,7 +9,7 @@ using System.Net;
 
 var driver = new AppDriverBuilder()
 	.AppFilename(@"C:\code\Maui.UITesting\samples\SampleMauiApp\bin\Debug\net7.0-android\com.companyname.samplemauiapp-Signed.apk")
-	.Device("9B141FFAZ008CJ")
+	.Device("Pixel_5_API_31")
 	.Build();
 
 Task<string?>? readTask = null;
@@ -34,9 +34,9 @@ var mappings = new Dictionary<string, Func<Task>>
 				.First(e => e.AutomationId == "entryUsername")
 				.InputText("xamarin");
 
-            await driver
-                .First(e => e.AutomationId == "entryPassword")
-                .InputText("1234");
+			await driver
+				.First(e => e.AutomationId == "entryPassword")
+				.InputText("1234");
 
 			await driver
 				.First(e => e.AutomationId == "buttonLogin")

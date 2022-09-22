@@ -1,14 +1,5 @@
 ﻿using AndroidSdk;
-using Grpc.Net.Client;
-using Idb;
 using Microsoft.Maui.Automation.Remote;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.NetworkInformation;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Microsoft.Maui.Automation.Driver;
 
@@ -27,24 +18,78 @@ public class AndroidDriver : Driver
 		androidSdkManager = new AndroidSdkManager();
 		Adb = androidSdkManager.Adb;
 		Pm = androidSdkManager.PackageManager;
+		Avd = androidSdkManager.AvdManager;
+		Emulator = androidSdkManager.Emulator;
 
+		var adbDevices = Adb.GetDevices();
+		var foundDevice = false;
+
+		// Use first if none were specified
 		if (string.IsNullOrEmpty(adbDeviceSerial))
 		{
-			var anySerial = Adb.GetDevices()?.FirstOrDefault()?.Serial;
-			if (!string.IsNullOrEmpty(anySerial))
-				adbDeviceSerial = anySerial;
+			adbDeviceSerial = adbDevices.FirstOrDefault()?.Serial;
+			if (!string.IsNullOrEmpty(adbDeviceSerial))
+				AdbDeviceName = GetDeviceName(adbDeviceSerial) ?? adbDeviceSerial;
+			foundDevice = true;
+		}
+
+		if (string.IsNullOrEmpty(adbDeviceSerial))
+			throw new ArgumentNullException("Could not find an Android device");
+
+		if (adbDevices.Any(d => d.Serial.Equals(adbDeviceSerial, StringComparison.OrdinalIgnoreCase)))
+		{
+			AdbDeviceName = GetDeviceName(adbDeviceSerial) ?? adbDeviceSerial;
+			foundDevice = true;
+		}
+
+		// If we still haven't found a device, try looking for an emulator by name using the config device value
+		if (!foundDevice)
+		{
+			// First let's see if there's a matching emulator running with the same avd name
+			foreach (var adbDevice in adbDevices)
+			{
+				if (adbDevice.IsEmulator)
+				{
+					var name = string.Empty;
+					try { name = GetDeviceName(adbDevice.Serial); }
+					catch { }
+
+					// Check if the device specified is actually the emulator name
+					if (name?.Equals(adbDeviceSerial) ?? false)
+					{
+						// Use the serial from the device not the name
+						adbDeviceSerial = adbDevice.Serial;
+						AdbDeviceName = name;
+						foundDevice = true;
+					}
+				}
+			}
+
+			// If still not found, let's look for a non-running avd with this name
+			if (!foundDevice)
+			{
+				var avds = Emulator.ListAvds();
+				foreach (var avd in avds)
+				{
+					if (avd.Equals(adbDeviceSerial, StringComparison.OrdinalIgnoreCase))
+					{
+						AdbDeviceName = avd;
+						emulatorProcess = Emulator.Start(avd);
+						emulatorProcess.WaitForBootComplete(TimeSpan.FromSeconds(120));
+						adbDeviceSerial = emulatorProcess.Serial;
+					}
+				}
+			}
 		}
 
 		ArgumentNullException.ThrowIfNull(adbDeviceSerial);
+		if (string.IsNullOrEmpty(AdbDeviceName))
+			AdbDeviceName = GetDeviceName(adbDeviceSerial) ?? adbDeviceSerial;
+
 		Device = adbDeviceSerial;
 		Pm.AdbSerial = adbDeviceSerial;
 
-		var adbName = adbDeviceSerial;
-		try {
-			adbName = Adb.GetDeviceName(Device);
-		} catch { }
-
-		Name = $"Android ({adbName})";
+		Name = $"Android ({AdbDeviceName})";
 
 		var forwardResult = Adb.RunCommand("-s", $"\"{Device}\"", "reverse", $"tcp:{port}", $"tcp:{port}")?.GetAllOutput();
 		System.Diagnostics.Debug.WriteLine(forwardResult);
@@ -56,9 +101,16 @@ public class AndroidDriver : Driver
 
 	protected readonly AndroidSdk.Adb Adb;
 	protected readonly AndroidSdk.PackageManager Pm;
+	protected readonly AndroidSdk.AvdManager Avd;
+	protected readonly AndroidSdk.Emulator Emulator;
 
 	readonly AndroidSdk.AndroidSdkManager androidSdkManager;
+
+	readonly AndroidSdk.Emulator.AndroidEmulatorProcess? emulatorProcess;
+
 	protected readonly string Device;
+
+	public readonly string AdbDeviceName;
 
 	public override string Name { get; }
 
@@ -221,5 +273,25 @@ public class AndroidDriver : Driver
 	{
 		if (grpc is not null)
 			await grpc.Stop();
+
+		if (emulatorProcess is not null)
+		{
+			emulatorProcess.Shutdown();
+			emulatorProcess.WaitForExit();
+		}
+	}
+
+	string? GetDeviceName(string? serial)
+	{
+		if (string.IsNullOrEmpty(serial))
+			return null;
+		try
+		{
+			return Adb.GetDeviceName(serial);
+		}
+		catch
+		{
+			return serial;
+		}
 	}
 }
