@@ -12,102 +12,73 @@ namespace Microsoft.Maui.Automation.Driver;
 public static partial class DriverExtensions
 {
 
-	public static async Task<IEnumerable<Element>> All(this IDriver driver, Query query)
-	{
-		var elements = await driver.GetElements();
+	public static Task<IEnumerable<Element>> All(this IDriver driver, Query query)
+		=> driver.AutoWait(query);
 
-		return query.Execute(elements);
-	}
+	public static Task<IEnumerable<Element>> Any(this IDriver driver, Query query)
+		=> driver.AutoWait(query);
 
-	public static async Task<Element?> First(this IDriver driver, Query query)
-	{
-		var elements = await driver.GetElements();
-
-		var r = query.Execute(elements);
-		return r.FirstOrDefault();
-	}
+	public static Task<Element?> First(this IDriver driver, Query query)
+		=> driver.AutoWaitFirst(query);
 
 
 	public static Task<IEnumerable<Element>> All(this IDriver driver, Predicate<Element> predicate)
 		=> driver.All(Query.By(predicate));
 
+	public static Task<IEnumerable<Element>> Any(this IDriver driver, Predicate<Element> predicate)
+		=> driver.Any(Query.By(predicate));
 
 	public static Task<Element?> First(this IDriver driver, Predicate<Element> predicate)
 		=> driver.First(Query.By(predicate));
 
-	//static async Task<IEnumerable<Element>> AutoWait(this IDriver driver, Predicate<Element> matching, int autoWaitMs = 3000, int retryDelayMs = 200)
-	//{
-	//	var waited = 0;
+	public static Task None(this IDriver driver, Query query)
+		=> driver.AutoWait(query, waitForNone: true);
 
-	//	while (waited < autoWaitMs || autoWaitMs <= 0)
-	//	{
-	//		var elements = await driver.GetElements();
-
-	//		var r = elements.Find(matching);
-
-	//		if (autoWaitMs <= 0 || r.Any())
-	//			return r;
-
-	//		Thread.Sleep(retryDelayMs);
-	//		waited += retryDelayMs;
-	//	}
-
-	//	return Enumerable.Empty<Element>();
-	//}
-
-	//static async Task<DriverTask<IEnumerable<Element>>> AutoWait(this Task<DriverTask<IEnumerable<Element>>> elements, Predicate<Element> matching, int autoWaitMs = 3000, int retryDelayMs = 200)
-	//{
-	//	var inner = await elements;
-	//	return await inner.AutoWait(matching, autoWaitMs, retryDelayMs);
-	//}
-
-	//static async Task<DriverTask<Element?>> AutoWaitFirst(this Task<DriverTask<IEnumerable<Element>>> elements, Predicate<Element> matching, int autoWaitMs = 3000, int retryDelayMs = 200)
-	//{
-	//	var inner = await elements;
-	//	var w = await inner.AutoWait(matching, autoWaitMs, retryDelayMs);
-	//	return new DriverTask<Element?>(w.Driver, Task.FromResult((await w.Value).FirstOrDefault()));
-	//}
-
-	//static async Task<DriverTask<Element?>> AutoWaitFirst(this DriverTask<IEnumerable<Element>> elements, Predicate<Element> matching, int autoWaitMs = 3000, int retryDelayMs = 200)
-	//{
-	//	var w = await elements.AutoWait(matching, autoWaitMs, retryDelayMs);
-	//	return new DriverTask<Element?>(w.Driver, Task.FromResult((await w.Value).FirstOrDefault()));
-	//}
-
-	//static async Task<DriverTask<IEnumerable<Element>>> AutoWait(this DriverTask<IEnumerable<Element>> elements, Predicate<Element> matching, int autoWaitMs = 3000, int retryDelayMs = 200)
-	//{
-	//	var driver = elements.Driver;
-	//	var waited = 0;
-
-	//	while (waited < autoWaitMs || autoWaitMs <= 0)
-	//	{
-	//		var matches = new List<Element>();
+	public static Task None(this IDriver driver, Predicate<Element> predicate)
+		=> driver.None(Query.By(predicate));
 
 
+	static async Task<Element?> AutoWaitFirst(this IDriver driver, Query query, int autoWaitMs = 3000, int retryDelayMs = 200)
+		=> (await driver.AutoWait(query, autoWaitMs, retryDelayMs).ConfigureAwait(false)).FirstOrDefault();
 
-	//		// Get a free tree
-	//		var tree = await driver.GetElements();
-	//		var targets = await elements.Value;
+	static async Task<IEnumerable<Element>> AutoWait(this IDriver driver, Query query, int autoWaitMs = 3000, int retryDelayMs = 200, bool waitForNone = false)
+	{
+		var waited = 0;
 
-	//		foreach (var target in targets)
-	//		{
-	//			var treeTargets = tree.Find(t => t.Id == target.Id);
+		while (waited < autoWaitMs || autoWaitMs <= 0)
+		{
+			var elements = await driver.GetElements().ConfigureAwait(false);
 
-	//			var targetMatches = treeTargets.Where(s => matching(s));
+			var results = query.Execute(elements);
 
-	//			if (targetMatches.Any())
-	//				matches.AddRange(targetMatches);
-	//		}
+			var anyResults = results.Any();
 
-	//		if (autoWaitMs <= 0 || matches.Any())
-	//			return new DriverTask<IEnumerable<Element>>(driver, Task.FromResult<IEnumerable<Element>>(matches));
+			if (waitForNone)
+			{
+				// Wait until no results found
+				if (autoWaitMs <= 0 || !anyResults)
+				{
+					if (anyResults)
+						throw new ElementsStillFoundException(query);
 
-	//		Thread.Sleep(retryDelayMs);
-	//		waited += retryDelayMs;
-	//	}
+					return results;
+				}
+			}
+			else
+			{
+				// Wait until we find 1 or more
+				if (autoWaitMs <= 0 || anyResults)
+					return results;
+			}
 
-	//	return new DriverTask<IEnumerable<Element>>(driver, Task.FromResult<IEnumerable<Element>>(Enumerable.Empty<Element>()));
-	//}
+			Thread.Sleep(retryDelayMs);
+			waited += retryDelayMs;
+		}
 
+		if (waitForNone)
+			throw new ElementsStillFoundException(query);
+		else
+			throw new ElementsNotFoundException(query);
+	}
 }
 

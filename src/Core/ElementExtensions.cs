@@ -8,6 +8,34 @@ public static class QueryExtensions
 {
 	public static Query ThenBy(this Query query, Predicate<Element> predicate)
 		=> query.AndBy(predicate);
+
+	public static Query ThenByAutomationId(this Query query, string automationId)
+		=> query.AndBy(e => e.AutomationId == automationId);
+
+	public static Query ThenById(this Query query, string id)
+		=> query.AndBy(e => e.Id == id);
+
+	public static Query ThenOfType(this Query query, string type)
+		=> query.AndBy(e => e.Type == type);
+
+	public static Query ThenContainingText(this Query query, string text, StringComparison comparisonType = StringComparison.InvariantCultureIgnoreCase)
+		=> query.AndBy(e => e.Text.Contains(text, comparisonType));
+
+}
+
+public static class By
+{
+	public static Query AutomationId(string automationId)
+		=> Query.By(e => e.AutomationId == automationId);
+
+	public static Query Id(string id)
+		=> Query.By(e => e.Id == id);
+
+	public static Query Type(string type)
+		=> Query.By(e => e.Type == type);
+
+	public static Query ContainingText(string text, StringComparison comparisonType = StringComparison.InvariantCultureIgnoreCase)
+		=> Query.By(e => e.Text.Contains(text, comparisonType));
 }
 
 public class Query
@@ -16,6 +44,18 @@ public class Query
 
 	public static Query By(Predicate<Element> predicate)
 		=> new Query().AndBy(predicate);
+
+	public static Query ByAutomationId(string automationId)
+		=> By(e => e.AutomationId == automationId);
+
+	public static Query ById(string id)
+		=> By(e => e.Id == id);
+
+	public static Query OfType(string type)
+		=> By(e => e.Type == type);
+
+	public static Query ContainingText(string text, StringComparison comparisonType = StringComparison.InvariantCultureIgnoreCase)
+		=> By(e => e.Text.Contains(text, comparisonType));
 
 	internal Query AndBy(Predicate<Element> predicate)
 	{

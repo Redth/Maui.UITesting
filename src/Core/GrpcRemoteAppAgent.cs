@@ -20,11 +20,11 @@ namespace Microsoft.Maui.Automation
 
 		readonly AsyncDuplexStreamingCall<ElementsResponse, ElementsRequest> elementsCall;
 		readonly AsyncDuplexStreamingCall<PerformActionResponse, PerformActionRequest> performActionCall;
-        
-        readonly Task elementsCallTask;
+		
+		readonly Task elementsCallTask;
 		readonly Task performActionCallTask;
-        
-        private bool disposedValue;
+		
+		private bool disposedValue;
 
 		public GrpcRemoteAppAgent(IApplication application, string address)
 		{
@@ -35,8 +35,8 @@ namespace Microsoft.Maui.Automation
 
 			elementsCall = client.GetElementsRoute();
 			performActionCall = client.PerformActionRoute();
-            
-            elementsCallTask = Task.Run(async () =>
+			
+			elementsCallTask = Task.Run(async () =>
 			{
 				while (await elementsCall.ResponseStream.MoveNext())
 				{
@@ -53,7 +53,7 @@ namespace Microsoft.Maui.Automation
 					await performActionCall.RequestStream.WriteAsync(response);
 				}
 			});
-        }
+		}
 
 		async Task<ElementsResponse> HandleElementsRequest(ElementsRequest request)
 		{
@@ -104,10 +104,10 @@ namespace Microsoft.Maui.Automation
 
 					var result = await app.Backdoor(fullyQualifiedTypeName, staticMethodName, remainingArgs.ToArray());
 
-                    response.Status = PerformActionResult.SuccessStatus;
+					response.Status = PerformActionResult.SuccessStatus;
 					if (result?.Any() ?? false)
-	                    response.Results.AddRange(result?.ToArray());
-                }
+						response.Results.AddRange(result?.ToArray());
+				}
 				else
 				{
 					var result = await app.PerformAction(request.Action, request.ElementId, request.Arguments.ToArray());
@@ -124,7 +124,7 @@ namespace Microsoft.Maui.Automation
 			return response;
 		}
 
-        IApplication GetApp(Platform platform)
+		IApplication GetApp(Platform platform)
 		{
 			var unsupportedText = $"Platform {platform} is not supported on this app agent";
 

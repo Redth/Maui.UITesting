@@ -18,6 +18,28 @@ namespace Microsoft.Maui.Automation
 		public readonly string ElementId;
 	}
 
+	public class ElementsNotFoundException : Exception
+	{
+		public ElementsNotFoundException(Query query)
+			: base($"Elements not found matching query")
+		{
+			Query = query;
+		}
+
+		public readonly Query Query;
+	}
+
+	public class ElementsStillFoundException : Exception
+	{
+		public ElementsStillFoundException(Query query)
+			: base($"Elements matching query are still found")
+		{
+			Query = query;
+		}
+
+		public readonly Query Query;
+	}
+
 	public abstract class Application : IApplication
 	{
 		public virtual void Close()
