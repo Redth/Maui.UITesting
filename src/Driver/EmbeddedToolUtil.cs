@@ -3,6 +3,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using System.Xml.XPath;
 using Claunia.PropertyList;
@@ -11,6 +12,26 @@ using SharpCompress.Readers;
 
 namespace Microsoft.Maui.Automation.Driver
 {
+	public class RegexParser
+	{
+		public RegexParser(string input, string pattern, RegexOptions rxOptions = RegexOptions.Singleline | RegexOptions.IgnoreCase)
+		{
+			Match = Regex.Match(input, pattern, rxOptions);
+		}
+
+		public readonly Match Match;
+
+		public int GetGroup(string groupName, int defaultValue)
+		{
+			if (Match?.Groups.TryGetValue(groupName, out var group) ?? false)
+			{
+				if (int.TryParse(group.Value, out var intValue))
+					return intValue;
+			}
+			return defaultValue;
+		}
+	}
+
 	public static class AppUtil
 	{
 		internal static Platform InferDevicePlatformFromFilename(string? appFile)

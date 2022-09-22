@@ -21,6 +21,8 @@ public class AndroidDriver : Driver
 		Avd = androidSdkManager.AvdManager;
 		Emulator = androidSdkManager.Emulator;
 
+		deviceInfo = new Lazy<Task<IDeviceInfo>>(GetDeviceInfo);
+
 		var adbDevices = Adb.GetDevices();
 		var foundDevice = false;
 
@@ -110,6 +112,8 @@ public class AndroidDriver : Driver
 
 	protected readonly string Device;
 
+	Lazy<Task<IDeviceInfo>> deviceInfo;
+
 	public readonly string AdbDeviceName;
 
 	public override string Name { get; }
@@ -152,7 +156,13 @@ public class AndroidDriver : Driver
 
 	public override Task<IDeviceInfo> GetDeviceInfo()
 	{
-		throw new NotImplementedException();
+		var density = new RegexParser(Shell("wm density"), @":\s+(?<density>[0-9]+)").GetGroup("density", 1);
+		var rxSize = new RegexParser(Shell("wm size"), @":\s+(?<width>[0-9]+)x(?<height>[0-9]+)");
+
+		return Task.FromResult<IDeviceInfo>(new DeviceInfo(
+			(ulong)rxSize.GetGroup("width", 1),
+			(ulong)rxSize.GetGroup("height", 1),
+			(ulong)density));
 	}
 
 	public override async Task InputText(Element element, string text)
