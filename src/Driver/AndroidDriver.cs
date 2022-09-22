@@ -1,5 +1,7 @@
 ﻿using AndroidSdk;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Maui.Automation.Remote;
+using System.Text.RegularExpressions;
 
 namespace Microsoft.Maui.Automation.Driver;
 
@@ -167,7 +169,16 @@ public class AndroidDriver : Driver
 
 	public override async Task InputText(Element element, string text)
 	{
+		// Hide keyboard first
+		Adb.Shell($"input keyevent 111", Device);
+		
+		// Tap the element to focus it
 		await Tap(element);
+
+		// Give it a moment
+		await Task.Delay(500);
+
+		// Send the text
 		Adb.Shell($"input text {text}", Device);
 	}
 
@@ -220,8 +231,7 @@ public class AndroidDriver : Driver
 	}
 
 	public override Task LongPress(Element element)
-		=> grpc.Client.PerformAction(Configuration.AutomationPlatform, Actions.Tap, element.Id);
-
+		=> LongPress(element.ScreenFrame.X, element.ScreenFrame.Y);
 
 	public override Task OpenUri(string uri)
 	{
@@ -256,10 +266,13 @@ public class AndroidDriver : Driver
 	}
 
 	public override Task Tap(int x, int y)
-		=> grpc.Client.PerformAction(Configuration.AutomationPlatform, Actions.Tap, string.Empty, x.ToString(), y.ToString());
+	{
+		Adb.Shell($"input tap {x} {y}", Device);
+		return Task.CompletedTask;
+	}
 
 	public override Task Tap(Element element)
-		=> grpc.Client.PerformAction(Configuration.AutomationPlatform, Actions.Tap, element.Id);
+		=> Tap(element.ScreenFrame.X, element.ScreenFrame.Y);
 
 
 	bool IsAppInstalled()
@@ -304,4 +317,7 @@ public class AndroidDriver : Driver
 			return serial;
 		}
 	}
+
+	string Shell(string command)
+		=> string.Join(Environment.NewLine, Adb.Shell(command, Device));
 }
