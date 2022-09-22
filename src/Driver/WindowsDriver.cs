@@ -1,4 +1,5 @@
 ﻿using Microsoft.Maui.Automation.Remote;
+using OpenQA.Selenium.Appium.Interactions;
 using OpenQA.Selenium.Appium.Windows;
 using OpenQA.Selenium.Remote;
 
@@ -68,7 +69,8 @@ namespace Microsoft.Maui.Automation.Driver
 
 		public override Task ClearAppState()
 		{
-			Session.Value.ResetApp();
+			var s = Session.Value;
+			//Session.Value.ResetApp();
 			return Task.CompletedTask;
 		}
 
@@ -85,9 +87,10 @@ namespace Microsoft.Maui.Automation.Driver
 
 		public override Task InstallApp()
 		{
-			var moduleFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "WindowsPowerShell", "v1.0", "Modules", "Appx", "Appx.psd1");
-			var ps1 = $"Import-Module -SkipEditionCheck '{moduleFile}'; Add-AppxPackage -Path {Configuration.AppFilename} -AllowUnsigned -ForceApplicationShutdown -ForceUpdateFromAnyVersion";
-			PowershellUtil.Run(ps1);
+			var s = Session.Value;
+			//var moduleFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "WindowsPowerShell", "v1.0", "Modules", "Appx", "Appx.psd1");
+			//var ps1 = $"Import-Module -SkipEditionCheck '{moduleFile}'; Add-AppxPackage -Path {Configuration.AppFilename} -AllowUnsigned -ForceApplicationShutdown -ForceUpdateFromAnyVersion";
+			//PowershellUtil.Run(ps1);
 			return Task.CompletedTask;
 		}
 
@@ -99,6 +102,7 @@ namespace Microsoft.Maui.Automation.Driver
 
 		public override Task LaunchApp()
 		{
+			var s = Session.Value;
 			//Session.LaunchApp();
 			return Task.CompletedTask;
 		}
@@ -147,7 +151,8 @@ namespace Microsoft.Maui.Automation.Driver
 
 		public override Task StopApp()
 		{
-			Session.Value.CloseApp();
+			var s = Session.Value;
+			//Session.Value.CloseApp();
 			return Task.CompletedTask;
 		}
 
@@ -161,42 +166,46 @@ namespace Microsoft.Maui.Automation.Driver
 		}
 
 		public override Task Tap(int x, int y)
-		{
-			//x = (int)(x * 2.25);
-			//y = (int)(y * 2.25);
+			=> Tap(x, y, 200);
 
-			var touch = new RemoteTouchScreen(Session.Value);
-			//touch.d
-			touch.Down(x, y);
-			Thread.Sleep(100);
-			touch.Up(x, y);
-			return Task.CompletedTask;
+		async Task Tap(int x, int y, int delay)
+		{
+			await Task.Delay(200).ConfigureAwait(false);
+			
+			var dx = (int)(x * 2.25);
+			var dy = (int)(y * 2.25);
+
+			var touchContact = new PointerInputDevice(OpenQA.Selenium.Interactions.PointerKind.Touch);
+			var touchSequence = new OpenQA.Selenium.Interactions.ActionSequence(touchContact, 0);
+
+			touchSequence.AddAction(touchContact.CreatePointerMove(OpenQA.Selenium.Interactions.CoordinateOrigin.Viewport, dx, dy, TimeSpan.Zero));
+			touchSequence.AddAction(touchContact.CreatePointerDown(PointerButton.TouchContact));
+			touchSequence.AddAction(touchContact.CreatePointerMove(OpenQA.Selenium.Interactions.CoordinateOrigin.Viewport, dx, dy, TimeSpan.FromMilliseconds(200)));
+			touchSequence.AddAction(touchContact.CreatePointerUp(PointerButton.TouchContact));
+
+			Session.Value.PerformActions(new List<OpenQA.Selenium.Interactions.ActionSequence> { touchSequence });
 		}
 
-		public override Task Tap(Element element)
+		public override async Task Tap(Element element)
 		{
-			var winElement = Session.Value.FindElementByAccessibilityId(element.AutomationId);
-			winElement.Click();
-			//var we = Session.FindElements(OpenQA.Selenium.By.XPath("//*"))?.ToList();
+			await Task.Delay(400);
 
-			//we?.FirstOrDefault()?.Click();
+			try
+			{
+				var winElement = Session.Value.FindElementByAccessibilityId(element.AutomationId);
 
-			//var platformElements = (await grpc.Client.GetElements(Platform.Winappsdk));
+				if (winElement is not null)
+				{
+					winElement.Click();
+					return;
+				}
+			}
+			catch { }
 
-			//var windowsElement = platformElements?.FirstOrDefault(e => e.Id == element.Id);
+			var x = element.WindowFrame.X + (element.WindowFrame.Width / 2);
+			var y = element.WindowFrame.Y + (element.WindowFrame.Height / 2);
 
-			//var x = (int)(windowsElement.X * 2.25);
-			//var y = (int)(windowsElement.Y * 2.25);
-			//var touchContact = new PointerInputDevice(PointerKind.Touch);
-			//var touchSequence = new ActionSequence(touchContact, 0);
-
-			//touchSequence.AddAction(touchContact.CreatePointerMove(CoordinateOrigin.Viewport, x, y, TimeSpan.Zero));
-			//touchSequence.AddAction(touchContact.CreatePointerDown(PointerButton.TouchContact));
-			//touchSequence.AddAction(touchContact.CreatePointerMove(CoordinateOrigin.Viewport, x, y, TimeSpan.FromMilliseconds(200)));
-			//touchSequence.AddAction(touchContact.CreatePointerUp(PointerButton.TouchContact));
-
-			//Session.PerformActions(new List<ActionSequence> { touchSequence });
-			return Task.CompletedTask;
+			await Tap(x, y, 10).ConfigureAwait(false);
 		}
 
 		public override Task<string?> GetProperty(string elementId, string propertyName)
