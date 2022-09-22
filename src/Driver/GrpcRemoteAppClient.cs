@@ -30,7 +30,7 @@ namespace Microsoft.Maui.Automation.Remote
 				new ElementsRequest
 				{
 					Platform = platform,
-				});
+				}).ConfigureAwait(false);
 
 			return response?.Elements ?? Enumerable.Empty<Element>();
 		}
@@ -51,7 +51,7 @@ namespace Microsoft.Maui.Automation.Remote
 
 			var response = await BuildRequest<PerformActionRequest, PerformActionResponse>(
 				performActionRequestStream,
-				request);
+				request).ConfigureAwait(false);
 
 			if (response is not null)
 			{
@@ -76,13 +76,13 @@ namespace Microsoft.Maui.Automation.Remote
 			for (int i = 0; i < args.Length; i++)
 				allArgs[2 + i] = args[i];
 
-			var r = await PerformAction(platform, Actions.Backdoor, null, allArgs);
+			var r = await PerformAction(platform, Actions.Backdoor, null, allArgs).ConfigureAwait(false);
 			return r.Results ?? new string[0];
 		}
 
 		public async Task<string?> GetProperty(Platform platform, string elementId, string propertyName)
 		{
-			var r = await PerformAction(platform, Actions.GetProperty, elementId, propertyName);
+			var r = await PerformAction(platform, Actions.GetProperty, elementId, propertyName).ConfigureAwait(false);
 			return r.Results?.FirstOrDefault();
 		}
 
@@ -92,7 +92,7 @@ namespace Microsoft.Maui.Automation.Remote
 			where TResponse : class, IResponseMessage
 			where TRequest : IRequestMessage
 		{
-			var stream = await tcsRequestStream.Task;
+			var stream = await tcsRequestStream.Task.ConfigureAwait(false);
 
 			var requestId = Guid.NewGuid().ToString();
 			request.RequestId = requestId;
@@ -100,9 +100,9 @@ namespace Microsoft.Maui.Automation.Remote
 			var tcs = new TaskCompletionSource<IResponseMessage>();
 			pendingResponses.Add(requestId, tcs);
 
-			await stream.WriteAsync(request);
+			await stream.WriteAsync(request).ConfigureAwait(false);
 
-			var response = await tcs.Task;
+			var response = await tcs.Task.ConfigureAwait(false);
 
 			return response as TResponse;
 		}
@@ -119,7 +119,7 @@ namespace Microsoft.Maui.Automation.Remote
 
 			tcsRequestStream.TrySetResult(responseStream);
 
-			while (await requestStream.MoveNext(CancellationToken.None))
+			while (await requestStream.MoveNext(CancellationToken.None).ConfigureAwait(false))
 			{
 				var requestId = requestStream.Current.RequestId;
 
