@@ -32,6 +32,12 @@ public class AppDriverBuilder
 		Configuration = configuration;
 	}
 
+	public AppDriverBuilder Configure(Action<IAutomationConfiguration> configuration)
+	{
+		configuration(Configuration);
+		return this;
+	}
+
 	public AppDriverBuilder AppId(string appId)
 	{
 		Configuration.AppId = appId;

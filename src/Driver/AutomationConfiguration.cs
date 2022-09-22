@@ -5,8 +5,14 @@ using System.Text.Json.Serialization;
 
 namespace Microsoft.Maui.Automation.Driver
 {
+	public static class ConfigurationKeys
+	{
+		public const string GrpcHostLoggingEnabled = "GRPC_HOST_LOGGING_ENABLED";
+	}
+
 	public class AutomationConfiguration : Dictionary<string, object>, IAutomationConfiguration
 	{
+
 		public static AutomationConfiguration FromYaml(string yamlFilename)
 		{
 			var serializer = new YamlDotNet.Serialization.Deserializer();
@@ -157,6 +163,29 @@ namespace Microsoft.Maui.Automation.Driver
 				if (this.ContainsKey(key))
 					this.Remove(key);
 			}
+		}
+
+		public bool Get(string key, bool defaultValue = false)
+		{
+			if (bool.TryParse(Get(key, defaultValue.ToString()), out var val))
+				return val;
+			return defaultValue;
+		}
+
+		void IAutomationConfiguration.Set(string key, string? value)
+		{
+			if (string.IsNullOrEmpty(value))
+			{
+				if (ContainsKey(key))
+					Remove(key);
+			}
+			else
+				this[key] = value;
+		}
+
+		public void Set(string key, bool defaultValue)
+		{
+			this[key] = defaultValue;
 		}
 	}
 }

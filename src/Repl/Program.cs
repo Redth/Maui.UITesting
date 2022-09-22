@@ -7,9 +7,16 @@ using Spectre.Console;
 using System.Net;
 
 
+//var driver = new AppDriverBuilder()
+//	.AppFilename(@"C:\code\Maui.UITesting\samples\SampleMauiApp\bin\Debug\net7.0-android\com.companyname.samplemauiapp-Signed.apk")
+//	.Device("Pixel_5_API_31")
+//	//.Device("9B141FFAZ008CJ")
+//	.Build();
+
 var driver = new AppDriverBuilder()
-	.AppFilename(@"C:\code\Maui.UITesting\samples\SampleMauiApp\bin\Debug\net7.0-android\com.companyname.samplemauiapp-Signed.apk")
-	.Device("Pixel_5_API_31")
+	.AppId("D05ADD49-B96D-49E5-979C-FA3A3F42F8E0_yn9kjvr01ms9j!App")
+	.DevicePlatform(Platform.Winappsdk)
+	.Configure(c => c.Set(ConfigurationKeys.GrpcHostLoggingEnabled, true))
 	.Build();
 
 Task<string?>? readTask = null;
@@ -46,8 +53,9 @@ var mappings = new Dictionary<string, Func<Task>>
 
 			var label = await driver.First(By.ContainingText("Hello, World!"));
 
+			var button = await driver.First(By.AutomationId("buttonOne"));
 
-			await driver.First(By.AutomationId("buttonOne")).Tap();
+			await button.Tap();
 
 			await driver.Any(By.Type("Label").ThenContainingText("Current count: 1"));
 
@@ -75,7 +83,7 @@ var mappings = new Dictionary<string, Func<Task>>
 	}
 };
 
-await mappings["test"]();
+//await mappings["test"]();
 
 while (!ctsMain.Token.IsCancellationRequested)
 {

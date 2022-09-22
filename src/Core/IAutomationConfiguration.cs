@@ -15,5 +15,10 @@
 		string? AppFilename { get; set; }
 
 		string? Get(string key, string? defaultValue);
+
+		void Set(string key, string? value);
+
+		bool Get(string key, bool defaultValue = false);
+		void Set(string key, bool defaultValue);
 	}
 }

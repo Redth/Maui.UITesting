@@ -4,15 +4,15 @@ using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Maui.Automation.Remote;
+using Microsoft.Maui.Automation.Driver;
 
 namespace Microsoft.Maui.Automation.Remote;
 
 public class GrpcHost
 {
-	public GrpcHost()
+	public GrpcHost(IAutomationConfiguration configuration)
 	{
-		var builder = CreateHostBuilder(this, Array.Empty<string>());
+		var builder = CreateHostBuilder(this);
 
 		host = builder.Build();
 		host.Start();
@@ -29,12 +29,13 @@ public class GrpcHost
 
 	public ILogger<GrpcHost> Logger => Services.GetRequiredService<ILogger<GrpcHost>>();
 
-	public static IWebHostBuilder CreateHostBuilder(GrpcHost grpcHost, string[] args)
+	public static IWebHostBuilder CreateHostBuilder(GrpcHost grpcHost, IAutomationConfiguration configuration)
 	{
 		var builder = new WebHostBuilder()
 			.ConfigureLogging(log =>
 			{
-				log.AddConsole();
+				if (configuration.Get(ConfigurationKeys.GrpcHostLoggingEnabled, false))
+					log.AddConsole();
 			})
 			.UseKestrel(kestrel =>
 			{
