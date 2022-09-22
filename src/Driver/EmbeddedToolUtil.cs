@@ -18,11 +18,13 @@ namespace Microsoft.Maui.Automation.Driver
 			if (string.IsNullOrEmpty(appFile))
 				throw new ArgumentNullException("AppFilename");
 
-			var file = new FileInfo(appFile);
-			if (!file.Exists)
+
+			if (!File.Exists(appFile) && !Directory.Exists(appFile))
 				throw new ArgumentNullException("AppFilename");
 
-			return file.Extension.ToLowerInvariant() switch
+			var ext = Path.GetExtension(appFile.TrimEnd('/'));
+
+			return ext.ToLowerInvariant() switch
 			{
 				".apk" => Platform.Android,
 				".app" => InferApplePlatform(appFile),
@@ -37,16 +39,15 @@ namespace Microsoft.Maui.Automation.Driver
 			if (string.IsNullOrEmpty(appFile))
 				throw new ArgumentNullException("AppFilename");
 
-			var file = new FileInfo(appFile);
-			if (!file.Exists)
-				throw new ArgumentNullException("AppFilename");
+            if (!File.Exists(appFile) && !Directory.Exists(appFile))
+                throw new ArgumentNullException("AppFilename");
 
 			if (appFile.EndsWith(".app", StringComparison.InvariantCultureIgnoreCase))
 			{
-				var plistFile = Path.Combine(file.FullName + "/", "Contents", "Info.plist");
+				var plistFile = Path.Combine(appFile.TrimEnd('/') + "/", "Contents", "Info.plist");
 				if (File.Exists(plistFile))
 				{
-					var rootDict = (NSDictionary)PropertyListParser.Parse(file);
+					var rootDict = (NSDictionary)PropertyListParser.Parse(plistFile);
 					var dtplatformName = rootDict.ObjectForKey("DTPlatformName")?.ToString();
 
 					if (!string.IsNullOrEmpty(dtplatformName))
@@ -59,7 +60,7 @@ namespace Microsoft.Maui.Automation.Driver
 				}
 
 				// iOS and ipad apps have the info.plist in the bundle root
-				plistFile = Path.Combine(file.FullName + "/", "Info.plist");
+				plistFile = Path.Combine(appFile.TrimEnd('/') + "/", "Info.plist");
 				if (File.Exists(plistFile))
 					return Platform.Ios;
 			}
@@ -71,23 +72,22 @@ namespace Microsoft.Maui.Automation.Driver
 			if (string.IsNullOrEmpty(appFile))
 				return null;
 
-			var file = new FileInfo(appFile);
-			if (!file.Exists)
-				return null;
+            if (!File.Exists(appFile) && !Directory.Exists(appFile))
+                throw new ArgumentNullException("AppFilename");
 
-			if (appFile.EndsWith(".app", StringComparison.InvariantCultureIgnoreCase))
+            if (appFile.EndsWith(".app", StringComparison.InvariantCultureIgnoreCase))
 			{
 				// iOS is in root of .app
-				var plistFile = Path.Combine(file.FullName + "/", "Info.plist");
+				var plistFile = Path.Combine(appFile.TrimEnd('/') + "/", "Info.plist");
 
 				// If not there, check for mac pattern inside Contents/Info.plist
 				if (!File.Exists(plistFile))
-					plistFile = Path.Combine(file.FullName + "/", "Contents", "Info.plist");
+					plistFile = Path.Combine(appFile.TrimEnd('/') + "/", "Contents", "Info.plist");
 
 				if (!File.Exists(plistFile))
 					return null;
 
-				var rootDict = (NSDictionary)PropertyListParser.Parse(file);
+				var rootDict = (NSDictionary)PropertyListParser.Parse(plistFile);
 				return rootDict.ObjectForKey("CFBundleIdentifier")?.ToString();
 			}
 
