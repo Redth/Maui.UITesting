@@ -28,6 +28,8 @@ message Element {
 	Frame windowFrame = 12;
 	Frame screenFrame = 13;
 
+	double density = 15;
+
 	repeated Element children = 14;
 }
 

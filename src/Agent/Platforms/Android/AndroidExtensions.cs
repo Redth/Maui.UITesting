@@ -104,6 +104,7 @@ namespace Microsoft.Maui.Automation
 				ViewFrame = frames.viewFrame,
 				WindowFrame = frames.windowFrame,
 				ScreenFrame = frames.screenFrame,
+				Density = androidview.Resources?.DisplayMetrics?.Density ?? 1.0,
 				Text = androidview.GetText(),
 			};
 
@@ -171,6 +172,7 @@ namespace Microsoft.Maui.Automation
 				ViewFrame = frames.viewFrame,
 				WindowFrame = frames.windowFrame,
 				ScreenFrame = frames.screenFrame,
+				Density = activity.Resources?.DisplayMetrics?.Density ?? 1.0,
 				Text = activity.Title
 			};
 

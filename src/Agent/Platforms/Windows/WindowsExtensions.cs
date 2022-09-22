@@ -1,11 +1,8 @@
-﻿using Microsoft.Maui.Controls.Platform;
-using Microsoft.Maui.Platform;
+﻿using Microsoft.Maui.Platform;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Automation;
 using System;
 using System.Threading.Tasks;
-using Windows.UI.WebUI;
-using static Idb.XctraceRecordRequest.Types;
 
 namespace Microsoft.Maui.Automation;
 
@@ -25,6 +22,7 @@ internal static class WindowsExtensions
 			Visible = fwElement.Visibility == UI.Xaml.Visibility.Visible,
 			Enabled = fwElement.IsTapEnabled,
 			Focused = fwElement.FocusState != FocusState.Unfocused,
+			Density = fwElement.XamlRoot?.RasterizationScale ?? 1.0,
 			ViewFrame = new Frame
 			{
 				X = (int)fwElement.ActualOffset.X,
@@ -97,6 +95,7 @@ internal static class WindowsExtensions
 				Width = w,
 				Height = h
 			},
+			Density = window.Content?.XamlRoot?.RasterizationScale ?? 1.0,
 			Text = window.Title ?? string.Empty
 		};
 

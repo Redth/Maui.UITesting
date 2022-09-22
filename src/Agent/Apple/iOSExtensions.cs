@@ -65,6 +65,7 @@ internal static class iOSExtensions
 			ViewFrame = viewFrame,
 			WindowFrame = windowFrame,
 			ScreenFrame = screenFrame,
+			Density = uiView.ContentScaleFactor.Value,
 			Text = uiView.GetText() ?? string.Empty
 		};
 
@@ -101,6 +102,7 @@ internal static class iOSExtensions
 			ViewFrame = viewFrame,
 			WindowFrame	= windowFrame,
 			ScreenFrame = screenFrame,
+			Density = window.ContentScaleFactor.Value,
 			Text = string.Empty
 		};
 
