@@ -172,6 +172,7 @@ namespace Microsoft.Maui.Automation.Driver
 		{
 			await Task.Delay(200).ConfigureAwait(false);
 			
+			// TODO: Get actual density
 			var dx = (int)(x * 2.25);
 			var dy = (int)(y * 2.25);
 
