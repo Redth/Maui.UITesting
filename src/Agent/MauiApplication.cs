@@ -29,7 +29,14 @@ namespace Microsoft.Maui.Automation
 			return dispatcher.DispatchAsync(action);
 		}
 
-		public override Platform DefaultPlatform => Platform.Maui;
+        void Dispatch(Action action)
+        {
+            var dispatcher = MauiPlatformApplication.Handler.MauiContext.Services.GetService<Dispatching.IDispatcher>() ?? throw new Exception("Unable to locate Dispatcher");
+
+            dispatcher.Dispatch(action);
+        }
+
+        public override Platform DefaultPlatform => Platform.Maui;
 
 		public readonly Maui.IApplication MauiPlatformApplication;
 
@@ -88,35 +95,45 @@ namespace Microsoft.Maui.Automation
 
 		public override async Task<string> GetProperty(string elementId, string propertyName)
 		{
-			var element = await this.FirstById(elementId);
+            var elements = await this.GetElements();
+            var element = elements.Find(e => e.Id == elementId).FirstOrDefault();
 
-			return element.PlatformElement
+            return element.PlatformElement
 				.GetType()
 				.GetProperty(propertyName, System.Reflection.BindingFlags.GetProperty | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic)
 					?.GetValue(element.Platform)?.ToString() ?? String.Empty;
 		}
 
-		public override Task<PerformActionResult> PerformAction(string action, string elementId, params string[] arguments)
-			=> action switch
-			{
-				Actions.Tap => PerformTap(elementId, arguments),
-				_ => throw new NotImplementedException()
-			};
-
-		async Task<PerformActionResult> PerformTap(string elementId, params string[] arguments)
+		public override async Task<PerformActionResult> PerformAction(string action, string elementId, params string[] arguments)
 		{
 			if (!string.IsNullOrEmpty(elementId))
 			{
-				var element = await this.FirstById(elementId);
+				var elements = await this.GetElements();
+				var element = elements.Find(e => e.Id == elementId).FirstOrDefault();
 
 				if (element.PlatformElement is IElement mauiElement)
 				{
+
+					if (action == Actions.InputText)
+					{
+						if (mauiElement is ITextInput mauiTextInput)
+						{
+							Dispatch(() =>
+							{
+								if (mauiElement is IView focusableView)
+									focusableView.Focus();
+								mauiTextInput.UpdateText(arguments.FirstOrDefault());
+							});
+                            return PerformActionResult.Ok();
+                        }
+					}
+
 #if ANDROID
 					if (mauiElement.Handler?.PlatformView is Android.Views.View androidView)
-						return await androidView.PerformAction(Actions.Tap, elementId, arguments);
+						return await androidView.PerformAction(action, elementId, arguments);
 #elif IOS || MACCATALYST
 					if (mauiElement.Handler?.PlatformView is UIKit.UIView uiview)
-						return await uiview.PerformAction(Actions.Tap, elementId, arguments);
+						return await uiview.PerformAction(action, elementId, arguments);
 #endif
 				}
 			}
