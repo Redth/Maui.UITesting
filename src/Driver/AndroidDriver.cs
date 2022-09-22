@@ -178,8 +178,13 @@ public class AndroidDriver : Driver
 		// Give it a moment
 		await Task.Delay(500);
 
-		// Send the text
-		Adb.Shell($"input text {text}", Device);
+		// Send the text char by char
+		// If you do it all at once, sometimes it gets jumbled up
+		foreach (var c in text)
+		{
+			Adb.Shell($"input text {c}", Device);
+			Thread.Sleep(100);
+		}
 	}
 
 	public override Task KeyPress(char keyCode)
