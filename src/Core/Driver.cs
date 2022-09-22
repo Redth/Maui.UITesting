@@ -21,7 +21,7 @@
 
 		public abstract Task InputText(Element element, string text);
 
-		public async Task Start(bool forceReInstall = false, bool clearAppState = false)
+		public virtual async Task Start(bool forceReInstall = false, bool clearAppState = false)
 		{
 			await StopApp();
 			if (forceReInstall)

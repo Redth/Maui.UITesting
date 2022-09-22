@@ -47,6 +47,9 @@ public class AppDriver : Driver
 	public override Task KeyPress(char keyCode)
 		=> Driver.KeyPress(keyCode);
 
+	public override Task Start(bool forceReInstall = false, bool clearAppState = false)
+		=> Driver.Start(forceReInstall, clearAppState);
+
 	public override Task LaunchApp()
 		=> Driver.LaunchApp();
 
