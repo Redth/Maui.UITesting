@@ -230,7 +230,10 @@ public class iOSDriver : Driver
 	public override async Task InputText(Element element, string text)
 	{
 		await Tap(element);
-		await idb.hid().SendStream<HIDEvent, HIDResponse>(text.AsHidEvents().ToArray());
+		await Task.Delay(250);
+		var textEvents = text.AsHidEvents().ToArray();
+
+		await idb.hid().SendStream<HIDEvent, HIDResponse>(TimeSpan.FromMilliseconds(100), textEvents);
 	}
 
 	public override Task Back()
