@@ -166,11 +166,25 @@ public class iOSDriver : Driver
 			});
 	}
 
-	public override Task StopApp()
-		=> idb.terminateAsync(new TerminateRequest
+	public override async Task StopApp()
+	{
+		var apps = await idb.list_appsAsync(new ListAppsRequest
 		{
-			BundleId = Configuration.AppId
+			SuppressProcessState = false
 		}).ResponseAsync;
+
+		var thisApp = apps.Apps.FirstOrDefault(a => a.BundleId.Equals(Configuration.AppId, StringComparison.OrdinalIgnoreCase));
+		if (thisApp is not null)
+		{
+			if (thisApp.ProcessState == InstalledAppInfo.Types.AppProcessState.Running)
+			{
+                await idb.terminateAsync(new TerminateRequest
+                {
+                    BundleId = Configuration.AppId
+                }).ResponseAsync;
+            }
+		}
+	}
 
 	public override Task OpenUri(string uri)
 		=> idb.open_urlAsync(new OpenUrlRequest
