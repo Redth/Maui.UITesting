@@ -21,7 +21,7 @@ public static class GrpcExtensions
 	}
 
 	public static Task<TResponse> SendStream<TRequest, TResponse>(this AsyncClientStreamingCall<TRequest, TResponse> call, params TRequest[] requests)
-		=> call.SendStream<TRequest, TResponse>(TimeSpan.Zero, requests);
+		=> call.SendStream<TRequest, TResponse>(TimeSpan.FromMilliseconds(100), requests);
 
 	public static async Task<TResponse> SendStream<TRequest, TResponse>(this AsyncClientStreamingCall<TRequest, TResponse> call, TimeSpan delayBetween, params TRequest[] requests)
 	{
