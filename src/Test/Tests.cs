@@ -27,22 +27,21 @@ namespace Microsoft.Maui.Automation.Test
 		public async Task RunApp()
 		{
 			// Install and launch the app
-			await driver.InstallApp();
-			await driver.LaunchApp();
+			await driver.Start();
 
 			// Find the button by its MAUI AutomationId property
-			var button = await driver.FirstByAutomationId("buttonOne");
+			var button = await driver.First(By.AutomationId("buttonOne"));
 			Assert.NotNull(button);
 
 			// Tap the button to increment the counter
 			await driver.Tap(button);
 
 			// Find the label we expect to have changed
-			var label = await driver.By(e =>
+			var label = await driver.First(e =>
 				e.Type == "Label"
 				&& e.Text.Contains("1"));
 
-			Assert.NotEmpty(label);
+			Assert.NotNull(label);
 		}
 	}
 }
