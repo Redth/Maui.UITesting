@@ -98,7 +98,7 @@ public class AndroidDriver : Driver
 		var forwardResult = Adb.RunCommand("-s", $"\"{Device}\"", "reverse", $"tcp:{port}", $"tcp:{port}")?.GetAllOutput();
 		System.Diagnostics.Debug.WriteLine(forwardResult);
 
-		grpc = new GrpcHost();
+		grpc = new GrpcHost(configuration);
 	}
 
 	readonly GrpcHost grpc;
