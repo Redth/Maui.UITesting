@@ -238,6 +238,15 @@ public class iOSDriver : Driver
 		await idb.hid().SendStream<HIDEvent, HIDResponse>(TimeSpan.FromMilliseconds(100), textEvents);
 	}
 
+	public override async Task ClearText(Element element)
+	{
+		await Tap(element);
+		
+		await Task.Delay(500);
+
+		iOSGrpcTextExtensions.Backspace(element.Text.Length);
+	}
+
 	public override Task Back()
 		=> Task.CompletedTask;
 
@@ -326,6 +335,13 @@ public class iOSDriver : Driver
 
 	public override Task<string[]> Backdoor(string fullyQualifiedTypeName, string staticMethodName, string[] args)
 		=> grpc.Client.Backdoor(Configuration.AutomationPlatform, fullyQualifiedTypeName, staticMethodName, args);
+
+	public override async Task Screenshot(string path)
+	{
+		var response = await idb.screenshotAsync(new ScreenshotRequest());
+		using var stream = File.Create(path);
+		response.ImageData.WriteTo(stream);
+	}
 
 	string UnpackIdb()
 	{

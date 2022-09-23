@@ -51,4 +51,18 @@ public static partial class DriverExtensions
 			await element.Driver.InputText(element, text);
 		return element;
 	}
+
+	public static async Task<Element?> ClearText(this Task<Element?> element, string text)
+	{
+		var e = await element;
+		if (e?.Driver is not null)
+			await e.Driver.ClearText(e);
+		return e;
+	}
+	public static async Task<Element?> ClearText(this Element? element, string text)
+	{
+		if (element?.Driver is not null)
+			await element.Driver.ClearText(element);
+		return element;
+	}
 }

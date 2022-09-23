@@ -27,6 +27,8 @@ namespace Microsoft.Maui.Automation.Driver
 
 		public abstract Task InputText(Element element, string text);
 
+		public abstract Task ClearText(Element element);
+
 		public virtual async Task Start(bool forceReInstall = false, bool clearAppState = false)
 		{
 			await StopApp();
@@ -93,5 +95,6 @@ namespace Microsoft.Maui.Automation.Driver
 
 		public abstract Task<string[]> Backdoor(string fullyQualifiedTypeName, string staticMethodName, string[] args);
 
+		public abstract Task Screenshot(string path);
 	}
 }

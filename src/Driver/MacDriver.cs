@@ -4,7 +4,6 @@ using Microsoft.Extensions.Logging;
 
 namespace Microsoft.Maui.Automation.Driver;
 
-
 public class MacDriver : Driver
 {
 	public MacDriver(IAutomationConfiguration configuration, ILoggerFactory? loggerProvider)
@@ -79,6 +78,9 @@ public class MacDriver : Driver
 	public override Task InputText(Element element, string text)
 		=> grpc.Client.PerformAction(Configuration.AutomationPlatform, Actions.InputText, element.Id, text);
 
+	public override Task ClearText(Element element)
+		=> grpc.Client.PerformAction(Configuration.AutomationPlatform, Actions.ClearText, element.Id);
+
 	public override Task Back()
 		=> Task.CompletedTask;
 
@@ -111,6 +113,11 @@ public class MacDriver : Driver
 
 	public override Task<string[]> Backdoor(string fullyQualifiedTypeName, string staticMethodName, string[] args)
 		=> grpc.Client.Backdoor(Configuration.AutomationPlatform, fullyQualifiedTypeName, staticMethodName, args);
+
+	public override Task Screenshot(string path)
+	{
+		return Task.CompletedTask;
+	}
 
 	public override async void Dispose()
 	{

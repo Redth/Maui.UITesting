@@ -42,6 +42,9 @@ public class AppDriver : Driver
 	public override Task InputText(Element element, string text)
 		=> Driver.InputText(element, text);
 
+	public override Task ClearText(Element element)
+		=> Driver.ClearText(element);
+
 	public override Task InstallApp()
 		=> Driver.InstallApp();
 
@@ -92,4 +95,7 @@ public class AppDriver : Driver
 
 	public override Task<IEnumerable<Element>> GetElements()
 		=> Driver.GetElements();
+
+	public override Task Screenshot(string path)
+		=> Driver.Screenshot(path);
 }

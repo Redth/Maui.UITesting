@@ -71,6 +71,16 @@ public static class iOSGrpcTextExtensions
 			Press = press
 		};
 
+	public static IEnumerable<HIDEvent> Backspace(int count)
+	{
+		var r = new List<HIDEvent>();
+
+		for (int i = 0; i < count; i++)
+			r.AddRange(42UL.AsHidEvents());
+
+		return r;
+	}
+
 	public static IEnumerable<HIDEvent> AsHidEvents(this char c)
 		=> c switch
 		{

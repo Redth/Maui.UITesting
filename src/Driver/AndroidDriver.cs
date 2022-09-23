@@ -6,7 +6,6 @@ namespace Microsoft.Maui.Automation.Driver;
 
 public class AndroidDriver : Driver
 {
-
 	public static class ConfigurationKeys
 	{
 		public const string AndroidSdkRoot = "Android:AndroidSdkRoot";
@@ -201,6 +200,19 @@ public class AndroidDriver : Driver
 		}
 	}
 
+	public override async Task ClearText(Element element)
+	{
+		await Tap(element);
+
+		await Task.Delay(500);
+
+		// 67 is backspace
+		var deletes = string.Join(" ", Enumerable.Repeat("67", element.Text.Length));
+
+		// Move cursor to end of text
+		Shell($"input keyevent {deletes}");
+	}
+
 	public override Task KeyPress(char keyCode)
 	{
 		// Enter = 66
@@ -312,6 +324,13 @@ public class AndroidDriver : Driver
 
 	public override Task<string[]> Backdoor(string fullyQualifiedTypeName, string staticMethodName, string[] args)
 		=> grpc.Client.Backdoor(Configuration.AutomationPlatform, fullyQualifiedTypeName, staticMethodName, args);
+
+	public override Task Screenshot(string path)
+	{
+		WrapAdbTool(() =>
+			Adb.ScreenCapture(new FileInfo(path), Device));
+		return Task.CompletedTask;
+	}
 
 	public override async void Dispose()
 	{

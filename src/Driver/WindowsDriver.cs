@@ -87,6 +87,23 @@ namespace Microsoft.Maui.Automation.Driver
 			Session.Value.Keyboard.SendKeys(text);
 		}
 
+		public override Task ClearText(Element element)
+		{
+			try
+			{
+				var winElement = Session.Value.FindElementByAccessibilityId(element.AutomationId);
+
+				if (winElement is not null)
+				{
+					winElement.Clear();
+					return Task.CompletedTask;
+				}
+			}
+			catch { }
+
+			return Task.CompletedTask;
+		}
+
 		public override Task ClearAppState()
 		{
 			Session.Value.ResetApp();
@@ -251,6 +268,12 @@ namespace Microsoft.Maui.Automation.Driver
 
 		public override Task<string[]> Backdoor(string fullyQualifiedTypeName, string staticMethodName, string[] args)
 			=> grpc.Client.Backdoor(Configuration.AutomationPlatform, fullyQualifiedTypeName, staticMethodName, args);
+
+		public override Task Screenshot(string path)
+		{
+			Session.Value.GetScreenshot().SaveAsFile(path);
+			return Task.CompletedTask;
+		}
 
 		public override async void Dispose()
 		{

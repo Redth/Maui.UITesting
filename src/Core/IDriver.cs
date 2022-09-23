@@ -38,6 +38,8 @@
 
 		Task InputText(Element element, string text);
 
+		Task ClearText(Element element);
+
 		Task OpenUri(string uri);
 
 		Task<IEnumerable<Element>> GetElements();
@@ -48,5 +50,6 @@
 
 		Task<string[]> Backdoor(string fullyQualifiedTypeName, string staticMethodName, string[] args);
 
+		Task Screenshot(string path);
 	}
 }
