@@ -1,4 +1,4 @@
-﻿using Google.Protobuf.WellKnownTypes;
+﻿using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Automation.Remote;
 using OpenQA.Selenium.Appium.Interactions;
 using OpenQA.Selenium.Appium.Windows;
@@ -13,8 +13,11 @@ namespace Microsoft.Maui.Automation.Driver
 			public const string WinAppDriverExePath = "windows-winappdriver-exe-path";
 		}
 
-		public WindowsDriver(IAutomationConfiguration configuration) : base(configuration)
+		public WindowsDriver(IAutomationConfiguration configuration, ILoggerFactory? loggerProvider)
+			: base(configuration, loggerProvider)
 		{
+			appDriverLogger = LoggerFactory.CreateLogger("winappdriver");
+
 			var appFile = configuration.AppFilename;
 
 			if (string.IsNullOrEmpty(configuration.AppId))
@@ -39,26 +42,21 @@ namespace Microsoft.Maui.Automation.Driver
 				throw new FileNotFoundException("Unable to locate WinAppDriver.exe, please install from: https://github.com/Microsoft/WinAppDriver");
 
 			appDriverProcess = null;
-			appDriverProcess = new ProcessRunner(appDriverPath, Array.Empty<string>(), CancellationToken.None, true);
-			// appDriverProcess.OutputLine += AppDriverProcess_OutputLine;
+			appDriverProcess = new ProcessRunner(appDriverLogger, appDriverPath, Array.Empty<string>(), CancellationToken.None, true);
 			
 			var appCapabilities = new DesiredCapabilities();
 			appCapabilities.SetCapability("app", configuration.AppId);
 			appCapabilities.SetCapability("platformName", "Windows");
 			appCapabilities.SetCapability("platformVersion", "1.0");
 
-			grpc = new GrpcHost(configuration);
+			grpc = new GrpcHost(configuration, LoggerFactory);
 
 			Session = new Lazy<WindowsDriver<WindowsElement>>(() =>
 				new WindowsDriver<WindowsElement>(new Uri("http://127.0.0.1:4723"), appCapabilities));
 		}
 
-		private void AppDriverProcess_OutputLine(object? sender, string e)
-		{
-			Console.WriteLine(e);
-		}
-
 		readonly ProcessRunner? appDriverProcess;
+		readonly ILogger appDriverLogger;
 
 		readonly Lazy<WindowsDriver<WindowsElement>> Session;
 

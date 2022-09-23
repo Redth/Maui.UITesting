@@ -1,26 +1,18 @@
-﻿using AndroidSdk;
-using Grpc.Net.Client;
+﻿using Grpc.Net.Client;
 using Microsoft.Maui.Automation.Remote;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.NetworkInformation;
-using System.Text;
-using System.Threading.Tasks;
 using Idb;
-using Grpc.Core;
-using System.ComponentModel;
-using System.IO;
 using System.Diagnostics;
-using System.Drawing;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.Maui.Automation.Driver;
 
 public class iOSDriver : Driver
 {
-	public iOSDriver(IAutomationConfiguration configuration) : base(configuration)
+	public iOSDriver(IAutomationConfiguration configuration, ILoggerFactory? loggerProvider)
+		: base(configuration, loggerProvider)
 	{
+		idbLogger = LoggerFactory.CreateLogger("idb");
+
 		var port = configuration.AppAgentPort;
 		var address = configuration.AppAgentAddress;
 
@@ -34,12 +26,10 @@ public class iOSDriver : Driver
 
 		idbCompanionPath = UnpackIdb();
 
-		idbCompanionProcess = new ProcessRunner(idbCompanionPath, $"--boot {configuration.Device}");
+		idbCompanionProcess = new ProcessRunner(idbLogger, idbCompanionPath, $"--boot {configuration.Device}");
 		var bootResult = idbCompanionProcess.WaitForExit();
-		Console.WriteLine(bootResult.GetAllOutput());
 
-
-		idbCompanionProcess = new ProcessRunner(idbCompanionPath, $"--udid {configuration.Device}");
+		idbCompanionProcess = new ProcessRunner(idbLogger, idbCompanionPath, $"--udid {configuration.Device}");
 
 		// Sleep until idb exited or started
 		while (true)
@@ -63,7 +53,7 @@ public class iOSDriver : Driver
 
 		Name = $"iOS ({configuration.Device} [{Udid}])";
 
-		grpc = new GrpcHost(configuration);
+		grpc = new GrpcHost(configuration, LoggerFactory);
 	}
 
 	public readonly string Udid;
@@ -72,6 +62,8 @@ public class iOSDriver : Driver
 	readonly GrpcHost grpc;
 	readonly string idbCompanionPath;
 	readonly ProcessRunner idbCompanionProcess;
+
+	readonly ILogger idbLogger;
 
 	public override string Name { get; }
 

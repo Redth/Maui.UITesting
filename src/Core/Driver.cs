@@ -1,11 +1,17 @@
-﻿namespace Microsoft.Maui.Automation.Driver
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
+
+namespace Microsoft.Maui.Automation.Driver
 {
 	public abstract class Driver : IDriver
 	{
-		public Driver(IAutomationConfiguration configuration)
+		public Driver(IAutomationConfiguration configuration, ILoggerFactory? loggerFactory = null)
 		{
 			Configuration = configuration;
+			LoggerFactory = loggerFactory ?? NullLoggerFactory.Instance;
 		}
+
+		public readonly ILoggerFactory LoggerFactory;
 
 		public abstract string Name { get; }
 		

@@ -4,14 +4,17 @@ using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Maui.Automation.Driver;
 
 namespace Microsoft.Maui.Automation.Remote;
 
 public class GrpcHost
 {
-	public GrpcHost(IAutomationConfiguration configuration)
+	public GrpcHost(IAutomationConfiguration configuration, ILoggerFactory? loggerFactory)
 	{
+		LoggerFactory = loggerFactory ?? NullLoggerFactory.Instance;
+
 		var builder = CreateHostBuilder(this, configuration);
 
 		host = builder.Build();
@@ -23,19 +26,20 @@ public class GrpcHost
 
 	public readonly GrpcRemoteAppClient Client;
 
+	public readonly ILoggerFactory LoggerFactory;
 	readonly IWebHost host;
 
 	public readonly IServiceProvider Services;
-
-	public ILogger<GrpcHost> Logger => Services.GetRequiredService<ILogger<GrpcHost>>();
 
 	public static IWebHostBuilder CreateHostBuilder(GrpcHost grpcHost, IAutomationConfiguration configuration)
 	{
 		var builder = new WebHostBuilder()
 			.ConfigureLogging(log =>
 			{
+				log.ClearProviders();
+
 				if (configuration.Get(ConfigurationKeys.GrpcHostLoggingEnabled, false))
-					log.AddConsole();
+					log.AddProvider(new LoggerFactoryInstanceLoggerProvider(grpcHost.LoggerFactory));
 			})
 			.UseKestrel(kestrel =>
 			{
@@ -66,4 +70,21 @@ public class GrpcHost
 
 	public Task Stop()
 		=> host?.StopAsync() ?? Task.CompletedTask;
+}
+
+internal class LoggerFactoryInstanceLoggerProvider : ILoggerProvider
+{
+	public LoggerFactoryInstanceLoggerProvider(ILoggerFactory loggerFactory)
+	{
+		LoggerFactory = loggerFactory;
+	}
+
+	public readonly ILoggerFactory LoggerFactory;
+
+	public ILogger CreateLogger(string categoryName)
+		=> LoggerFactory.CreateLogger(categoryName);
+
+	public void Dispose()
+	{
+	}
 }

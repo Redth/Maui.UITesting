@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Diagnostics;
 
 namespace Microsoft.Maui.Automation.Driver;
@@ -8,13 +9,15 @@ internal class ProcessRunner
 	readonly List<string> standardOutput;
 	readonly List<string> standardError;
 	readonly Process process;
+	readonly ILogger logger;
 
-	public ProcessRunner(string executable, params string[] args)
-		: this(executable, args, System.Threading.CancellationToken.None)
+	public ProcessRunner(ILogger logger, string executable, params string[] args)
+		: this(logger, executable, args, System.Threading.CancellationToken.None)
 	{ }
 
-	public ProcessRunner(string executable, string[] args, System.Threading.CancellationToken cancelToken, bool redirectStandardInput = false)
+	public ProcessRunner(ILogger logger, string executable, string[] args, System.Threading.CancellationToken cancelToken, bool redirectStandardInput = false)
 	{
+		this.logger = logger;
 		standardOutput = new List<string>();
 		standardError = new List<string>();
 
@@ -32,16 +35,18 @@ internal class ProcessRunner
 
 		process.OutputDataReceived += (s, e) =>
 		{
-			if (e.Data != null)
+			if (!string.IsNullOrWhiteSpace(e.Data) && !e.Data.Equals("\0"))
 			{
+				logger.LogInformation(e.Data);
 				standardOutput.Add(e.Data);
 				OutputLine?.Invoke(this, e.Data);
 			}
 		};
 		process.ErrorDataReceived += (s, e) =>
 		{
-			if (e.Data != null)
+			if (!string.IsNullOrWhiteSpace(e.Data) && !e.Data.Equals("\0"))
 			{
+				logger.LogError(e.Data);
 				standardError.Add(e.Data);
 				OutputLine?.Invoke(this, e.Data);
 			}

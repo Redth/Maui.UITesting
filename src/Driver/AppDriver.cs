@@ -1,19 +1,20 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 
 namespace Microsoft.Maui.Automation.Driver;
 
 public class AppDriver : Driver
 {
-	public AppDriver(IAutomationConfiguration configuration)
-		: base(configuration)
+	public AppDriver(IAutomationConfiguration configuration, ILoggerFactory? loggerProvider = null)
+		: base(configuration, loggerProvider)
 	{
 		Driver = configuration.DevicePlatform switch
 		{
-			Platform.Android => new AndroidDriver(configuration),
-			Platform.Ios => new iOSDriver(configuration),
-			Platform.Tvos => new iOSDriver(configuration),
-			Platform.Maccatalyst => new MacDriver(configuration),
-			Platform.Winappsdk => new WindowsDriver(configuration),
+			Platform.Android => new AndroidDriver(configuration, loggerProvider),
+			Platform.Ios => new iOSDriver(configuration, loggerProvider),
+			Platform.Tvos => new iOSDriver(configuration, loggerProvider),
+			Platform.Maccatalyst => new MacDriver(configuration, loggerProvider),
+			Platform.Winappsdk => new WindowsDriver(configuration, loggerProvider),
 			_ => throw new NotSupportedException($"Unsupported Device Platform: '{configuration.DevicePlatform}'")
 		};
 	}

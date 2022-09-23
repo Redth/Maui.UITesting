@@ -1,13 +1,8 @@
-﻿using System;
-using System.IO;
-using System.IO.Compression;
+﻿using System.IO.Compression;
 using System.Reflection;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
-using System.Xml.XPath;
 using Claunia.PropertyList;
-using Newtonsoft.Json.Linq;
 using SharpCompress.Readers;
 
 namespace Microsoft.Maui.Automation.Driver

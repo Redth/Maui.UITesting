@@ -16,7 +16,12 @@ using System.Net;
 var driver = new AppDriverBuilder()
 	.AppId("D05ADD49-B96D-49E5-979C-FA3A3F42F8E0_yn9kjvr01ms9j!App")
 	.DevicePlatform(Platform.Winappsdk)
-	.Configure(c => c.Set(ConfigurationKeys.GrpcHostLoggingEnabled, true))
+	.ConfigureLogging(log =>
+	{
+		log.ClearProviders();
+		log.AddConsole();
+	})
+	.ConfigureDriver(c => c.Set(ConfigurationKeys.GrpcHostLoggingEnabled, true))
 	.Build();
 
 Task<string?>? readTask = null;

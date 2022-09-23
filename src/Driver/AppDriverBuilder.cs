@@ -1,4 +1,7 @@
-﻿namespace Microsoft.Maui.Automation.Driver;
+﻿using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+
+namespace Microsoft.Maui.Automation.Driver;
 
 public class AppDriverBuilder
 {
@@ -22,17 +25,22 @@ public class AppDriverBuilder
 
 	public readonly IAutomationConfiguration Configuration;
 
+	readonly IHostBuilder HostBuilder;
+	IHost? Host;
+
 	public AppDriverBuilder()
 	{
+		HostBuilder = Extensions.Hosting.Host.CreateDefaultBuilder();
 		Configuration = new AutomationConfiguration();
 	}
 
 	public AppDriverBuilder(IAutomationConfiguration configuration)
 	{
+		HostBuilder = Extensions.Hosting.Host.CreateDefaultBuilder();
 		Configuration = configuration;
 	}
 
-	public AppDriverBuilder Configure(Action<IAutomationConfiguration> configuration)
+	public AppDriverBuilder ConfigureDriver(Action<IAutomationConfiguration> configuration)
 	{
 		configuration(Configuration);
 		return this;
@@ -68,6 +76,17 @@ public class AppDriverBuilder
 		return this;
 	}
 
+	public AppDriverBuilder ConfigureLogging(Action<ILoggingBuilder> configure)
+	{
+		HostBuilder.ConfigureLogging(configure);
+		return this;
+	}
+
 	public IDriver Build()
-		=> new AppDriver(Configuration);
+	{
+		Host = HostBuilder.Build();
+
+		return new AppDriver(Configuration,
+			Host.Services.GetService(typeof(ILoggerFactory)) as ILoggerFactory);
+	}
 }

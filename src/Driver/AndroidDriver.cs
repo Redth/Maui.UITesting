@@ -1,20 +1,21 @@
 ﻿using AndroidSdk;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Automation.Remote;
-using System.Text.RegularExpressions;
 
 namespace Microsoft.Maui.Automation.Driver;
 
 public class AndroidDriver : Driver
 {
-	public AndroidDriver(IAutomationConfiguration configuration) : base(configuration)
+	public AndroidDriver(IAutomationConfiguration configuration, ILoggerFactory? loggerFactory = null)
+		: base(configuration, loggerFactory)
 	{
+		adbLogger = LoggerFactory.CreateLogger("adb");
+
 		if (string.IsNullOrEmpty(configuration.AppId))
 			configuration.AppId = AppUtil.GetPackageId(configuration.AppFilename)
 				?? throw new Exception("AppId not found");
 
 		int port = 5000;
-		//var address = IPAddress.Any.ToString();
 		var adbDeviceSerial = configuration.Device;
 
 		androidSdkManager = new AndroidSdkManager();
@@ -25,7 +26,9 @@ public class AndroidDriver : Driver
 
 		deviceInfo = new Lazy<Task<IDeviceInfo>>(GetDeviceInfo);
 
-		var adbDevices = Adb.GetDevices();
+		List<Adb.AdbDevice> adbDevices = new();
+
+		WrapAdbTool(() => adbDevices = Adb.GetDevices());
 		var foundDevice = false;
 
 		// Use first if none were specified
@@ -72,17 +75,20 @@ public class AndroidDriver : Driver
 			// If still not found, let's look for a non-running avd with this name
 			if (!foundDevice)
 			{
-				var avds = Emulator.ListAvds();
-				foreach (var avd in avds)
+				WrapAdbTool(() =>
 				{
-					if (avd.Equals(adbDeviceSerial, StringComparison.OrdinalIgnoreCase))
+					var avds = Emulator.ListAvds();
+					foreach (var avd in avds)
 					{
-						AdbDeviceName = avd;
-						emulatorProcess = Emulator.Start(avd);
-						emulatorProcess.WaitForBootComplete(TimeSpan.FromSeconds(120));
-						adbDeviceSerial = emulatorProcess.Serial;
+						if (avd.Equals(adbDeviceSerial, StringComparison.OrdinalIgnoreCase))
+						{
+							emulatorProcess = Emulator.Start(avd);
+							emulatorProcess.WaitForBootComplete(TimeSpan.FromSeconds(120));
+							adbDeviceSerial = emulatorProcess.Serial;
+							break;
+						}
 					}
-				}
+				});
 			}
 		}
 
@@ -95,10 +101,10 @@ public class AndroidDriver : Driver
 
 		Name = $"Android ({AdbDeviceName})";
 
-		var forwardResult = Adb.RunCommand("-s", $"\"{Device}\"", "reverse", $"tcp:{port}", $"tcp:{port}")?.GetAllOutput();
-		System.Diagnostics.Debug.WriteLine(forwardResult);
+		WrapAdbTool(() => 
+			Adb.RunCommand("-s", $"\"{Device}\"", "reverse", $"tcp:{port}", $"tcp:{port}"));
 
-		grpc = new GrpcHost(configuration);
+		grpc = new GrpcHost(configuration, LoggerFactory);
 	}
 
 	readonly GrpcHost grpc;
@@ -107,10 +113,11 @@ public class AndroidDriver : Driver
 	protected readonly AndroidSdk.PackageManager Pm;
 	protected readonly AndroidSdk.AvdManager Avd;
 	protected readonly AndroidSdk.Emulator Emulator;
+	protected readonly ILogger adbLogger;
 
 	readonly AndroidSdk.AndroidSdkManager androidSdkManager;
 
-	readonly AndroidSdk.Emulator.AndroidEmulatorProcess? emulatorProcess;
+	AndroidSdk.Emulator.AndroidEmulatorProcess? emulatorProcess;
 
 	protected readonly string Device;
 
@@ -124,7 +131,7 @@ public class AndroidDriver : Driver
 
 	public override Task Back()
 	{
-		Adb.Shell($"input keyevent 4", Device);
+		Shell($"input keyevent 4");
 		return Task.CompletedTask;
 	}
 
@@ -133,33 +140,28 @@ public class AndroidDriver : Driver
 		if (!IsAppInstalled())
 			return Task.CompletedTask;
 
-		Adb.Shell($"pm clear {AppId}", Device);
+		Shell($"pm clear {AppId}");
 		return Task.CompletedTask;
 	}
 
 	public override Task InstallApp()
 	{
-		try
-		{
-			Adb.Install(new System.IO.FileInfo(Configuration.AppFilename ?? throw new FileNotFoundException()), Device);
-		}
-		catch (SdkToolFailedExitException adbException)
-		{
-			throw adbException;
-		}
+		WrapAdbTool(() => 
+			Adb.Install(new System.IO.FileInfo(Configuration.AppFilename ?? throw new FileNotFoundException()), Device));
 		return Task.CompletedTask;
 	}
 
 	public override Task RemoveApp()
 	{
-		Adb.Uninstall(AppId, false, Device);
+		WrapAdbTool(() =>
+			Adb.Uninstall(AppId, false, Device));
 		return Task.CompletedTask;
 	}
 
 	public override Task<IDeviceInfo> GetDeviceInfo()
 	{
-		var density = new RegexParser(Shell("wm density"), @":\s+(?<density>[0-9]+)").GetGroup("density", 1);
-		var rxSize = new RegexParser(Shell("wm size"), @":\s+(?<width>[0-9]+)x(?<height>[0-9]+)");
+		var density = new RegexParser(Shell("wm density")?.FirstOrDefault() ?? ": 1", @":\s+(?<density>[0-9]+)").GetGroup("density", 1);
+		var rxSize = new RegexParser(Shell("wm size")?.FirstOrDefault() ?? ": 0x0", @":\s+(?<width>[0-9]+)x(?<height>[0-9]+)");
 
 		return Task.FromResult<IDeviceInfo>(new DeviceInfo(
 			(ulong)rxSize.GetGroup("width", 1),
@@ -170,7 +172,7 @@ public class AndroidDriver : Driver
 	public override async Task InputText(Element element, string text)
 	{
 		// Hide keyboard first
-		Adb.Shell($"input keyevent 111", Device);
+		Shell($"input keyevent 111");
 		
 		// Tap the element to focus it
 		await Tap(element);
@@ -182,8 +184,8 @@ public class AndroidDriver : Driver
 		// If you do it all at once, sometimes it gets jumbled up
 		foreach (var c in text)
 		{
-			Adb.Shell($"input text {c}", Device);
-			Thread.Sleep(100);
+			Shell($"input text {c}");
+			await Task.Delay(100);
 		}
 	}
 
@@ -213,25 +215,25 @@ public class AndroidDriver : Driver
 		if (code <= 0)
 			throw new ArgumentOutOfRangeException(nameof(keyCode), "Unknown KeyCode");
 
-		Adb.Shell($"input keyevent {code}", Device);
+		Shell($"input keyevent {code}");
 		return Task.CompletedTask;
 	}
 
 	public override Task LaunchApp()
 	{
 		// First force stop existing
-		Adb.Shell($"am force-stop {AppId}", Device);
+		Shell($"am force-stop {AppId}");
 
 		// Launch app's activity
-		Adb.Shell($"monkey -p {AppId} -c android.intent.category.LAUNCHER 1", Device);
-		//Adb.Shell($"monkey --pct-syskeys 0 -p {appId} 1", Device);
+		Shell($"monkey -p {AppId} -c android.intent.category.LAUNCHER 1");
+		//Shell($"monkey --pct-syskeys 0 -p {appId} 1");
 		return Task.CompletedTask;
 	}
 
 	public override Task LongPress(int x, int y)
 	{
 		// Use a swipe that doesn't move as long press
-		Adb.Shell($"input swipe {x} {y} {x} {y} 3000", Device);
+		Shell($"input swipe {x} {y} {x} {y} 3000");
 		return Task.CompletedTask;
 	}
 
@@ -240,7 +242,7 @@ public class AndroidDriver : Driver
 
 	public override Task OpenUri(string uri)
 	{
-		Adb.Shell($"am start -d {uri}", Device);
+		Shell($"am start -d {uri}");
 		return Task.CompletedTask;
 	}
 
@@ -248,31 +250,33 @@ public class AndroidDriver : Driver
 	{
 		// Force the app to stop
 		// am force-stop $appId"
-		Adb.Shell($"am force-stop {AppId}", Device);
+		Shell($"am force-stop {AppId}");
 		return Task.CompletedTask;
 	}
 
 	public override Task PushFile(string localFile, string destinationDirectory)
 	{
-		Adb.Push(new System.IO.FileInfo(localFile), new System.IO.DirectoryInfo(destinationDirectory), Device);
+		WrapAdbTool(() =>
+			Adb.Push(new System.IO.FileInfo(localFile), new System.IO.DirectoryInfo(destinationDirectory), Device));
 		return Task.CompletedTask;
 	}
 
 	public override Task PullFile(string remoteFile, string localDirectory)
 	{
-		Adb.Pull(new System.IO.FileInfo(remoteFile), new System.IO.DirectoryInfo(localDirectory), Device);
+		WrapAdbTool(() =>
+			Adb.Pull(new System.IO.FileInfo(remoteFile), new System.IO.DirectoryInfo(localDirectory), Device));
 		return Task.CompletedTask;
 	}
 
 	public override Task Swipe((int x, int y) start, (int x, int y) end)
 	{
-		Adb.Shell($"input swipe {start.x} {start.y} {end.x} {end.y} 2000", Device);
+		Shell($"input swipe {start.x} {start.y} {end.x} {end.y} 2000");
 		return Task.CompletedTask;
 	}
 
 	public override Task Tap(int x, int y)
 	{
-		Adb.Shell($"input tap {x} {y}", Device);
+		Shell($"input tap {x} {y}");
 		return Task.CompletedTask;
 	}
 
@@ -281,7 +285,7 @@ public class AndroidDriver : Driver
 
 
 	bool IsAppInstalled()
-		=> androidSdkManager.PackageManager.ListPackages()
+		=> Pm.ListPackages()
 			.Any(p => p.PackageName?.Equals(AppId, StringComparison.OrdinalIgnoreCase) ?? false);
 
 
@@ -315,7 +319,7 @@ public class AndroidDriver : Driver
 			return null;
 		try
 		{
-			return Adb.GetDeviceName(serial);
+			return WrapAdbTool(() => Adb.GetDeviceName(serial))?.FirstOrDefault();
 		}
 		catch
 		{
@@ -323,6 +327,44 @@ public class AndroidDriver : Driver
 		}
 	}
 
-	string Shell(string command)
-		=> string.Join(Environment.NewLine, Adb.Shell(command, Device));
+	IEnumerable<string> Shell(string command)
+		=> WrapAdbTool(() => Adb.Shell(command, Device));
+
+	IEnumerable<string> WrapAdbTool(Func<string> cmd)
+		=> WrapAdbTool(() => new string[] { cmd() });
+
+	IEnumerable<string> WrapAdbTool(Action cmd)
+		=> WrapAdbTool(() => {
+			cmd();
+			return Array.Empty<string>();
+		});
+
+	IEnumerable<string> WrapAdbTool(Func<AndroidSdk.ProcessResult> cmd)
+		=> WrapAdbTool(() =>
+			cmd().StandardOutput);
+
+	IEnumerable<string> WrapAdbTool(Func<IEnumerable<string>> cmd)
+	{
+		try
+		{
+			var lines = cmd();
+
+			foreach (var o in lines)
+				adbLogger.LogInformation(o);
+
+			return lines;
+		}
+		catch (SdkToolFailedExitException toolException)
+		{
+			foreach (var o in toolException.StdOut)
+				adbLogger.LogInformation(o);
+
+			adbLogger.LogError(toolException.Message);
+
+			foreach (var o in toolException.StdErr)
+				adbLogger.LogError(o);
+
+			throw toolException;
+		}
+	}
 }

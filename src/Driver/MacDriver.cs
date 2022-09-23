@@ -1,26 +1,14 @@
-﻿using AndroidSdk;
-using Grpc.Net.Client;
-using Microsoft.Maui.Automation.Remote;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.NetworkInformation;
-using System.Text;
-using System.Threading.Tasks;
-using Idb;
-using Grpc.Core;
-using System.ComponentModel;
-using System.IO;
+﻿using Microsoft.Maui.Automation.Remote;
 using System.Diagnostics;
-using System.Drawing;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.Maui.Automation.Driver;
 
 
 public class MacDriver : Driver
 {
-	public MacDriver(IAutomationConfiguration configuration) : base(configuration)
+	public MacDriver(IAutomationConfiguration configuration, ILoggerFactory? loggerProvider)
+		: base(configuration, loggerProvider)
 	{
 		var port = configuration.AppAgentPort;
 		var address = configuration.AppAgentAddress;
@@ -32,20 +20,10 @@ public class MacDriver : Driver
 			Configuration.AppId = AppUtil.GetBundleIdentifier(Configuration.AppFilename)
 				?? throw new Exception("AppId not found");
 
-        //var channel = GrpcChannel.ForAddress($"http://{address}:10882");
-        //idb = new Idb.CompanionService.CompanionServiceClient(channel);
-
-        //var connectResponse = idb.connect(new Idb.ConnectRequest());
-        //Udid = connectResponse.Companion.Udid;
-
-        grpc = new GrpcHost(configuration);
+		grpc = new GrpcHost(configuration, LoggerFactory);
 	}
 
-    //public readonly string Udid;
-
 	readonly GrpcHost grpc;
-
-    //readonly CompanionService.CompanionServiceClient idb;
 
 	public override string Name { get; }
 
@@ -102,13 +80,6 @@ public class MacDriver : Driver
 		return Task.CompletedTask;
 	}
 
-
-	//public override async Task InputText(Element element, string text)
-	//{
-	//    await Tap(element);
-	//    await idb.hid().SendStream<HIDEvent, HIDResponse>(text.AsHidEvents().ToArray());
-	//}
-
 	public override Task InputText(Element element, string text)
 		=> grpc.Client.PerformAction(Configuration.AutomationPlatform, Actions.InputText, element.Id, text);
 
@@ -144,7 +115,6 @@ public class MacDriver : Driver
 
 	public override Task<string[]> Backdoor(string fullyQualifiedTypeName, string staticMethodName, string[] args)
 		=> grpc.Client.Backdoor(Configuration.AutomationPlatform, fullyQualifiedTypeName, staticMethodName, args);
-
 
 	public override async void Dispose()
 	{
