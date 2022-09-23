@@ -275,7 +275,7 @@ public class iOSDriver : Driver
 		await idb.hid().SendStream(
 			holdDelay,
 			new[] {
-					new HIDEvent
+				new HIDEvent
 				{
 					Press = new HIDEvent.Types.HIDPress
 					{
@@ -287,7 +287,7 @@ public class iOSDriver : Driver
 				{
 					Press = new HIDEvent.Types.HIDPress
 					{
-                        Action = action,
+                        Action = pressAction,
                         Direction = HIDEvent.Types.HIDDirection.Up
 					}
 				}
