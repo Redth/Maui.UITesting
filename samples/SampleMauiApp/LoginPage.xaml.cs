@@ -23,7 +23,8 @@ public partial class LoginPage : ContentPage
 		}
 		else
 		{
-			success = username == "xamarin" && password == "1234";
+			success = username.Equals("xamarin", StringComparison.InvariantCultureIgnoreCase)
+				&& password == "1234";
 		}
 
         entryUsername.IsEnabled = entryPassword.IsEnabled = true;
