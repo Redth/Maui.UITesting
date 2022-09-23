@@ -243,17 +243,20 @@ public class iOSDriver : Driver
 		=> idb.hid().SendStream<HIDEvent, HIDResponse>(keyCode.AsHidEvents().ToArray());
 
 	public override Task Tap(int x, int y)
-		=> press(x, y, TimeSpan.FromMilliseconds(50));
+		=> press(x, y, TimeSpan.FromMilliseconds(100));
 
 	public override Task Tap(Element element)
-		=> grpc.Client.PerformAction(Configuration.AutomationPlatform, Actions.Tap, element.Id);
-
+		=> Tap(
+			(int)((element.WindowFrame.X + (element.WindowFrame.Width / 2))),
+			(int)((element.WindowFrame.Y + (element.WindowFrame.Height / 2))));
 
 	public override Task LongPress(int x, int y)
 		=> press(x, y, TimeSpan.FromSeconds(3));
 
 	public override Task LongPress(Element element)
-			=> Tap(element);
+			=> press(
+				(int)((element.WindowFrame.X + (element.WindowFrame.Width / 2))),
+				(int)((element.WindowFrame.Y + (element.WindowFrame.Height / 2))), TimeSpan.FromSeconds(3));
 
 	async Task press(int x, int y, TimeSpan holdDelay)
 	{
@@ -284,8 +287,8 @@ public class iOSDriver : Driver
 				{
 					Press = new HIDEvent.Types.HIDPress
 					{
-						Action = pressAction,
-						Direction = HIDEvent.Types.HIDDirection.Down
+                        Action = action,
+                        Direction = HIDEvent.Types.HIDDirection.Up
 					}
 				}
 			});
