@@ -49,14 +49,19 @@ internal static class iOSExtensions
 
 	public static Element GetElement(this UIKit.UIView uiView, IApplication application, string parentId = "", int currentDepth = -1, int maxDepth = -1)
 	{
+		var scale = uiView.Window?.Screen?.NativeScale.Value ?? 1.0f;
+
 		var viewFrame = uiView.Frame.ToFrame();
-		var windowFrame = uiView.Window.ConvertRectToView(uiView.Frame, null).ToFrame();
-		
+        var windowFrame = uiView.ConvertRectToView(uiView.Bounds, uiView.Window).ToFrame();
+
+#if MACCATALYST
 		var nsWindow = UINSWindow.From(uiView.Window);
 		var screenFrame = nsWindow.ConvertRectToScreen(uiView.Frame).ToFrame();
+#else
+        var screenFrame = UIAccessibility.ConvertFrameToScreenCoordinates(uiView.Frame, uiView).ToFrame();
+#endif
 
-
-		var e = new Element(application, Platform.Ios, uiView.Handle.ToString(), uiView, parentId)
+        var e = new Element(application, Platform.Ios, uiView.Handle.ToString(), uiView, parentId)
 		{
 			AutomationId = uiView.AccessibilityIdentifier ?? string.Empty,
 			Visible = !uiView.Hidden,
@@ -65,7 +70,7 @@ internal static class iOSExtensions
 			ViewFrame = viewFrame,
 			WindowFrame = windowFrame,
 			ScreenFrame = screenFrame,
-			Density = uiView.ContentScaleFactor.Value,
+			Density = scale,
 			Text = uiView.GetText() ?? string.Empty
 		};
 
@@ -90,19 +95,26 @@ internal static class iOSExtensions
 
 	public static Element GetElement(this UIWindow window, IApplication application, int currentDepth = -1, int maxDepth = -1)
 	{
-		var nsWindow = UINSWindow.From(window);
+        var scale = window?.Screen?.NativeScale.Value ?? 1.0f;
 
+#if MACCATALYST
+        var nsWindow = UINSWindow.From(window);
+		
 		var viewFrame = window.Frame.ToFrame();
 		var windowFrame = nsWindow.Frame.ToFrame();
 		var screenFrame = nsWindow.ConvertRectToScreen(window.Frame).ToFrame();
-
-		var e = new Element(application, Platform.Ios, window.Handle.ToString(), window)
+#else
+        var viewFrame = window.Frame.ToFrame();
+        var windowFrame = window.Frame.ToFrame();
+        var screenFrame = UIAccessibility.ConvertFrameToScreenCoordinates(window.Frame, window).ToFrame();
+#endif
+        var e = new Element(application, Platform.Ios, window.Handle.ToString(), window)
 		{
 			AutomationId = window.AccessibilityIdentifier ?? window.Handle.ToString(),
 			ViewFrame = viewFrame,
 			WindowFrame	= windowFrame,
 			ScreenFrame = screenFrame,
-			Density = window.ContentScaleFactor.Value,
+			Density = scale,
 			Text = string.Empty
 		};
 
