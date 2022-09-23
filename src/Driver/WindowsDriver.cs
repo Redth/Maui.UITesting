@@ -10,13 +10,16 @@ namespace Microsoft.Maui.Automation.Driver
 	{
 		public static class ConfigurationKeys
 		{
-			public const string WinAppDriverExePath = "windows-winappdriver-exe-path";
+			public const string WinAppDriverExePath = "Windows:WinAppDriverExePath";
+			public const string AutoStartWinAppDriver = "Windows:AutoStartWinAppDriver";
 		}
 
 		public WindowsDriver(IAutomationConfiguration configuration, ILoggerFactory? loggerProvider)
 			: base(configuration, loggerProvider)
 		{
 			appDriverLogger = LoggerFactory.CreateLogger("winappdriver");
+
+			var autoStart = configuration.Get(ConfigurationKeys.AutoStartWinAppDriver, true);
 
 			var appFile = configuration.AppFilename;
 
@@ -31,19 +34,22 @@ namespace Microsoft.Maui.Automation.Driver
 				}
 			}
 
-			var appDriverPath = configuration.Get(ConfigurationKeys.WinAppDriverExePath, null);
+			if (autoStart)
+			{
+				var appDriverPath = configuration.Get(ConfigurationKeys.WinAppDriverExePath, null);
 
-			if (string.IsNullOrEmpty(appDriverPath) || !File.Exists(appDriverPath))
-				appDriverPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Windows Application Driver", "WinAppDriver.exe");
+				if (string.IsNullOrEmpty(appDriverPath) || !File.Exists(appDriverPath))
+					appDriverPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Windows Application Driver", "WinAppDriver.exe");
 
-			if (string.IsNullOrEmpty(appDriverPath) || !File.Exists(appDriverPath))
-				appDriverPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Windows Application Driver", "WinAppDriver.exe");
-			if (string.IsNullOrEmpty(appDriverPath) || !File.Exists(appDriverPath))
-				throw new FileNotFoundException("Unable to locate WinAppDriver.exe, please install from: https://github.com/Microsoft/WinAppDriver");
+				if (string.IsNullOrEmpty(appDriverPath) || !File.Exists(appDriverPath))
+					appDriverPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Windows Application Driver", "WinAppDriver.exe");
+				if (string.IsNullOrEmpty(appDriverPath) || !File.Exists(appDriverPath))
+					throw new FileNotFoundException("Unable to locate WinAppDriver.exe, please install from: https://github.com/Microsoft/WinAppDriver");
 
-			appDriverProcess = null;
-			appDriverProcess = new ProcessRunner(appDriverLogger, appDriverPath, Array.Empty<string>(), CancellationToken.None, true);
-			
+				appDriverProcess = null;
+				appDriverProcess = new ProcessRunner(appDriverLogger, appDriverPath, Array.Empty<string>(), CancellationToken.None, true);
+			}
+
 			var appCapabilities = new DesiredCapabilities();
 			appCapabilities.SetCapability("app", configuration.AppId);
 			appCapabilities.SetCapability("platformName", "Windows");

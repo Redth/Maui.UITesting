@@ -8,13 +8,20 @@ namespace Microsoft.Maui.Automation.Driver;
 
 public class iOSDriver : Driver
 {
+	public static class ConfigurationKeys
+	{
+		public const string IdbCompanionAddress = "iOS:IdbCompanionAddress";
+		public const string IdbCompanionPort = "iOS:IdbCompanionPort";
+		public const string AutoStartIdbCompanion = "iOS:AutoStartIdbCompanion";
+	}
 	public iOSDriver(IAutomationConfiguration configuration, ILoggerFactory? loggerProvider)
 		: base(configuration, loggerProvider)
 	{
 		idbLogger = LoggerFactory.CreateLogger("idb");
 
-		var port = configuration.AppAgentPort;
-		var address = configuration.AppAgentAddress;
+		var idbPort = configuration.Get(ConfigurationKeys.IdbCompanionPort, 10882);
+		var idbAddress = configuration.Get(ConfigurationKeys.IdbCompanionAddress, "127.0.0.1");
+		var idbStart = configuration.Get(ConfigurationKeys.AutoStartIdbCompanion, true);
 
 		ArgumentNullException.ThrowIfNull(configuration.Device);
 
@@ -24,28 +31,31 @@ public class iOSDriver : Driver
 			configuration.AppId = AppUtil.GetBundleIdentifier(configuration.AppFilename)
 				?? throw new Exception("AppId not found");
 
-		idbCompanionPath = UnpackIdb();
-
-		idbCompanionProcess = new ProcessRunner(idbLogger, idbCompanionPath, $"--boot {configuration.Device}");
-		var bootResult = idbCompanionProcess.WaitForExit();
-
-		idbCompanionProcess = new ProcessRunner(idbLogger, idbCompanionPath, $"--udid {configuration.Device}");
-
-		// Sleep until idb exited or started
-		while (true)
+		if (idbStart)
 		{
-			Thread.Sleep(500);
+			idbCompanionPath = UnpackIdb();
 
-			if (idbCompanionProcess.HasExited)
-				throw new Exception("Failed to start idb");
+			idbCompanionProcess = new ProcessRunner(idbLogger, idbCompanionPath, $"--boot {configuration.Device}");
+			var bootResult = idbCompanionProcess.WaitForExit();
 
-			var output = idbCompanionProcess.Output.ToList();
+			idbCompanionProcess = new ProcessRunner(idbLogger, idbCompanionPath, $"--udid {configuration.Device}");
 
-			if (output.Any(s => s?.Contains("\"grpc_swift_port\":10882") ?? false))
-				break;
+			// Sleep until idb exited or started
+			while (true)
+			{
+				Thread.Sleep(500);
+
+				if (idbCompanionProcess.HasExited)
+					throw new Exception("Failed to start idb");
+
+				var output = idbCompanionProcess.Output.ToList();
+
+				if (output.Any(s => s?.Contains($"\"grpc_swift_port\":{idbPort}") ?? false))
+					break;
+			}
 		}
 
-		var channel = GrpcChannel.ForAddress($"http://{address}:10882");
+		var channel = GrpcChannel.ForAddress($"http://{idbAddress}:{idbPort}");
 		idb = new Idb.CompanionService.CompanionServiceClient(channel);
 
 		var connectResponse = idb.connect(new Idb.ConnectRequest());

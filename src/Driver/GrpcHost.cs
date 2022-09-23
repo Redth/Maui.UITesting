@@ -43,7 +43,8 @@ public class GrpcHost
 			})
 			.UseKestrel(kestrel =>
 			{
-				kestrel.ListenAnyIP(5000, listen =>
+				var listenPort = configuration.Get(ConfigurationKeys.GrpcHostListenPort, 5000);
+				kestrel.ListenAnyIP(listenPort, listen =>
 				{
 					listen.Protocols = HttpProtocols.Http2;
 				});

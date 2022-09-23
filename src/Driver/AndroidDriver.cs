@@ -6,6 +6,13 @@ namespace Microsoft.Maui.Automation.Driver;
 
 public class AndroidDriver : Driver
 {
+
+	public static class ConfigurationKeys
+	{
+		public const string AndroidSdkRoot = "Android:AndroidSdkRoot";
+		public const string AutoStartEmulator = "Android:AutoStartEmulator";
+	}
+
 	public AndroidDriver(IAutomationConfiguration configuration, ILoggerFactory? loggerFactory = null)
 		: base(configuration, loggerFactory)
 	{
@@ -15,10 +22,15 @@ public class AndroidDriver : Driver
 			configuration.AppId = AppUtil.GetPackageId(configuration.AppFilename)
 				?? throw new Exception("AppId not found");
 
-		int port = 5000;
+		int port = configuration.Get(Microsoft.Maui.Automation.Driver.ConfigurationKeys.GrpcHostListenPort, 5000);
 		var adbDeviceSerial = configuration.Device;
 
-		androidSdkManager = new AndroidSdkManager();
+		string? androidSdkRoot = configuration.Get(ConfigurationKeys.AndroidSdkRoot, string.Empty);
+		if (!string.IsNullOrEmpty(androidSdkRoot) && Directory.Exists(androidSdkRoot))
+			androidSdkManager = new AndroidSdkManager(new DirectoryInfo(androidSdkRoot));
+		else
+			androidSdkManager = new AndroidSdkManager();
+
 		Adb = androidSdkManager.Adb;
 		Pm = androidSdkManager.PackageManager;
 		Avd = androidSdkManager.AvdManager;

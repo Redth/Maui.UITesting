@@ -10,10 +10,6 @@ public class MacDriver : Driver
 	public MacDriver(IAutomationConfiguration configuration, ILoggerFactory? loggerProvider)
 		: base(configuration, loggerProvider)
 	{
-		var port = configuration.AppAgentPort;
-		var address = configuration.AppAgentAddress;
-
-
 		Name = $"Mac ({configuration.Device})";
 
 		if (string.IsNullOrEmpty(configuration.AppId))

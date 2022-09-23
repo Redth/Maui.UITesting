@@ -6,7 +6,8 @@ namespace Microsoft.Maui.Automation.Driver
 {
 	public static class ConfigurationKeys
 	{
-		public const string GrpcHostLoggingEnabled = "GRPC_HOST_LOGGING_ENABLED";
+		public const string GrpcHostLoggingEnabled = "GrpcHost:LoggingEnabled";
+		public const string GrpcHostListenPort = "GrpcHost:ListenPort";
 	}
 
 	public class AutomationConfiguration : Dictionary<string, object>, IAutomationConfiguration
@@ -185,6 +186,18 @@ namespace Microsoft.Maui.Automation.Driver
 		public void Set(string key, bool defaultValue)
 		{
 			this[key] = defaultValue;
+		}
+
+		public int Get(string key, int defaultValue)
+		{
+			if (TryGetValue(key, out var val) && int.TryParse(val.ToString(), out var v))
+				return v;
+			return defaultValue;
+		}
+
+		public void Set(string key, int value)
+		{
+			this[key] = value.ToString();
 		}
 	}
 }

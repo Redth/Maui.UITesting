@@ -2,9 +2,6 @@
 {
 	public interface IAutomationConfiguration
 	{
-		string? AppAgentAddress { get; set; }
-		int AppAgentPort { get; set; }
-
 		string? Device { get; set; }
 
 		Platform DevicePlatform { get; set; }
@@ -15,10 +12,12 @@
 		string? AppFilename { get; set; }
 
 		string? Get(string key, string? defaultValue);
-
 		void Set(string key, string? value);
 
 		bool Get(string key, bool defaultValue = false);
-		void Set(string key, bool defaultValue);
+		void Set(string key, bool value);
+
+		int Get(string key, int defaultValue);
+		void Set(string key, int value);
 	}
 }
