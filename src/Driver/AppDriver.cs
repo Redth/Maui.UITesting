@@ -96,6 +96,6 @@ public class AppDriver : Driver
 	public override Task<IEnumerable<Element>> GetElements()
 		=> Driver.GetElements();
 
-	public override Task Screenshot(string path)
-		=> Driver.Screenshot(path);
+	public override Task Screenshot(string? filename = null)
+		=> Driver.Screenshot(filename);
 }

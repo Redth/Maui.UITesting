@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Maui.Automation.Driver
+﻿namespace Microsoft.Maui.Automation
 {
 	public interface IAutomationConfiguration
 	{

@@ -269,9 +269,11 @@ namespace Microsoft.Maui.Automation.Driver
 		public override Task<string[]> Backdoor(string fullyQualifiedTypeName, string staticMethodName, string[] args)
 			=> grpc.Client.Backdoor(Configuration.AutomationPlatform, fullyQualifiedTypeName, staticMethodName, args);
 
-		public override Task Screenshot(string path)
+		public override Task Screenshot(string? filename = null)
 		{
-			Session.Value.GetScreenshot().SaveAsFile(path);
+			var fullFilename = base.GetScreenshotFilename(filename);
+
+			Session.Value.GetScreenshot().SaveAsFile(fullFilename);
 			return Task.CompletedTask;
 		}
 

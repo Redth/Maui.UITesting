@@ -95,6 +95,30 @@ namespace Microsoft.Maui.Automation.Driver
 
 		public abstract Task<string[]> Backdoor(string fullyQualifiedTypeName, string staticMethodName, string[] args);
 
-		public abstract Task Screenshot(string path);
+		int screenshotSequence = 0;
+
+		protected string GetScreenshotFilename(string? filename = null)
+		{
+			screenshotSequence++;
+
+			if (string.IsNullOrEmpty(filename))
+				filename = $"{screenshotSequence}.png";
+
+            string dir;
+            if (!string.IsNullOrEmpty(filename) && Path.IsPathFullyQualified(filename))
+				dir = Path.GetDirectoryName(filename)!;
+			else
+				dir = Configuration.Get(ConfigurationKeys.DriverScreenshotDirectory,
+					Path.Combine(AppContext.BaseDirectory, "screenshots"))!;
+
+			if (!Directory.Exists(dir))
+				Directory.CreateDirectory(dir);
+
+			var fullFilename = Path.Combine(dir, filename);
+
+			return fullFilename;
+		}
+
+		public abstract Task Screenshot(string? filename);
 	}
 }

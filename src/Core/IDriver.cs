@@ -50,6 +50,6 @@
 
 		Task<string[]> Backdoor(string fullyQualifiedTypeName, string staticMethodName, string[] args);
 
-		Task Screenshot(string path);
+		Task Screenshot(string? filename = null);
 	}
 }

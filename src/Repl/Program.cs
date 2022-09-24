@@ -14,13 +14,15 @@ using System.Net;
 //	.Build();
 
 var driver = new AppDriverBuilder()
-	.AppId("D05ADD49-B96D-49E5-979C-FA3A3F42F8E0_yn9kjvr01ms9j!App")
-	.DevicePlatform(Platform.Winappsdk)
+	//.AppId("D05ADD49-B96D-49E5-979C-FA3A3F42F8E0_yn9kjvr01ms9j!App")
+	//.DevicePlatform(Platform.Winappsdk)
+	.AppFilename("/Users/redth/code/Maui.UITesting/samples/SampleMauiApp/bin/Debug/net7.0-ios/iossimulator-x64/SampleMauiApp.app")
 	.ConfigureLogging(log =>
 	{
 		log.ClearProviders();
 		log.AddConsole();
 	})
+	.Device("83880AF2-46CC-4302-86E9-E17970E3B33D")
 	.ConfigureDriver(c => c.Set(ConfigurationKeys.GrpcHostLoggingEnabled, true))
 	.Build();
 
@@ -61,6 +63,8 @@ var mappings = new Dictionary<string, Func<Task>>
 			var button = await driver.First(By.AutomationId("buttonOne"));
 
 			await button.Tap();
+
+			await driver.Screenshot();
 
 			await driver.Any(By.Type("Label").ThenContainingText("Current count: 1"));
 

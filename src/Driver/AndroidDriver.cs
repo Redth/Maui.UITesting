@@ -21,7 +21,7 @@ public class AndroidDriver : Driver
 			configuration.AppId = AppUtil.GetPackageId(configuration.AppFilename)
 				?? throw new Exception("AppId not found");
 
-		int port = configuration.Get(Microsoft.Maui.Automation.Driver.ConfigurationKeys.GrpcHostListenPort, 5000);
+		int port = configuration.Get(Microsoft.Maui.Automation.ConfigurationKeys.GrpcHostListenPort, 5000);
 		var adbDeviceSerial = configuration.Device;
 
 		string? androidSdkRoot = configuration.Get(ConfigurationKeys.AndroidSdkRoot, string.Empty);
@@ -325,10 +325,12 @@ public class AndroidDriver : Driver
 	public override Task<string[]> Backdoor(string fullyQualifiedTypeName, string staticMethodName, string[] args)
 		=> grpc.Client.Backdoor(Configuration.AutomationPlatform, fullyQualifiedTypeName, staticMethodName, args);
 
-	public override Task Screenshot(string path)
+	public override Task Screenshot(string? filename = null)
 	{
-		WrapAdbTool(() =>
-			Adb.ScreenCapture(new FileInfo(path), Device));
+        var fullFilename = base.GetScreenshotFilename(filename);
+
+        WrapAdbTool(() =>
+			Adb.ScreenCapture(new FileInfo(fullFilename), Device));
 		return Task.CompletedTask;
 	}
 

@@ -114,9 +114,10 @@ public class MacDriver : Driver
 	public override Task<string[]> Backdoor(string fullyQualifiedTypeName, string staticMethodName, string[] args)
 		=> grpc.Client.Backdoor(Configuration.AutomationPlatform, fullyQualifiedTypeName, staticMethodName, args);
 
-	public override Task Screenshot(string path)
+	public override Task Screenshot(string? filename = null)
 	{
-		return Task.CompletedTask;
+        var fullFilename = base.GetScreenshotFilename(filename);
+        return Task.CompletedTask;
 	}
 
 	public override async void Dispose()

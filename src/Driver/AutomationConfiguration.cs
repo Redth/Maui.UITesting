@@ -4,13 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace Microsoft.Maui.Automation.Driver
 {
-	public static class ConfigurationKeys
-	{
-		public const string GrpcHostLoggingEnabled = "GrpcHost:LoggingEnabled";
-		public const string GrpcHostListenPort = "GrpcHost:ListenPort";
-	}
-
-	public class AutomationConfiguration : Dictionary<string, object>, IAutomationConfiguration
+    public class AutomationConfiguration : Dictionary<string, object>, IAutomationConfiguration
 	{
 
 		public static AutomationConfiguration FromYaml(string yamlFilename)

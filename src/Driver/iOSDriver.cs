@@ -336,10 +336,13 @@ public class iOSDriver : Driver
 	public override Task<string[]> Backdoor(string fullyQualifiedTypeName, string staticMethodName, string[] args)
 		=> grpc.Client.Backdoor(Configuration.AutomationPlatform, fullyQualifiedTypeName, staticMethodName, args);
 
-	public override async Task Screenshot(string path)
+	public override async Task Screenshot(string? filename = null)
 	{
-		var response = await idb.screenshotAsync(new ScreenshotRequest());
-		using var stream = File.Create(path);
+        var fullFilename = base.GetScreenshotFilename(filename);
+        var response = await idb.screenshotAsync(new ScreenshotRequest());
+
+		var data = response.ImageData.ToByteArray();
+		using var stream = File.Create(fullFilename);
 		response.ImageData.WriteTo(stream);
 	}
 
