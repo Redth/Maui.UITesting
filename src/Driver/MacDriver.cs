@@ -102,17 +102,17 @@ public class MacDriver : Driver
 	public override Task Swipe((int x, int y) start, (int x, int y) end)
 		=> Task.CompletedTask;
 
-	public override Task<string?> GetProperty(string elementId, string propertyName)
-			=> grpc.Client.GetProperty(Configuration.AutomationPlatform, elementId, propertyName);
+	public override Task<string?> GetProperty(Platform automationPlatform, string elementId, string propertyName)
+			=> grpc.Client.GetProperty(automationPlatform, elementId, propertyName);
 
-	public override Task<IEnumerable<Element>> GetElements()
+	public override Task<IEnumerable<Element>> GetElements(Platform automationPlatform)
 		=> base.SetDriver(grpc.Client.GetElements(Configuration.AutomationPlatform));
 
-	public override Task<PerformActionResult> PerformAction(string action, string elementId, params string[] arguments)
-		=> grpc.Client.PerformAction(Configuration.AutomationPlatform, action, elementId, arguments);
+	public override Task<PerformActionResult> PerformAction(Platform automationPlatform, string action, string elementId, params string[] arguments)
+		=> grpc.Client.PerformAction(automationPlatform, action, elementId, arguments);
 
-	public override Task<string[]> Backdoor(string fullyQualifiedTypeName, string staticMethodName, string[] args)
-		=> grpc.Client.Backdoor(Configuration.AutomationPlatform, fullyQualifiedTypeName, staticMethodName, args);
+	public override Task<string[]> Backdoor(Platform automationPlatform, string fullyQualifiedTypeName, string staticMethodName, string[] args)
+		=> grpc.Client.Backdoor(automationPlatform, fullyQualifiedTypeName, staticMethodName, args);
 
 	public override Task Screenshot(string? filename = null)
 	{

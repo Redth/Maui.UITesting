@@ -102,7 +102,7 @@ namespace Microsoft.Maui.Automation
 					var staticMethodName = request.Arguments.Skip(1).FirstOrDefault();
 					var remainingArgs = request.Arguments.Skip(2);
 
-					var result = await app.Backdoor(fullyQualifiedTypeName, staticMethodName, remainingArgs.ToArray());
+					var result = await app.Backdoor(fullyQualifiedTypeName!, staticMethodName!, remainingArgs.ToArray());
 
 					response.Status = PerformActionResult.SuccessStatus;
 					if (result?.Any() ?? false)

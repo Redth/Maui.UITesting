@@ -22,7 +22,8 @@ var driver = new AppDriverBuilder()
 		log.ClearProviders();
 		log.AddConsole();
 	})
-	.Device("83880AF2-46CC-4302-86E9-E17970E3B33D")
+	//.Device("83880AF2-46CC-4302-86E9-E17970E3B33D")
+	.Device("Pixel_4_API_31")
 	.ConfigureDriver(c => c.Set(ConfigurationKeys.GrpcHostLoggingEnabled, true))
 	.Build();
 
@@ -37,11 +38,11 @@ Console.CancelKeyPress += (s, e) =>
 
 await driver.Start();
 
-var mappings = new Dictionary<string, Func<Task>>
+var mappings = new Dictionary<string, Func<string[], Task>>
 {
 	{ "tree", Tree },
 	{ "windows", Windows },
-	{ "test", async () =>
+	{ "test", async (string[] args) =>
 		{
 			
 			await driver
@@ -71,7 +72,7 @@ var mappings = new Dictionary<string, Func<Task>>
 			Console.WriteLine(label.Text);
 		}
 	},
-	{ "perf", async () =>
+	{ "perf", async (string[] args) =>
 		{
 			var ind = new List<double>();
 
@@ -102,13 +103,17 @@ while (!ctsMain.Token.IsCancellationRequested)
 	{
 		foreach (var kvp in mappings)
 		{
+			var parts = input?.Split(' ');
+			var cmd = parts?[0] ?? string.Empty;
+			var extraParts = parts?.Skip(1)?.ToArray() ?? new string[0];
+
 			if (input?.StartsWith(kvp.Key) ?? false)
 			{
 				_ = Task.Run(async () =>
 				{
 					try
 					{
-						await kvp.Value();
+						await kvp.Value(extraParts);
 					}
 					catch (Exception ex)
 					{
@@ -137,9 +142,14 @@ driver.Dispose();
 
 Environment.Exit(0);
 
-async Task Tree()
+async Task Tree(params string[] args)
 {
-	var children = await driver.GetElements();
+	IEnumerable<Element> children;
+
+	if (args?.Length > 0 && Enum.TryParse<Platform>(args[0], true, out var p))
+		children = await driver.GetElements(p);
+	else
+		children = await driver.GetElements();
 
 	foreach (var w in children)
 	{
@@ -155,7 +165,7 @@ async Task Tree()
 	}
 }
 
-async Task Windows()
+async Task Windows(params string[] args)
 {
 	var children = await driver.GetElements();
 

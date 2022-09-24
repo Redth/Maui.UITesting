@@ -73,13 +73,23 @@ namespace Microsoft.Maui.Automation.Driver
 			}
 		}
 
-		public abstract Task<IEnumerable<Element>> GetElements();
+        public abstract Task<IEnumerable<Element>> GetElements(Platform automationPlatform);
+        public Task<IEnumerable<Element>> GetElements()
+			=> GetElements(Configuration.AutomationPlatform);
 
-		public abstract Task<string?> GetProperty(string elementId, string propertyName);
+        public abstract Task<string?> GetProperty(Platform automationPlatform, string elementId, string propertyName);
+		public Task<string?> GetProperty(string elementId, string propertyName)
+			=> GetProperty(Configuration.AutomationPlatform, elementId, propertyName);
 
-		public abstract Task<PerformActionResult> PerformAction(string action, string elementId, params string[] arguments);
+		public abstract Task<PerformActionResult> PerformAction(Platform automationPlatform, string action, string elementId, params string[] arguments);
+		public Task<PerformActionResult> PerformAction(string action, string elementId, params string[] arguments)
+			=> PerformAction(Configuration.AutomationPlatform, action, elementId, arguments);
 
-		public abstract Task PullFile(string remoteFile, string localDirectory);
+        public abstract Task<string[]> Backdoor(Platform automationPlatform, string fullyQualifiedTypeName, string staticMethodName, string[] args);
+		public Task<string[]> Backdoor(string fullyQualifiedTypeName, string staticMethodName, string[] args)
+			=> Backdoor(Configuration.AutomationPlatform, fullyQualifiedTypeName, staticMethodName, args);
+
+        public abstract Task PullFile(string remoteFile, string localDirectory);
 
 		public abstract Task PushFile(string localFile, string destinationDirectory);
 
@@ -92,8 +102,6 @@ namespace Microsoft.Maui.Automation.Driver
 		public abstract Task Tap(int x, int y);
 
 		public abstract Task Tap(Element element);
-
-		public abstract Task<string[]> Backdoor(string fullyQualifiedTypeName, string staticMethodName, string[] args);
 
 		int screenshotSequence = 0;
 

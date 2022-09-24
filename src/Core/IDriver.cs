@@ -43,13 +43,17 @@
 		Task OpenUri(string uri);
 
 		Task<IEnumerable<Element>> GetElements();
+        Task<IEnumerable<Element>> GetElements(Platform automationPlatform);
 
-		Task<string?> GetProperty(string elementId, string propertyName);
+        Task<string?> GetProperty(string elementId, string propertyName);
+        Task<string?> GetProperty(Platform automationPlatform, string elementId, string propertyName);
 
-		Task<PerformActionResult> PerformAction(string action, string elementId, params string[] arguments);
+        Task<PerformActionResult> PerformAction(string action, string elementId, params string[] arguments);
+        Task<PerformActionResult> PerformAction(Platform automationPlatform, string action, string elementId, params string[] arguments);
 
-		Task<string[]> Backdoor(string fullyQualifiedTypeName, string staticMethodName, string[] args);
+        Task<string[]> Backdoor(string fullyQualifiedTypeName, string staticMethodName, string[] args);
+        Task<string[]> Backdoor(Platform automationPlatform, string fullyQualifiedTypeName, string staticMethodName, string[] args);
 
-		Task Screenshot(string? filename = null);
+        Task Screenshot(string? filename = null);
 	}
 }

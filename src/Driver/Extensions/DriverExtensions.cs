@@ -47,7 +47,10 @@ public static partial class DriverExtensions
 
 		while (waited < autoWaitMs || autoWaitMs <= 0)
 		{
-			var elements = await driver.GetElements().ConfigureAwait(false);
+			// See which automation platform to use
+			var platform = query.AutomationPlatform ?? driver.Configuration.AutomationPlatform;
+
+			var elements = await driver.GetElements(platform).ConfigureAwait(false);
 
 			var results = query.Execute(elements);
 

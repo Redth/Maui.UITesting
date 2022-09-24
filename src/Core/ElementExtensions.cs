@@ -23,6 +23,12 @@ public static class QueryExtensions
 
 }
 
+public static class On
+{
+	public static Query Platform(Platform automationPlatform)
+		=> Query.On(automationPlatform);
+}
+
 public static class By
 {
 	public static Query AutomationId(string automationId)
@@ -40,7 +46,18 @@ public static class By
 
 public class Query
 {
+	public Query()
+	{ }
+
+	public Query(Platform automationPlatform)
+	{
+		AutomationPlatform = automationPlatform;
+	}
+
 	List<Predicate<Element>> predicates = new();
+
+	public static Query On(Platform automationPlatform)
+		=> new Query(automationPlatform);
 
 	public static Query By(Predicate<Element> predicate)
 		=> new Query().AndBy(predicate);
@@ -62,6 +79,8 @@ public class Query
 		predicates.Add(predicate);
 		return this;
 	}
+
+	public Platform? AutomationPlatform { get; private set; }
 
 	public IEnumerable<Element> Execute(IEnumerable<Element> source)
 	{
