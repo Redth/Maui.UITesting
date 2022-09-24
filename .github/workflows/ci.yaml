@@ -50,7 +50,7 @@ jobs:
         nuget sign .\artifacts\*.nupkg -CertificatePath $pfxPath -Timestamper http://timestamp.entrust.net/TSS/RFC3161sha2TS
         
     - name: Artifacts
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v3
       with:
         name: NuGet
         path: ./artifacts
