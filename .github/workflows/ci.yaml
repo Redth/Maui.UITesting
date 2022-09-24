@@ -41,6 +41,9 @@ jobs:
         echo "PACKAGE VERSION: $VERSION"
         
         New-Item -ItemType Directory -Force -Path .\artifacts
+        dotnet pack --output ./artifacts --configuration Release -p:PackageVersion=$VERSION ./src/Core/Core.csproj
+        dotnet pack --output ./artifacts --configuration Release -p:PackageVersion=$VERSION ./src/Driver/Driver.csproj
+        dotnet pack --output ./artifacts --configuration Release -p:PackageVersion=$VERSION ./src/Agent/Agent.csproj
         dotnet pack --output ./artifacts --configuration Release -p:PackageVersion=$VERSION ./src/Interactive/Interactive.csproj
         $pfxPath = Join-Path -Path $pwd -ChildPath "codesigncert.pfx"
         [IO.File]::WriteAllBytes("$pfxPath", [System.Convert]::FromBase64String($env:CODESIGN_PFX))
