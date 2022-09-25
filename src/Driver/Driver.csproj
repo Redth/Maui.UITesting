@@ -4,7 +4,7 @@
 		<TargetFramework>net6.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
-		<PackageId>Microsoft.Maui.Automation.Driver</PackageId>
+		<PackageId>Redth.Microsoft.Maui.Automation.Driver</PackageId>
 		<AssemblyName>Microsoft.Maui.Automation.Driver</AssemblyName>
 	</PropertyGroup>
 

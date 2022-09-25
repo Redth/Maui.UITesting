@@ -5,7 +5,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<AssemblyName>Microsoft.Maui.Automation.Interactive</AssemblyName>
-		<PackageId>Microsoft.Maui.Automation.Interactive</PackageId>
+		<PackageId>Redth.Microsoft.Maui.Automation.Interactive</PackageId>
 	</PropertyGroup>
 
 	<ItemGroup>
