@@ -4,23 +4,31 @@
 
 This project aims to bring an existing UI Testing spike and idea closer to a usable tool for creating UI Automation Tests for .NET MAUI apps. It is a simpler architecture than its predecessor Xamarin.UITest, and has a much cleaner integration than Appium, built with .NET MAUI apps first in mind.
 
-[Early Experiments](https://youtu.be/71UuxMpm1Co)
+[![.NET MAUI UI Testing - HackWeek](https://yt-embed.herokuapp.com/embed?v=9LxQwpjKxhE)](https://www.youtube.com/embed/9LxQwpjKxhE ".NET MAUI UI Testing - HackWeek")
 
-## Goals / Features
-- Support for: Android, iOS, MacCatalyst, WindowsAppSDK
-- gRPC communication channel between Driver and AppHost
+## NuGet.org Packages
+![Nuget: Interactive](https://img.shields.io/nuget/vpre/Redth.Microsoft.Maui.Automation.Interactive?color=blue&label=.NET%20Interactive%20/%20Workbooks)
+For .NET Interactive Notebooks
+
+![Nuget: Unit Test Driver](https://img.shields.io/nuget/vpre/Redth.Microsoft.Maui.Automation.Driver?color=blue&label=Unit%20Test%20Driver)
+xUnit/NUnit Unit Test projects
+
+![Nuget: App Agent](https://img.shields.io/nuget/vpre/Redth.Microsoft.Maui.Automation.Agent?color=blue&label=App%20Agent)
+Include in your app project.
+
+## Features
+- Support for: Android, iOS, WindowsAppSDK, _MacCatalyst * (Incomplete Driver)_
+- gRPC communication channel between Driver and App Agent
 - .NET MAUI first view tree inspection and querying
 - Android - ADB integrations for advanced test manipulation
 - iOS - idb_companion for advanced test manipulation
 - Windows - WinAppDriver for additional manipulation
 - Fluent Driver API for view querying/actions
-- .NET Interactive Notebook integration for iterating on tests/exploration
-- REPL for interacting with a running app
+- .NET Interactive Notebook for iterating on test writing / view tree & app exploration
 
-## So far
-- [x] View hierarchy walking/parsing for MAUI, Android, iOS/MacCatalyst, Windows
-- [x] gRPC communication channel between driver and app host
-- [x] View hierarchy walking for MAUI, Android, iOS/MacCatalyst, Windows
-- [x] Basic Android Driver functions with ADB
-- [x] Basic Windows Driver functions with WinAppDriver 
-- [x] Simple REPL with hard coded commands for printing a tree
+
+## Future ideas
+- Create native Android and iOS App Agent libraries that implement the gRPC spec so non-MAUI apps can be tested
+
+
+
