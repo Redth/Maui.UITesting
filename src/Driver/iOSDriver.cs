@@ -180,11 +180,11 @@ public class iOSDriver : Driver
 		{
 			if (thisApp.ProcessState == InstalledAppInfo.Types.AppProcessState.Running)
 			{
-                await idb.terminateAsync(new TerminateRequest
-                {
-                    BundleId = Configuration.AppId
-                }).ResponseAsync;
-            }
+				await idb.terminateAsync(new TerminateRequest
+				{
+					BundleId = Configuration.AppId
+				}).ResponseAsync;
+			}
 		}
 	}
 
@@ -229,7 +229,7 @@ public class iOSDriver : Driver
 		});
 
 
-	public override async Task InputText(Element element, string text)
+	public override async Task InputText(IElement element, string text)
 	{
 		await Tap(element);
 		await Task.Delay(250);
@@ -238,7 +238,7 @@ public class iOSDriver : Driver
 		await idb.hid().SendStream<HIDEvent, HIDResponse>(TimeSpan.FromMilliseconds(100), textEvents);
 	}
 
-	public override async Task ClearText(Element element)
+	public override async Task ClearText(IElement element)
 	{
 		await Tap(element);
 		
@@ -256,7 +256,7 @@ public class iOSDriver : Driver
 	public override Task Tap(int x, int y)
 		=> press(x, y, TimeSpan.FromMilliseconds(100));
 
-	public override Task Tap(Element element)
+	public override Task Tap(IElement element)
 		=> Tap(
 			(int)((element.WindowFrame.X + (element.WindowFrame.Width / 2))),
 			(int)((element.WindowFrame.Y + (element.WindowFrame.Height / 2))));
@@ -264,7 +264,7 @@ public class iOSDriver : Driver
 	public override Task LongPress(int x, int y)
 		=> press(x, y, TimeSpan.FromSeconds(3));
 
-	public override Task LongPress(Element element)
+	public override Task LongPress(IElement element)
 			=> press(
 				(int)((element.WindowFrame.X + (element.WindowFrame.Width / 2))),
 				(int)((element.WindowFrame.Y + (element.WindowFrame.Height / 2))), TimeSpan.FromSeconds(3));
@@ -298,8 +298,8 @@ public class iOSDriver : Driver
 				{
 					Press = new HIDEvent.Types.HIDPress
 					{
-                        Action = pressAction,
-                        Direction = HIDEvent.Types.HIDDirection.Up
+						Action = pressAction,
+						Direction = HIDEvent.Types.HIDDirection.Up
 					}
 				}
 			});
@@ -327,8 +327,8 @@ public class iOSDriver : Driver
 	public override Task<string?> GetProperty(Platform automationPlatform, string elementId, string propertyName)
 			=> grpc.Client.GetProperty(automationPlatform, elementId, propertyName);
 
-	public override Task<IEnumerable<Element>> GetElements(Platform automationPlatform)
-		=> base.SetDriver(grpc.Client.GetElements(automationPlatform));
+	public override Task<IEnumerable<IElement>> GetElements(Platform automationPlatform)
+		=> grpc.Client.GetElements(automationPlatform);
 
 	public override Task<PerformActionResult> PerformAction(Platform automationPlatform, string action, string elementId, params string[] arguments)
 		=> grpc.Client.PerformAction(automationPlatform, action, elementId, arguments);
@@ -338,9 +338,9 @@ public class iOSDriver : Driver
 
 	public override Task Screenshot(string? filename = null)
 	{
-        var fullFilename = base.GetScreenshotFilename(filename);
+		var fullFilename = base.GetScreenshotFilename(filename);
 		
-        var response = idb.screenshot(new ScreenshotRequest());
+		var response = idb.screenshot(new ScreenshotRequest());
 		var data = response.ImageData.ToByteArray();
 		using var stream = File.Create(fullFilename);
 		response.ImageData.WriteTo(stream);

@@ -25,7 +25,7 @@ namespace Microsoft.Maui.Automation.Remote
 			=> BuildRoute(performActionRequestStream, requestStream, responseStream, context, pendingResponses,
 				() => performActionRequestStream = new TaskCompletionSource<IAsyncStreamWriter<PerformActionRequest>>());
 
-		public async Task<IEnumerable<Element>> GetElements(Platform platform)
+		public async Task<IEnumerable<IElement>> GetElements(Platform platform)
 		{
 			var response = await BuildRequest<ElementsRequest, ElementsResponse>(
 				elementsRequestStream,

@@ -81,13 +81,13 @@ namespace Microsoft.Maui.Automation.Driver
 			return Task.FromResult<IDeviceInfo>(new DeviceInfo(0, 0, 0));
 		}
 
-		public override async Task InputText(Element element, string text)
+		public override async Task InputText(IElement element, string text)
 		{
 			await Tap(element);
 			Session.Value.Keyboard.SendKeys(text);
 		}
 
-		public override Task ClearText(Element element)
+		public override Task ClearText(IElement element)
 		{
 			try
 			{
@@ -221,7 +221,7 @@ namespace Microsoft.Maui.Automation.Driver
 			Session.Value.PerformActions(new List<OpenQA.Selenium.Interactions.ActionSequence> { touchSequence });
 		}
 
-		public override async Task Tap(Element element)
+		public override async Task Tap(IElement element)
 		{
 			await Task.Delay(400);
 
@@ -254,14 +254,14 @@ namespace Microsoft.Maui.Automation.Driver
 			return Task.CompletedTask;
 		}
 
-		public override Task LongPress(Element element)
+		public override Task LongPress(IElement element)
 			=> Tap(element);
 
 		public override Task<string?> GetProperty(Platform automationPlatform, string elementId, string propertyName)
 			=> grpc.Client.GetProperty(automationPlatform, elementId, propertyName);
 
-		public override Task<IEnumerable<Element>> GetElements(Platform automationPlatform)
-			=> base.SetDriver(grpc.Client.GetElements(automationPlatform));
+		public override Task<IEnumerable<IElement>> GetElements(Platform automationPlatform)
+			=> grpc.Client.GetElements(automationPlatform);
 
 		public override Task<PerformActionResult> PerformAction(Platform automationPlatform, string action, string elementId, params string[] arguments)
 			=> grpc.Client.PerformAction(automationPlatform, action, elementId, arguments);

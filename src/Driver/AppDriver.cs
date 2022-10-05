@@ -39,10 +39,10 @@ public class AppDriver : Driver
     public override Task<PerformActionResult> PerformAction(Platform automationPlatform, string action, string elementId, params string[] arguments)
 		=> Driver.PerformAction(automationPlatform, action, elementId, arguments);
 
-	public override Task InputText(Element element, string text)
+	public override Task InputText(IElement element, string text)
 		=> Driver.InputText(element, text);
 
-	public override Task ClearText(Element element)
+	public override Task ClearText(IElement element)
 		=> Driver.ClearText(element);
 
 	public override Task InstallApp()
@@ -60,7 +60,7 @@ public class AppDriver : Driver
 	public override Task LongPress(int x, int y)
 		=> Driver.LongPress(x, y);
 
-	public override Task LongPress(Element element)
+	public override Task LongPress(IElement element)
 		=> Driver.LongPress(element);
 
 	public override Task OpenUri(string uri)
@@ -84,7 +84,7 @@ public class AppDriver : Driver
 	public override Task Tap(int x, int y)
 		=> Driver.Tap(x, y);
 
-	public override Task Tap(Element element)
+	public override Task Tap(IElement element)
 		=> Driver.Tap(element);
 
 	public override void Dispose()
@@ -93,7 +93,7 @@ public class AppDriver : Driver
 	public override Task<string[]> Backdoor(Platform automationPlatform, string fullyQualifiedTypeName, string staticMethodName, string[] args)
 		=> Driver.Backdoor(automationPlatform, fullyQualifiedTypeName, staticMethodName, args);
 
-	public override Task<IEnumerable<Element>> GetElements(Platform automationPlatform)
+	public override Task<IEnumerable<IElement>> GetElements(Platform automationPlatform)
 		=> Driver.GetElements(automationPlatform);
 
 	public override Task Screenshot(string? filename = null)

@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Core.Query;
 using Microsoft.Maui.Automation.Driver;
 using Xunit;
 
 namespace Microsoft.Maui.Automation.Test
 {
-	public class Tests
+    public class Tests
 	{
 		readonly IDriver driver;
 

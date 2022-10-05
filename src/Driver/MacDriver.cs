@@ -75,10 +75,10 @@ public class MacDriver : Driver
 		return Task.CompletedTask;
 	}
 
-	public override Task InputText(Element element, string text)
+	public override Task InputText(IElement element, string text)
 		=> grpc.Client.PerformAction(Configuration.AutomationPlatform, Actions.InputText, element.Id, text);
 
-	public override Task ClearText(Element element)
+	public override Task ClearText(IElement element)
 		=> grpc.Client.PerformAction(Configuration.AutomationPlatform, Actions.ClearText, element.Id);
 
 	public override Task Back()
@@ -90,13 +90,13 @@ public class MacDriver : Driver
 	public override Task Tap(int x, int y)
 		=> Task.CompletedTask;
 
-	public override Task Tap(Element element)
+	public override Task Tap(IElement element)
 		=> grpc.Client.PerformAction(Configuration.AutomationPlatform, Actions.Tap, element.Id);
 
 	public override Task LongPress(int x, int y)
 		=> Task.CompletedTask;
 
-	public override Task LongPress(Element element)
+	public override Task LongPress(IElement element)
 			=> Tap(element);
 
 	public override Task Swipe((int x, int y) start, (int x, int y) end)
@@ -105,8 +105,8 @@ public class MacDriver : Driver
 	public override Task<string?> GetProperty(Platform automationPlatform, string elementId, string propertyName)
 			=> grpc.Client.GetProperty(automationPlatform, elementId, propertyName);
 
-	public override Task<IEnumerable<Element>> GetElements(Platform automationPlatform)
-		=> base.SetDriver(grpc.Client.GetElements(Configuration.AutomationPlatform));
+	public override Task<IEnumerable<IElement>> GetElements(Platform automationPlatform)
+		=> grpc.Client.GetElements(Configuration.AutomationPlatform);
 
 	public override Task<PerformActionResult> PerformAction(Platform automationPlatform, string action, string elementId, params string[] arguments)
 		=> grpc.Client.PerformAction(automationPlatform, action, elementId, arguments);

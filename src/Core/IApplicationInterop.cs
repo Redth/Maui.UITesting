@@ -7,9 +7,9 @@ namespace Microsoft.Maui.Automation
 	{
 		public Platform DefaultPlatform { get; }
 
-		public Task<IEnumerable<Element>> GetElements();
+		public Task<IEnumerable<IElement>> GetElements();
 
-		public Task<IEnumerable<Element>> FindElements(Predicate<Element> matcher);
+		public Task<IEnumerable<IElement>> FindElements(Predicate<IElement> matcher);
 
 		public Task<string> GetProperty(string elementId, string propertyName);
 

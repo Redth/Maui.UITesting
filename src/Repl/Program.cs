@@ -44,9 +44,9 @@ var mappings = new Dictionary<string, Func<string[], Task>>
 	{ "windows", Windows },
 	{ "test", async (string[] args) =>
 		{
-			
-			await driver
-				.First(By.AutomationId("entryUsername"))
+			driver
+				.Query()
+				.ByAutomationId("entryUsername")
 				.InputText("xamarin");
 
 			await driver
@@ -144,7 +144,7 @@ Environment.Exit(0);
 
 async Task Tree(params string[] args)
 {
-	IEnumerable<Element> children;
+	IEnumerable<IElement> children;
 
 	if (args?.Length > 0 && Enum.TryParse<Platform>(args[0], true, out var p))
 		children = await driver.GetElements(p);
