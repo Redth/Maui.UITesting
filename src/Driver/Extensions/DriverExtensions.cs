@@ -19,11 +19,12 @@ public static partial class DriverExtensions
 	public static DriverQuery Query(this IDriver driver)
 		=> new DriverQuery(driver);
 
+    
 
 
 
 
-	public static Task<IEnumerable<IElement>> All(this IDriver driver, Query query)
+    public static Task<IEnumerable<IElement>> All(this IDriver driver, Query query)
 		=> driver.AutoWait(query);
 
 	public static Task<IEnumerable<IElement>> Any(this IDriver driver, Query query)

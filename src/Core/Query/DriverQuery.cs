@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -29,5 +30,17 @@ namespace Microsoft.Maui.Automation.Querying
 
 		public readonly IDriver Driver;
 		public readonly Query Query;
-	}
+
+
+        public async Task<IEnumerable<IElement>> Execute()
+			=> await Query.Execute(Driver, await Driver.GetElements().ConfigureAwait(false)).ConfigureAwait(false);
+
+
+        public TaskAwaiter<IEnumerable<IElement>> GetAwaiter()
+		{
+			return Execute().GetAwaiter();
+		}
+
+
+    }
 }
