@@ -1,6 +1,6 @@
 ﻿namespace Microsoft.Maui.Automation.Driver
 {
-	public interface IDriver : IDisposable
+	public interface IDriver : IAsyncDisposable
 	{
 		string Name { get; }
 

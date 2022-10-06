@@ -87,8 +87,8 @@ public class AppDriver : Driver
 	public override Task Tap(IElement element)
 		=> Driver.Tap(element);
 
-	public override void Dispose()
-		=> Driver.Dispose();
+	public override ValueTask DisposeAsync()
+		=> Driver.DisposeAsync();
 
 	public override Task<string[]> Backdoor(Platform automationPlatform, string fullyQualifiedTypeName, string staticMethodName, string[] args)
 		=> Driver.Backdoor(automationPlatform, fullyQualifiedTypeName, staticMethodName, args);

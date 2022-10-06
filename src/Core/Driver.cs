@@ -21,8 +21,6 @@ namespace Microsoft.Maui.Automation.Driver
 
 		public abstract Task ClearAppState();
 
-		public abstract void Dispose();
-
 		public abstract Task<IDeviceInfo> GetDeviceInfo();
 
 		public abstract Task InputText(IElement element, string text);
@@ -106,5 +104,10 @@ namespace Microsoft.Maui.Automation.Driver
 		}
 
 		public abstract Task Screenshot(string? filename);
+
+		public virtual ValueTask DisposeAsync()
+		{
+			return ValueTask.CompletedTask;
+		}
 	}
 }

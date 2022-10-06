@@ -120,9 +120,6 @@ public class MacDriver : Driver
         return Task.CompletedTask;
 	}
 
-	public override async void Dispose()
-	{
-		if (grpc is not null)
-			await grpc.Stop();
-	}
+	public override ValueTask DisposeAsync()
+		=> grpc.DisposeAsync();
 }

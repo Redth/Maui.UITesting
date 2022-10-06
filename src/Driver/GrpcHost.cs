@@ -9,7 +9,7 @@ using Microsoft.Maui.Automation.Driver;
 
 namespace Microsoft.Maui.Automation.Remote;
 
-public class GrpcHost
+public class GrpcHost : IAsyncDisposable
 {
 	public GrpcHost(IAutomationConfiguration configuration, ILoggerFactory? loggerFactory)
 	{
@@ -71,6 +71,18 @@ public class GrpcHost
 
 	public Task Stop()
 		=> host?.StopAsync() ?? Task.CompletedTask;
+
+	public async ValueTask DisposeAsync()
+	{
+		if (host is not null)
+		{
+			try { await host.StopAsync(); }
+			catch { }
+
+			host.Dispose();
+		}
+		
+	}
 }
 
 internal class LoggerFactoryInstanceLoggerProvider : ILoggerProvider

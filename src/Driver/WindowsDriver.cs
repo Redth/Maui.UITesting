@@ -277,24 +277,26 @@ namespace Microsoft.Maui.Automation.Driver
 			return Task.CompletedTask;
 		}
 
-		public override async void Dispose()
+		public override async ValueTask DisposeAsync()
 		{
-			try
-			{
-				Session?.Value?.Close();
-				Session?.Value?.Dispose();
-			}
-			catch { }
+			await Task.WhenAll(
+				grpc.DisposeAsync().AsTask(),
+				Task.Run(() =>
+				{
+					try
+					{
+						Session?.Value?.Close();
+						Session?.Value?.Dispose();
+					}
+					catch { }
 
-			try
-			{
-				appDriverProcess?.Kill();
-				appDriverProcess?.WaitForExit();
-			}
-			catch { }
-
-			if (grpc is not null)
-				await grpc.Stop();
+					try
+					{
+						appDriverProcess?.Kill();
+						appDriverProcess?.WaitForExit();
+					}
+					catch { }
+				}));
 		}
 	}
 }

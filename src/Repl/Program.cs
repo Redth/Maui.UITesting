@@ -44,26 +44,30 @@ var mappings = new Dictionary<string, Func<string[], Task>>
 	{ "windows", Windows },
 	{ "test", async (string[] args) =>
 		{
-			driver
+			await driver
 				.Query()
 				.ByAutomationId("entryUsername")
 				.InputText("xamarin");
 
 			await driver
-				.First(By.AutomationId("entryPassword"))
+				.Query()
+				.ByAutomationId("entryPassword")
 				.InputText("1234");
 
 			await driver
-				.First(By.ContainingText("Login"))
+				.Query()
+				.ContainingText("Login")
 				.Tap();
 
 			await driver.None(By.AutomationId("entryUsername"));
 
-			var label = await driver.First(By.ContainingText("Hello, World!"));
+			var label = await driver.Query()
+			.ContainingText("Hello, World!");
 
-			var button = await driver.First(By.AutomationId("buttonOne"));
+			var button = await driver.Query()
+		.ByAutomationId("buttonOne");
 
-			await button.Tap();
+			await button.First().Tap();
 
 			await driver.Screenshot();
 
@@ -138,7 +142,7 @@ while (!ctsMain.Token.IsCancellationRequested)
 	}
 }
 
-driver.Dispose();
+driver.DisposeAsync().GetAwaiter().GetResult();
 
 Environment.Exit(0);
 

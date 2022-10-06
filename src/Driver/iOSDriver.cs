@@ -363,16 +363,18 @@ public class iOSDriver : Driver
 		return exePath;
 	}
 
-	public override async void Dispose()
+	public override async ValueTask DisposeAsync()
 	{
-		try
-		{
-			idbCompanionProcess?.Kill();
-			idbCompanionProcess?.WaitForExit();
-		}
-		catch { }
-
-		if (grpc is not null)
-			await grpc.Stop();
+		await Task.WhenAll(
+			grpc.DisposeAsync().AsTask(),
+			Task.Run(() =>
+			{
+				try
+				{
+					idbCompanionProcess?.Kill();
+					idbCompanionProcess?.WaitForExit();
+				}
+				catch { }
+			}));
 	}
 }

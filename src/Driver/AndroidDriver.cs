@@ -327,23 +327,11 @@ public class AndroidDriver : Driver
 
 	public override Task Screenshot(string? filename = null)
 	{
-        var fullFilename = base.GetScreenshotFilename(filename);
+		var fullFilename = base.GetScreenshotFilename(filename);
 
-        WrapAdbTool(() =>
+		WrapAdbTool(() =>
 			Adb.ScreenCapture(new FileInfo(fullFilename), Device));
 		return Task.CompletedTask;
-	}
-
-	public override async void Dispose()
-	{
-		if (grpc is not null)
-			await grpc.Stop();
-
-		if (emulatorProcess is not null)
-		{
-			emulatorProcess.Shutdown();
-			emulatorProcess.WaitForExit();
-		}
 	}
 
 	string? GetDeviceName(string? serial)
@@ -399,5 +387,16 @@ public class AndroidDriver : Driver
 
 			throw toolException;
 		}
+	}
+
+	public override async ValueTask DisposeAsync()
+	{
+		await Task.WhenAll(
+			grpc.DisposeAsync().AsTask(),
+			Task.Run(() =>
+			{
+				emulatorProcess?.Shutdown();
+				emulatorProcess?.WaitForExit();
+			}));
 	}
 }

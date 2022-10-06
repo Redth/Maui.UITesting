@@ -34,33 +34,19 @@ public static partial class DriverExtensions
 		=> driver.AutoWaitFirst(query);
 
 
-	public static Task<IEnumerable<IElement>> All(this IDriver driver, Predicate<IElement> predicate)
-		=> driver.All(Query.By(predicate));
-
-	public static Task<IEnumerable<IElement>> Any(this IDriver driver, Predicate<IElement> predicate)
-		=> driver.Any(Query.By(predicate));
-
-	public static Task<IElement?> First(this IDriver driver, Predicate<IElement> predicate)
-		=> driver.First(Query.By(predicate));
-
-	public static Task None(this IDriver driver, Query query)
-		=> driver.AutoWait(query, waitForNone: true);
-
-	public static Task None(this IDriver driver, Predicate<IElement> predicate)
-		=> driver.None(Query.By(predicate));
 
 
 	static async Task<IElement?> AutoWaitFirst(this IDriver driver, Query query, int autoWaitMs = 3000, int retryDelayMs = 200)
 		=> (await driver.AutoWait(query, autoWaitMs, retryDelayMs).ConfigureAwait(false)).FirstOrDefault();
 
 
-	static async Task<IEnumerable<IElement>> AutoWait(this DriverQuery query, int autoWaitMs = 3000, int retryDelayMs = 200, bool waitForNone = false)
-	{
-		var elements = await AutoWait(query.Driver, query.Query, autoWaitMs, retryDelayMs).ConfigureAwait(false);
+	//static async Task<IEnumerable<IElement>> AutoWait(this DriverQuery query, int autoWaitMs = 3000, int retryDelayMs = 200, bool waitForNone = false)
+	//{
+	//	var elements = await AutoWait(query.Driver, query.Query, autoWaitMs, retryDelayMs).ConfigureAwait(false);
 
 
-		return query;
-	}
+	//	return elements;
+	//}
 
 	static async Task<IEnumerable<IElement>> AutoWait(this IDriver driver, Query query, int autoWaitMs = 3000, int retryDelayMs = 200, bool waitForNone = false)
 	{
