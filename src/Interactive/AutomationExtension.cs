@@ -3,13 +3,13 @@ using System.CommandLine.Binding;
 using Microsoft.DotNet.Interactive;
 using Microsoft.DotNet.Interactive.CSharp;
 using Microsoft.Maui.Automation.Driver;
+using AndroidSdk;
+using Microsoft.Maui.Automation.Util;
 
 namespace Microsoft.Maui.Automation.Interactive;
 
 public class AutomationExtensions : IKernelExtension
 {
-	
-
 	public Task OnLoadAsync(Kernel kernel)
 	{
         if (kernel is CSharpKernel csharpKernel)
@@ -57,16 +57,26 @@ public class AutomationExtensions : IKernelExtension
                     case Platform.Maui:
                         break;
                     case Platform.Ios:
+                        var iosDevices = Xcode.GetDevices("ios").Select(d => d.Name);
+                        if (iosDevices.Any())
+                            devices.AddRange(iosDevices);
                         break;
                     case Platform.Maccatalyst:
-                        break;
                     case Platform.Macos:
+                        devices.Add("Mac");
                         break;
                     case Platform.Tvos:
+                        var tvosDevices = Xcode.GetDevices("tvos").Select(d => d.Name);
+                        if (tvosDevices.Any())
+                            devices.AddRange(tvosDevices);
                         break;
                     case Platform.Android:
+                        var androidDevices = GetAndroidDevices();
+                        if (androidDevices.Any())
+                            devices.AddRange(androidDevices);
                         break;
                     case Platform.Winappsdk:
+                        devices.Add("Windows");
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
@@ -78,7 +88,7 @@ public class AutomationExtensions : IKernelExtension
 
             var nameOption = new Option<string>(
                 new[] { "--name" },
-                getDefaultValue: () => "device",
+                getDefaultValue: () => "driver",
                 description:
                 "Name for the local variable.")
             {
@@ -114,11 +124,9 @@ public class AutomationExtensions : IKernelExtension
                         await DisposeAppDriver(driver);
                     });
 
-                    await driver.InstallApp();
+                    await driver.Start();
 
                     await csharpKernel.SetValueAsync(name, driver);
-
-                    //KernelInvocationContext.Current.Display(SvgClock.DrawSvgClock(hour, minute, second));
                 },
                 platformOption,
                 automationPlatformOption,
@@ -132,18 +140,30 @@ public class AutomationExtensions : IKernelExtension
 
         return Task.CompletedTask;
 
-        async Task DisposeAppDriver(AppDriver driver)
+        Task DisposeAppDriver(AppDriver driver)
         {
             try
             {
-                await driver.StopApp();
-                await driver.ClearAppState();
                 driver.Dispose();
             }
             catch
-            {
+            { }
 
-            }
+            return Task.CompletedTask;
+        }
+
+        IEnumerable<string> GetAndroidDevices()
+        {
+            var devices = new List<string>();
+            var adb = new Adb();
+            var adbDevices = adb.GetDevices();
+            devices.AddRange(adbDevices.Select(d => d.Serial));
+
+            var avd = new AvdManager();
+            var avds = avd.ListAvds();
+            devices.AddRange(avds.Select(a => a.Name));
+
+            return devices;
         }
     }
 }
