@@ -50,8 +50,29 @@ public class AutomationExtensions : IKernelExtension
             
             deviceOption.AddCompletions((context) =>
             {
+                var platform = context.ParseResult.GetValueForOption(automationPlatformOption);
+                var devices = new List<string>();
+                switch (platform)
+                {
+                    case Platform.Maui:
+                        break;
+                    case Platform.Ios:
+                        break;
+                    case Platform.Maccatalyst:
+                        break;
+                    case Platform.Macos:
+                        break;
+                    case Platform.Tvos:
+                        break;
+                    case Platform.Android:
+                        break;
+                    case Platform.Winappsdk:
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
                 // get list of valid devices string and return it
-                return Array.Empty<string>();
+                return devices;
             });
 
 
