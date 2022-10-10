@@ -52,7 +52,17 @@ namespace Microsoft.Maui.Automation.Driver
 			AutomationPlatform = automationPlatform ?? devicePlatform;
 		}
 
-		public string? AppAgentAddress
+        public AutomationConfiguration(string appId, FileInfo appFilename, Platform devicePlatform, string? device = null, Platform? automationPlatform = null)
+        {
+            AppFilename = appFilename.FullName;
+            AppId = appId;
+            DevicePlatform = devicePlatform;
+            if (!string.IsNullOrEmpty(device))
+                Device = device;
+            AutomationPlatform = automationPlatform ?? devicePlatform;
+        }
+
+        public string? AppAgentAddress
 		{
 			get => GetOrDefault(nameof(AppAgentAddress), IPAddress.Loopback.ToString())?.ToString();
 			set => Set(nameof(AppAgentAddress), value);

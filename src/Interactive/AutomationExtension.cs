@@ -5,6 +5,8 @@ using Microsoft.DotNet.Interactive.CSharp;
 using Microsoft.Maui.Automation.Driver;
 using AndroidSdk;
 using Microsoft.Maui.Automation.Util;
+using Microsoft.DotNet.Interactive.Formatting;
+using static Microsoft.DotNet.Interactive.Formatting.PocketViewTags;
 
 namespace Microsoft.Maui.Automation.Interactive;
 
@@ -14,32 +16,36 @@ public class AutomationExtensions : IKernelExtension
 	{
         if (kernel is CSharpKernel csharpKernel)
         {
+
+
             var platformOption = new Option<Platform>(
-                new[] {"--platform"},
+                new[] { "--platform" },
+                () => Platform.Maui,
                 "The device platform to test on.")
             {
                 Arity = ArgumentArity.ExactlyOne
             };
             var appIdOption = new Option<string>(
-                new[] {"--app-id"},
+                new[] { "--app-id" },
                 "The application id (bundle id, package id, etc) to test.")
             {
-                Arity = ArgumentArity.ExactlyOne
+                Arity = ArgumentArity.ZeroOrOne
             };
-            var appOption = new Option<string>(
-                new[] {"--app"},
+            var appOption = new Option<FileInfo>(
+                new[] { "--app" },
                 "The application file (.app, .apk, etc.) to test.")
             {
                 Arity = ArgumentArity.ExactlyOne
             };
             var automationPlatformOption = new Option<Platform>(
-                new[] {"--automation-platform"},
+                new[] { "--automation-platform" },
+                () => Platform.Maui,
                 "The automation platform to interact with, if different than the device platform (ie: Maui).")
             {
                 Arity = ArgumentArity.ZeroOrOne
             };
             var deviceOption = new Option<string>(
-                new[] {"--device"},
+                new[] { "--device" },
                 getDefaultValue: () => string.Empty,
                 description:
                 "Device ID to test on (eg: ADB Serial for an android device, UDID of emulator for iOS/tvOS/ipadOS).")
@@ -47,7 +53,8 @@ public class AutomationExtensions : IKernelExtension
                 Arity = ArgumentArity.ZeroOrOne
             };
 
-            
+            platformOption.AddCompletions("Android", "iOS", "MacCatalsyt", "tvOS", "WinAppSDK");
+
             deviceOption.AddCompletions((context) =>
             {
                 var platform = context.ParseResult.GetValueForOption(automationPlatformOption);
@@ -55,25 +62,24 @@ public class AutomationExtensions : IKernelExtension
                 switch (platform)
                 {
                     case Platform.Maui:
+                        AddAndroidDevices(devices);
+                        AddAppleDevices("ios", devices);
+                        AddAppleDevices("macos", devices);
+                        AddAppleDevices("tvos", devices);
+                        devices.Add("Windows");
                         break;
                     case Platform.Ios:
-                        var iosDevices = Xcode.GetDevices("ios").Select(d => d.Name);
-                        if (iosDevices.Any())
-                            devices.AddRange(iosDevices);
+                        AddAppleDevices("ios", devices);
                         break;
                     case Platform.Maccatalyst:
                     case Platform.Macos:
-                        devices.Add("Mac");
+                        AddAppleDevices("macos", devices);
                         break;
                     case Platform.Tvos:
-                        var tvosDevices = Xcode.GetDevices("tvos").Select(d => d.Name);
-                        if (tvosDevices.Any())
-                            devices.AddRange(tvosDevices);
+                        AddAppleDevices("tvos", devices);
                         break;
                     case Platform.Android:
-                        var androidDevices = GetAndroidDevices();
-                        if (androidDevices.Any())
-                            devices.AddRange(androidDevices);
+                        AddAndroidDevices(devices);
                         break;
                     case Platform.Winappsdk:
                         devices.Add("Windows");
@@ -96,7 +102,7 @@ public class AutomationExtensions : IKernelExtension
             };
 
 
-            var testOption = new Command("#!uitest", "Starts a UI Testing session")
+            var testCommand = new Command("#!uitest", "Starts a UI Testing Driver session")
             {
                 platformOption,
                 automationPlatformOption,
@@ -106,11 +112,11 @@ public class AutomationExtensions : IKernelExtension
                 nameOption
             };
 
-            testOption.SetHandler(
-                async (Platform platform, Platform automationPlatform, string appId, string app, string device, string name) =>
+            testCommand.SetHandler<Platform, Platform, string, FileInfo, string, string>(
+                async (Platform platform, Platform automationPlatform, string appId, FileInfo app, string device, string name) =>
                 {
                     // if there is an already used dirver with such name dispose
-                    if (csharpKernel.TryGetValue(name, out AppDriver oldDriver) && oldDriver is {})
+                    if (csharpKernel.TryGetValue(name, out AppDriver oldDriver) && oldDriver is { })
                     {
                         await DisposeAppDriver(oldDriver);
                     }
@@ -119,7 +125,7 @@ public class AutomationExtensions : IKernelExtension
                         new AutomationConfiguration(
                             appId, app, platform, device, automationPlatform));
 
-                    csharpKernel.RegisterForDisposal(async() =>
+                    csharpKernel.RegisterForDisposal(async () =>
                     {
                         await DisposeAppDriver(driver);
                     });
@@ -135,36 +141,51 @@ public class AutomationExtensions : IKernelExtension
                 deviceOption,
                 nameOption);
 
-            csharpKernel.AddDirective(testOption);
+            csharpKernel.AddDirective(testCommand);
+
+            if (KernelInvocationContext.Current is { } context)
+            {
+                PocketView view = div(
+                    code("Maui.UITesting"),
+                    " is loaded. It adds commands for UI Testing/Automation.",
+                    code("#!uitest -h")
+                );
+
+                context.Display(view);
+            }
         }
 
         return Task.CompletedTask;
+    }
 
-        Task DisposeAppDriver(AppDriver driver)
+    Task DisposeAppDriver(AppDriver driver)
+    {
+        try
         {
-            try
-            {
-                driver.Dispose();
-            }
-            catch
-            { }
-
-            return Task.CompletedTask;
+            driver.Dispose();
         }
+        catch
+        { }
 
-        IEnumerable<string> GetAndroidDevices()
-        {
-            var devices = new List<string>();
-            var adb = new Adb();
-            var adbDevices = adb.GetDevices();
-            devices.AddRange(adbDevices.Select(d => d.Serial));
+        return Task.CompletedTask;
+    }
 
-            var avd = new AvdManager();
-            var avds = avd.ListAvds();
-            devices.AddRange(avds.Select(a => a.Name));
+    void AddAndroidDevices(List<string> devices)
+    {
+        var adb = new Adb();
+        var adbDevices = adb.GetDevices();
+        devices.AddRange(adbDevices.Select(d => d.Serial));
 
-            return devices;
-        }
+        var avd = new AvdManager();
+        var avds = avd.ListAvds();
+        devices.AddRange(avds.Select(a => a.Name));
+    }
+
+    void AddAppleDevices(string platform, List<string> devices)
+    {
+        var appleDevices = Xcode.GetDevices(platform).Select(d => d.Name);
+        if (appleDevices.Any())
+            devices.AddRange(appleDevices);
     }
 }
 
