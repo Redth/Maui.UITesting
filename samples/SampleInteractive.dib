@@ -1,0 +1,19 @@
+#!pwsh
+
+rm -rf ~/.nuget/packages/redth.microsoft.maui.automation.interactive
+rm -rf ~/.nuget/packages/redth.microsoft.maui.automation
+rm -rf ~/.nuget/packages/redth.microsoft.maui.automation.driver
+
+dotnet pack ../src/Core/Core.csproj -p:PackageOutputPath=../packages
+dotnet pack ../src/Driver/Driver.csproj -p:PackageOutputPath=../packages
+dotnet pack ../src/Agent/Agent.csproj -p:PackageOutputPath=../packages
+dotnet pack ../src/Interactive/Interactive.csproj -p:PackageOutputPath=../packages
+
+#!csharp
+
+#i "nuget:/Users/redth/code/Maui.UITesting/src/packages"
+#r "nuget:Redth.Microsoft.Maui.Automation.Interactive"
+
+#!csharp
+
+#!uitest
