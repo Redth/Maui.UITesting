@@ -3,6 +3,7 @@ using Microsoft.Maui.Automation.Remote;
 using Idb;
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
+using Microsoft.Maui.Automation.Util;
 
 namespace Microsoft.Maui.Automation.Driver;
 
@@ -14,6 +15,7 @@ public class iOSDriver : Driver
 		public const string IdbCompanionPort = "iOS:IdbCompanionPort";
 		public const string AutoStartIdbCompanion = "iOS:AutoStartIdbCompanion";
 	}
+
 	public iOSDriver(IAutomationConfiguration configuration, ILoggerFactory? loggerProvider)
 		: base(configuration, loggerProvider)
 	{
@@ -31,14 +33,40 @@ public class iOSDriver : Driver
 			configuration.AppId = AppUtil.GetBundleIdentifier(configuration.AppFilename)
 				?? throw new Exception("AppId not found");
 
+		// Find ios udid
+		var tpi = configuration.DevicePlatform switch
+		{
+			Platform.Ios => "ios",
+			Platform.Tvos => "tvos",
+			Platform.Maccatalyst => "macos",
+			_ => throw new Exception("Platform not supported with this driver")
+		};
+
+		var devices = Xcode.GetDevices(tpi);
+
+		string rawUdid(string input)
+			=> input.Replace("{", "")
+				.Replace("}", "")
+				.Replace("-", "")
+				.Trim();
+
+		var specifiedDevice = devices.FirstOrDefault(d =>
+			d.Name.Equals(configuration.Device, StringComparison.OrdinalIgnoreCase)
+			|| rawUdid(d.Serial).Equals(rawUdid(configuration.Device), StringComparison.OrdinalIgnoreCase));
+
+		if (specifiedDevice is null)
+			specifiedDevice = devices.FirstOrDefault();
+		if (specifiedDevice is null)
+			throw new Exception("No device found");
+
 		if (idbStart)
 		{
 			idbCompanionPath = UnpackIdb();
 
-			idbCompanionProcess = new ProcessRunner(idbLogger, idbCompanionPath, $"--boot {configuration.Device}");
+			idbCompanionProcess = new ProcessRunner(idbLogger, idbCompanionPath, $"--boot {specifiedDevice.Serial}");
 			var bootResult = idbCompanionProcess.WaitForExit();
 
-			idbCompanionProcess = new ProcessRunner(idbLogger, idbCompanionPath, $"--udid {configuration.Device}");
+			idbCompanionProcess = new ProcessRunner(idbLogger, idbCompanionPath, $"--udid {specifiedDevice.Serial}");
 
 			// Sleep until idb exited or started
 			while (true)

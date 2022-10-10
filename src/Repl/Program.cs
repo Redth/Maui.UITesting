@@ -6,7 +6,6 @@ using Microsoft.Maui.Automation.Remote;
 using Spectre.Console;
 using System.Net;
 
-
 //var driver = new AppDriverBuilder()
 //	.AppFilename(@"C:\code\Maui.UITesting\samples\SampleMauiApp\bin\Debug\net7.0-android\com.companyname.samplemauiapp-Signed.apk")
 //	.Device("Pixel_5_API_31")
@@ -23,7 +22,7 @@ var driver = new AppDriverBuilder()
 		log.AddConsole();
 	})
 	//.Device("83880AF2-46CC-4302-86E9-E17970E3B33D")
-	.Device("Pixel_4_API_31")
+	.Device("iPhone 14 Pro")
 	.ConfigureDriver(c => c.Set(ConfigurationKeys.GrpcHostLoggingEnabled, true))
 	.Build();
 
