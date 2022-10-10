@@ -1,5 +1,9 @@
 ﻿using System.CommandLine;
 using System.CommandLine.Binding;
+using System.Configuration;
+
+using AndroidSdk;
+
 using Microsoft.DotNet.Interactive;
 using Microsoft.DotNet.Interactive.CSharp;
 using Microsoft.Maui.Automation.Driver;
@@ -65,6 +69,7 @@ public class AutomationExtensions : IKernelExtension
                     case Platform.Tvos:
                         break;
                     case Platform.Android:
+                        devices = ScanAndroidDevices();
                         break;
                     case Platform.Winappsdk:
                         break;
@@ -145,6 +150,12 @@ public class AutomationExtensions : IKernelExtension
 
             }
         }
+    }
+
+    private List<string> ScanAndroidDevices()
+    {
+        var androidSdkManager = new AndroidSdkManager();
+        return androidSdkManager.Adb.GetDevices().Select(d => d.Device).ToList();
     }
 }
 
