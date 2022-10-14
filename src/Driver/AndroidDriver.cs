@@ -328,9 +328,19 @@ public class AndroidDriver : Driver
 	public override Task Screenshot(string? filename = null)
 	{
 		var fullFilename = base.GetScreenshotFilename(filename);
+		var localDir = Path.Combine(Path.GetTempPath(), "adbshellpull");
+		Directory.CreateDirectory(localDir);
 
-		WrapAdbTool(() =>
-			Adb.ScreenCapture(new FileInfo(fullFilename), Device));
+		var remoteFile = $"/sdcard/{Guid.NewGuid().ToString("N")}.png";
+		
+		Shell($"screencap {remoteFile}");
+
+		WrapAdbTool(() => Adb.Run("-s", $"\"{Device}\"", "pull", remoteFile, localDir));
+
+		File.Move(Path.Combine(localDir, Path.GetFileName(remoteFile)), fullFilename, true);
+
+		Shell($"rm {remoteFile}");
+
 		return Task.CompletedTask;
 	}
 
