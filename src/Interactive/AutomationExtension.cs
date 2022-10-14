@@ -27,8 +27,8 @@ public class AutomationExtensions : IKernelExtension
 		var candidateKernels = kernel.FindKernels(k => k is CSharpKernel).Cast<CSharpKernel>();
 		foreach (var csKernel in candidateKernels)
 		{
-			if (csKernel.Directives.Any(d => d.Name.Equals("#!uitest", StringComparison.OrdinalIgnoreCase)))
-			{
+			//if (csKernel.Directives.Any(d => d.Name.Equals("#!uitest", StringComparison.OrdinalIgnoreCase)))
+			//{
 				if (!startedLoadingDevices)
 				{
 					startedLoadingDevices = true;
@@ -37,7 +37,7 @@ public class AutomationExtensions : IKernelExtension
 
 				await ConfigureKernelDirective(csKernel);
 				installedOnKernels.Add(csKernel.Name);
-			}
+			//}
 		}
 
 		if (installedOnKernels.Count > 0 && KernelInvocationContext.Current is { } context)
