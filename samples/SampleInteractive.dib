@@ -1,0 +1,37 @@
+#!pwsh
+
+Remove-Item -Recurse -Force ~/.nuget/packages/redth.microsoft.maui.automation.interactive
+Remove-Item -Recurse -Force ~/.nuget/packages/redth.microsoft.maui.automation
+Remove-Item -Recurse -Force ~/.nuget/packages/redth.microsoft.maui.automation.driver
+
+$pkgVersion="0.10001"
+dotnet pack ../src/Core/Core.csproj -p:PackageVersion=$pkgVersion -p:PackageOutputPath=../packages
+dotnet pack ../src/Driver/Driver.csproj -p:PackageVersion=$pkgVersion -p:PackageOutputPath=../packages
+dotnet pack ../src/Agent/Agent.csproj -p:PackageVersion=$pkgVersion -p:PackageOutputPath=../packages
+dotnet pack ../src/Interactive/Interactive.csproj -p:PackageVersion=$pkgVersion -p:PackageOutputPath=../packages
+
+#!csharp
+
+#i "nuget:C:\code\Maui.UITesting\src\packages"
+#r "nuget:Redth.Microsoft.Maui.Automation.Interactive,0.10001.0"
+
+#!csharp
+
+#!uitest --platform Android --device Pixel_5_API_31 --app "C:\code\Maui.UITesting\samples\SampleMauiApp\bin\Debug\net7.0-android\com.companyname.samplemauiapp-Signed.apk"
+
+#!csharp
+
+await Driver.Start();
+
+await Driver.First(By.AutomationId("entryUsername"))
+	.InputText("redth");
+
+await Driver.First(By.AutomationId("entryPassword"))
+	.InputText("1234");
+
+await Driver.First(By.ContainingText("Login"))
+	.Tap();
+
+#!csharp
+
+await Driver.RenderScreenshot();
