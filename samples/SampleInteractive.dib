@@ -1,19 +1,34 @@
 #!pwsh
 
-rm -rf ~/.nuget/packages/redth.microsoft.maui.automation.interactive
-rm -rf ~/.nuget/packages/redth.microsoft.maui.automation
-rm -rf ~/.nuget/packages/redth.microsoft.maui.automation.driver
+Remove-Item -Recurse -Force ~/.nuget/packages/redth.microsoft.maui.automation.interactive
+Remove-Item -Recurse -Force ~/.nuget/packages/redth.microsoft.maui.automation
+Remove-Item -Recurse -Force ~/.nuget/packages/redth.microsoft.maui.automation.driver
 
-dotnet pack ../src/Core/Core.csproj -p:PackageOutputPath=../packages
-dotnet pack ../src/Driver/Driver.csproj -p:PackageOutputPath=../packages
-dotnet pack ../src/Agent/Agent.csproj -p:PackageOutputPath=../packages
-dotnet pack ../src/Interactive/Interactive.csproj -p:PackageOutputPath=../packages
-
-#!csharp
-
-#i "nuget:/Users/redth/code/Maui.UITesting/src/packages"
-#r "nuget:Redth.Microsoft.Maui.Automation.Interactive"
+$pkgVersion="0.10000"
+dotnet pack ../src/Core/Core.csproj -p:PackageVersion=$pkgVersion -p:PackageOutputPath=../packages
+dotnet pack ../src/Driver/Driver.csproj -p:PackageVersion=$pkgVersion -p:PackageOutputPath=../packages
+dotnet pack ../src/Agent/Agent.csproj -p:PackageVersion=$pkgVersion -p:PackageOutputPath=../packages
+dotnet pack ../src/Interactive/Interactive.csproj -p:PackageVersion=$pkgVersion -p:PackageOutputPath=../packages
 
 #!csharp
 
-#!uitest
+#i "nuget:C:\code\Maui.UITesting\src\packages"
+#r "nuget:Redth.Microsoft.Maui.Automation.Interactive,0.10000.0"
+
+#!csharp
+
+#!uitest --platform Android --device  --app "C:\code\Maui.UITesting\samples\SampleMauiApp\bin\Debug\net7.0-android\com.companyname.samplemauiapp-Signed.apk"
+
+#!csharp
+
+await Driver.Start();
+
+await Driver.First(By.AutomationId("entryUsername"))
+	.InputText("redth");
+
+await Driver.First(By.AutomationId("entryPassword"))
+	.InputText("1234");
+
+#!csharp
+
+await Driver.RenderScreenshot();
