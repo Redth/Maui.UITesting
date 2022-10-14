@@ -10,17 +10,24 @@ using static Microsoft.DotNet.Interactive.Formatting.PocketViewTags;
 using System.Runtime.InteropServices;
 using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
+using Microsoft.Extensions.Logging;
+using Microsoft.DotNet.Interactive.Commands;
+using static Pocket.Logger<Microsoft.Maui.Automation.Interactive.AutomationExtensions>;
+using Pocket;
+using Microsoft.Extensions.Hosting;
 
 namespace Microsoft.Maui.Automation.Interactive;
 
 public class AutomationExtensions : IKernelExtension
 {
-	TaskCompletionSource<IDictionary<string, List<string>>> tcsDevices = new();
-	public Task<IDictionary<string, List<string>>> Devices
+	static TaskCompletionSource<IDictionary<string, List<string>>> tcsDevices = new();
+	static Task<IDictionary<string, List<string>>> Devices
 		=> tcsDevices.Task;
 
 	public async Task OnLoadAsync(Kernel kernel)
 	{
+		using var operation = Log.OnEnterAndExit();
+
 		var startedLoadingDevices = false;
 
 		var installedOnKernels = new List<string>();
@@ -32,6 +39,7 @@ public class AutomationExtensions : IKernelExtension
 				if (!startedLoadingDevices)
 				{
 					startedLoadingDevices = true;
+					operation.Info("Loading devices...");
 					var _ = LoadDevices().ContinueWith(t => tcsDevices.TrySetResult(t.Result));
 				}
 
@@ -44,17 +52,25 @@ public class AutomationExtensions : IKernelExtension
 		{
 			PocketView view = div(
 				code("Maui.UITesting"),
-				$" is loaded. It adds commands for UI Testing/Automation.  Available on {string.Join(", ", installedOnKernels)}.",
-				code("#!uitest -h")
+				$" is loaded. It adds commands for UI Testing/Automation.  Available on {string.Join(", ", installedOnKernels)}."
 			);
 
 			context.Display(view);
+
+			PocketView view2 = div(
+				"Use the command: ",
+				code("#!uitest -h")
+			);
+
+			context.Display(view2);
 		}
 
 	}
 
 	async Task ConfigureKernelDirective(CSharpKernel csharpKernel)
 	{
+		using var operation = Log.OnEnterAndExit();
+
 		var platformOption = new Option<Platform>(
 				new[] { "--platform" },
 				() => Platform.Maui,
@@ -62,7 +78,6 @@ public class AutomationExtensions : IKernelExtension
 		{
 			Arity = ArgumentArity.ExactlyOne
 		};
-		platformOption.AddCompletions("Android", "iOS", "MacCatalsyt", "tvOS", "WinAppSDK");
 
 		var appIdOption = new Option<string>(
 			new[] { "--app-id" },
@@ -71,12 +86,13 @@ public class AutomationExtensions : IKernelExtension
 			Arity = ArgumentArity.ZeroOrOne
 		};
 
-		var appOption = new Option<FileInfo?>(
+		var appOption = new Option<FileInfo>(
 			new[] { "--app" },
 			"The application file (.app, .apk, etc.) to test.")
 		{
-			Arity = ArgumentArity.ZeroOrOne
-		};
+			Arity = ArgumentArity.ZeroOrOne,
+		}.ExistingOnly();
+
 		var automationPlatformOption = new Option<Platform>(
 			new[] { "--automation-platform" },
 			() => Platform.Maui,
@@ -119,14 +135,14 @@ public class AutomationExtensions : IKernelExtension
 
 
 		var testCommand = new Command("#!uitest", "Starts a UI Testing Driver session")
-			{
-				platformOption,
-				automationPlatformOption,
-				appIdOption,
-				appOption,
-				deviceOption,
-				nameOption
-			};
+		{
+			platformOption,
+			automationPlatformOption,
+			appIdOption,
+			appOption,
+			deviceOption,
+			nameOption
+		};
 
 		testCommand.SetHandler<Platform, Platform, string, FileInfo?, string, string>(
 			async (Platform platform, Platform automationPlatform, string appId, FileInfo? app, string device, string name) =>
@@ -138,6 +154,7 @@ public class AutomationExtensions : IKernelExtension
 				}
 
 				var builder = new AppDriverBuilder()
+					.ConfigureLogging(l => l.ClearProviders())
 					.DevicePlatform(platform)
 					.AutomationPlatform(automationPlatform);
 
@@ -167,6 +184,7 @@ public class AutomationExtensions : IKernelExtension
 			nameOption);
 
 		csharpKernel.AddDirective(testCommand);
+		csharpKernel.DeferCommand(new SubmitCode("using Microsoft.Maui.Automation;using Microsoft.Maui.Automation.Driver;", csharpKernel.Name));
 	}
 
 	Task DisposeAppDriver(IDriver driver)
