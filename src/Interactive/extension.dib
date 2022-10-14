@@ -1,4 +1,0 @@
-#!csharp
-
-using Microsoft.Maui.Automation;
-using Microsoft.Maui.Automation.Driver;

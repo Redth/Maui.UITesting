@@ -15,12 +15,14 @@
 	<ItemGroup>
 		<PackageReference Include="Microsoft.DotNet.Interactive" Version="1.0.0-beta.22504.6" />
 		<PackageReference Include="Microsoft.DotNet.Interactive.CSharp" Version="1.0.0-beta.22504.6" />
+		<PackageReference Include="PocketLogger" Version="0.4.1">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
 	</ItemGroup>
 	<ItemGroup>
 		<None Include="$(OutputPath)/Redth.Microsoft.Maui.Automation.Interactive.dll" Pack="true" PackagePath="interactive-extensions/dotnet" />
 		<None Include="$(OutputPath)/Microsoft.Maui.Automation.Core.dll" Pack="true" PackagePath="interactive-extensions/dotnet" />
 		<None Include="$(OutputPath)/Microsoft.Maui.Automation.Driver.dll" Pack="true" PackagePath="interactive-extensions/dotnet" />
-		<None Include="Package.props" Pack="true" PackagePath="build/$(PackageId).props" />
-		<None Include="extension.dib" Pack="true" PackagePath="interactive-extensions/dotnet" />
 	</ItemGroup>
 </Project>

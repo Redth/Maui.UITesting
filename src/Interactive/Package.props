@@ -1,6 +1,0 @@
-﻿<Project>
-	<ItemGroup>
-		<Import Include="Microsoft.Maui.Automation" />
-		<Import Include="Microsoft.Maui.Automation.Driver" />
-	</ItemGroup>
-</Project>
