@@ -1,4 +1,6 @@
-﻿using Microsoft.Maui.Automation.Driver;
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Maui.Automation.Driver;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,8 +12,11 @@ namespace Microsoft.Maui.Automation.Querying
 {
 	public class DriverQuery
 	{
-		public const int DefaultAutoWaitMilliseconds = 3000;
-		public const int DefaultAutoWaitRetryMilliseconds = 200;
+		ILogger Logger
+			=> Query.Logger;
+
+		public const int DefaultAutoWaitMilliseconds = 10000;
+		public const int DefaultAutoWaitRetryMilliseconds = 500;
 
 		public DriverQuery(IDriver driver)
 		{
@@ -48,6 +53,7 @@ namespace Microsoft.Maui.Automation.Querying
 
 		async Task<IEnumerable<IElement>> AutoWait(int autoWaitMs = DefaultAutoWaitMilliseconds, int retryDelayMs = DefaultAutoWaitRetryMilliseconds, bool waitForNone = false)
 		{
+			Logger.LogInformation($"[Query({Query.Id})] AutoWaiting...");
 			var waited = 0;
 
 			while (waited < autoWaitMs || autoWaitMs <= 0)
@@ -67,8 +73,13 @@ namespace Microsoft.Maui.Automation.Querying
 					if (autoWaitMs <= 0 || !anyResults)
 					{
 						if (anyResults)
-							throw new ElementsStillFoundException(Query);
+						{
+							var ex = new ElementsStillFoundException(Query);
+							Logger.LogError(ex, $"[Query({Query.Id})] {ex.Message}");
+							throw ex;
+						}
 
+						Logger.LogInformation($"[Query({Query.Id})] Completed with {results.Count()} element(s).");
 						return results;
 					}
 				}
@@ -76,17 +87,29 @@ namespace Microsoft.Maui.Automation.Querying
 				{
 					// Wait until we find 1 or more
 					if (autoWaitMs <= 0 || anyResults)
+					{
+						Logger.LogInformation($"[Query({Query.Id})] Completed with {results.Count()} element(s).");
 						return results;
+					}
 				}
 
+				Logger.LogInformation($"[Query({Query.Id})] Waited {waited}ms, Waiting another {retryDelayMs}ms...");
 				Thread.Sleep(retryDelayMs);
 				waited += retryDelayMs;
 			}
 
 			if (waitForNone)
-				throw new ElementsStillFoundException(Query);
+			{
+				var ex = new ElementsStillFoundException(Query);
+				Logger.LogError(ex, $"[Query({Query.Id})] {ex.Message}");
+				throw ex;
+			}
 			else
-				throw new ElementsNotFoundException(Query);
+			{
+				var ex = new ElementsNotFoundException(Query);
+				Logger.LogError(ex, $"[Query({Query.Id})] {ex.Message}");
+				throw ex;
+			}
 		}
 
 	}
