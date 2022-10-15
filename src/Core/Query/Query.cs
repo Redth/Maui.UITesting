@@ -67,7 +67,8 @@ public class Query
 			previousSet.Clear();
 			previousSet.AddRange(currentSet);
 
-			var newSet = await step.Execute(driver, tree, currentSet);
+			var newSet = (await step.Execute(driver, tree, currentSet)
+				.ConfigureAwait(false)).ToList();
 
 			currentSet.Clear();
 
