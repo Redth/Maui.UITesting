@@ -66,7 +66,7 @@ public class iOSDriver : Driver
 			idbCompanionProcess = new ProcessRunner(idbLogger, idbCompanionPath, $"--boot {specifiedDevice.Serial}");
 			var bootResult = idbCompanionProcess.WaitForExit();
 
-			idbCompanionProcess = new ProcessRunner(idbLogger, idbCompanionPath, $"--udid {specifiedDevice.Serial}");
+			idbCompanionProcess = new ProcessRunner(idbLogger, idbCompanionPath, new[] { $"--udid {specifiedDevice.Serial}" }, CancellationToken.None, logStandardError: false);
 
 			// Sleep until idb exited or started
 			while (true)
