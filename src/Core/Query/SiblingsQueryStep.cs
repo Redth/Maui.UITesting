@@ -28,4 +28,3 @@ class SiblingsQueryStep : PredicateQueryStep
 		return Task.FromResult<IEnumerable<IElement>>(newSet);
 	}
 }
-

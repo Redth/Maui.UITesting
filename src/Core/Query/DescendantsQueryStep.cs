@@ -4,7 +4,7 @@ namespace Microsoft.Maui.Automation.Querying;
 
 public class DescendantsQueryStep : PredicateQueryStep
 {
-	public DescendantsQueryStep(Predicate<IElement> predicate) : base(predicate)
+	public DescendantsQueryStep(Predicate<IElement>? predicate) : base(predicate)
 	{
 	}
 

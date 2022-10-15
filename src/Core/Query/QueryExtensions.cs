@@ -49,7 +49,7 @@ public static class QueryExtensions
 
 public static class DriverQueryExtensions
 {
-	static DriverQuery Append(this DriverQuery query, Predicate<IElement> predicate)
+	static DriverQuery AppendChildren(this DriverQuery query, Predicate<IElement> predicate)
 	{
 		query.Query.Append(predicate);
 		return query;
@@ -61,33 +61,65 @@ public static class DriverQueryExtensions
 		return query;
 	}
 
-	public static DriverQuery By(this DriverQuery query, Predicate<IElement> predicate)
-		=> query.Append(predicate);
 
-	public static DriverQuery ByAutomationId(this DriverQuery query, string automationId)
-		=> query.Append(e => e.AutomationId == automationId);
+	public static DriverQuery By(this DriverQuery query, Predicate<IElement>? predicate = null)
+		=> query.Append(new DescendantsQueryStep(predicate));
 
-	public static DriverQuery ById(this DriverQuery query, string id)
-		=> query.Append(e => e.Id == id);
 
-	public static DriverQuery OfType(this DriverQuery query, string typeName)
-		=> query.Append(e => e.Type == typeName);
+	public static DriverQuery AutomationId(this DriverQuery query, string automationId)
+		=> query.By(e => e.AutomationId == automationId);
 
-	public static DriverQuery OfFullType(this DriverQuery query, string fullTypeName)
-		=> query.Append(e => e.FullType == fullTypeName);
+	public static DriverQuery Id(this DriverQuery query, string id)
+		=> query.By(e => e.Id == id);
 
-	public static DriverQuery ContainingText(this DriverQuery query, string text, StringComparison comparisonType = StringComparison.InvariantCultureIgnoreCase)
-		=> query.Append(e => e.Text.Contains(text, comparisonType));
+	public static DriverQuery Type(this DriverQuery query, string typeName)
+		=> query.By(e => e.Type == typeName);
 
-	public static DriverQuery Marked(this DriverQuery query, string marked, StringComparison comparisonType = StringComparison.InvariantCultureIgnoreCase)
-		=> query.Append(e => e.Id.Equals(marked, comparisonType)
+	public static DriverQuery FullType(this DriverQuery query, string fullTypeName)
+		=> query.By(e => e.FullType == fullTypeName);
+
+	public static DriverQuery Text(this DriverQuery query, string text, StringComparison comparisonType = StringComparison.InvariantCultureIgnoreCase)
+		=> query.By(e => e.Text.Equals(text, comparisonType));
+
+    public static DriverQuery ContainsText(this DriverQuery query, string text, StringComparison comparisonType = StringComparison.InvariantCultureIgnoreCase)
+        => query.By(e => e.Text.Contains(text, comparisonType));
+
+    public static DriverQuery Marked(this DriverQuery query, string marked, StringComparison comparisonType = StringComparison.InvariantCultureIgnoreCase)
+		=> query.By(e => e.Id.Equals(marked, comparisonType)
+			|| e.AutomationId.Equals(marked, comparisonType)
+			|| e.Text.Equals(marked, comparisonType));
+
+	public static DriverQuery First(this DriverQuery query)
+		=> query.Append(new FirstQueryStep());
+
+
+	public static DriverQuery Children(this DriverQuery query, Predicate<IElement> predicate)
+		=> query.AppendChildren(predicate);
+
+	public static DriverQuery ChildrenByAutomationId(this DriverQuery query, string automationId)
+		=> query.AppendChildren(e => e.AutomationId == automationId);
+
+	public static DriverQuery ChildrenById(this DriverQuery query, string id)
+		=> query.AppendChildren(e => e.Id == id);
+
+	public static DriverQuery ChildrenOfType(this DriverQuery query, string typeName)
+		=> query.AppendChildren(e => e.Type == typeName);
+
+	public static DriverQuery ChildrenOfFullType(this DriverQuery query, string fullTypeName)
+		=> query.AppendChildren(e => e.FullType == fullTypeName);
+
+	public static DriverQuery ChildrenContainingText(this DriverQuery query, string text, StringComparison comparisonType = StringComparison.InvariantCultureIgnoreCase)
+		=> query.AppendChildren(e => e.Text.Contains(text, comparisonType));
+
+	public static DriverQuery ChildrenMarked(this DriverQuery query, string marked, StringComparison comparisonType = StringComparison.InvariantCultureIgnoreCase)
+		=> query.AppendChildren(e => e.Id.Equals(marked, comparisonType)
 			|| e.AutomationId.Equals(marked, comparisonType)
 			|| e.Text.Equals(marked, comparisonType));
 
 	public static DriverQuery Siblings(this DriverQuery query, Predicate<IElement>? predicate = null)
 		=> query.Append(new SiblingsQueryStep(predicate));
 
-	public static DriverQuery AtIndex(this DriverQuery query, int index)
+	public static DriverQuery Index(this DriverQuery query, int index)
 		=> query.Append(new IndexQueryStep(index));
 
 	public static DriverQuery Tap(this DriverQuery query)

@@ -43,36 +43,41 @@ var mappings = new Dictionary<string, Func<string[], Task>>
 	{ "windows", Windows },
 	{ "test", async (string[] args) =>
 		{
+			// Fill in username/password
 			await driver
-				.Query()
-				.ByAutomationId("entryUsername")
-				.InputText("xamarin");
-
+				.AutomationId("entryUsername")
+				.First()
+				.InputText("redth");
 			await driver
-				.Query()
-				.ByAutomationId("entryPassword")
+				.AutomationId("entryPassword")
+				.First()
 				.InputText("1234");
 
+			// Click Login
 			await driver
-				.Query()
-				.ContainingText("Login")
+				.Type("Button")
+				.Text("Login")
+				.First()
 				.Tap();
 
-			await driver.None(By.AutomationId("entryUsername"));
+			// Wait for next page
+			await driver
+				.ContainsText("Hello, World!")
+				.First();
 
-			var label = await driver.Query()
-			.ContainingText("Hello, World!");
+			// Click the counter button
+			await driver
+				.AutomationId("buttonOne")
+				.First()
+				.Tap();
 
-			var button = await driver.Query()
-		.ByAutomationId("buttonOne");
+			// Find the label we expect to be incremented
+			var label = await driver
+				.Type("Label")
+				.ContainsText("Current count:")
+				.Element();
 
-			await button.First().Tap();
-
-			await driver.Screenshot();
-
-			await driver.Any(By.Type("Label").ThenContainingText("Current count: 1"));
-
-			Console.WriteLine(label.Text);
+			Console.WriteLine(label!.Text);
 		}
 	},
 	{ "perf", async (string[] args) =>
@@ -83,7 +88,7 @@ var mappings = new Dictionary<string, Func<string[], Task>>
 			for (int i = 0; i < 1000; i++)
 			{
 				var indstart = DateTime.UtcNow;
-				var f = await driver.First(e => e.Type == "Label" && e.Text.Contains("count"));
+				var f = await driver.Query().By(e => e.Type == "Label" && e.Text.Contains("count")).Element();
 				var t = f.Text;
 				var indtotal = DateTime.UtcNow - indstart;
 				ind.Add(indtotal.TotalMilliseconds);
@@ -180,7 +185,7 @@ async Task Windows(params string[] args)
 	}
 }
 
-void PrintTree(IHasTreeNodes node, Element element, int depth)
+void PrintTree(IHasTreeNodes node, IElement element, int depth)
 {
 	var subnode = node.AddNode(element.ToTable(ConfigureTable));
 

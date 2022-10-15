@@ -191,7 +191,7 @@ public class AutomationExtensions : IKernelExtension
 	{
 		try
 		{
-			driver.Dispose();
+			driver.DisposeAsync();
 		}
 		catch
 		{ }

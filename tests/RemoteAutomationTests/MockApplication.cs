@@ -42,20 +42,20 @@ namespace RemoteAutomationTests
 			throw new NotImplementedException();
 		}
 
-		public override Task<IEnumerable<Element>> GetElements()
-			=> Task.FromResult<IEnumerable<Element>>(MockWindows);
+		public override Task<IEnumerable<IElement>> GetElements()
+			=> Task.FromResult<IEnumerable<IElement>>(MockWindows);
 
-		public override Task<IEnumerable<Element>> FindElements(Predicate<Element> matcher)
+		public override Task<IEnumerable<IElement>> FindElements(Predicate<IElement> matcher)
 		{
 			var windows = MockWindows;
 
-			var matches = new List<Element>();
+			var matches = new List<IElement>();
 			Traverse(windows, matches, matcher);
 
-			return Task.FromResult<IEnumerable<Element>>(matches);
+			return Task.FromResult<IEnumerable<IElement>>(matches);
 		}
 
-		void Traverse(IEnumerable<Element> elements, IList<Element> matches, Predicate<Element> matcher)
+		void Traverse(IEnumerable<IElement> elements, IList<IElement> matches, Predicate<IElement> matcher)
 		{
 			foreach (var e in elements)
 			{
