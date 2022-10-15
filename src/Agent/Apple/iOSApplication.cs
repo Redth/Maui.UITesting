@@ -42,7 +42,12 @@ namespace Microsoft.Maui.Automation
 
 		public override Task<IEnumerable<IElement>> GetElements()
 		{
-			var root = GetRootElements(-1);
+			IEnumerable<IElement> root = Enumerable.Empty<IElement>();
+
+			UIApplication.SharedApplication.InvokeOnMainThread(() =>
+			{
+				root = GetRootElements(-1);
+			});
 
 			return Task.FromResult(root);
 		}
