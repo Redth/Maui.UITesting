@@ -35,10 +35,11 @@ Console.CancelKeyPress += (s, e) =>
 };
 
 
-await driver.Start();
+//await driver.Start();
 
 var mappings = new Dictionary<string, Func<string[], Task>>
 {
+	{ "start", Start },
 	{ "tree", Tree },
 	{ "windows", Windows },
 	{ "test", async (string[] args) =>
@@ -47,7 +48,26 @@ var mappings = new Dictionary<string, Func<string[], Task>>
 			await driver
 				.AutomationId("entryUsername")
 				.First()
-				.InputText("redth");
+				.InputText("xamarin");
+			await driver
+				.AutomationId("entryPassword")
+				.First()
+				.InputText("wrong");
+
+			// Click Login
+			await driver
+				.Type("Button")
+				.Text("Login")
+				.First()
+				.Tap();
+
+			await driver
+				.Query(Platform.Ios)
+				.Marked("OK", StringComparison.OrdinalIgnoreCase)
+				.Tap();
+
+
+			// Fill in username/password
 			await driver
 				.AutomationId("entryPassword")
 				.First()
@@ -172,6 +192,9 @@ async Task Tree(params string[] args)
 		AnsiConsole.Write(tree);
 	}
 }
+
+Task Start(params string[] args)
+	=> driver!.Start();
 
 async Task Windows(params string[] args)
 {

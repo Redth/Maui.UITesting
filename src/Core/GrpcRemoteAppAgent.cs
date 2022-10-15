@@ -62,8 +62,10 @@ namespace Microsoft.Maui.Automation
 
 			try
 			{
+				var app = GetApp(request.Platform);
+
 				// Get the elements from the running app host
-				var elements = await GetApp(request.Platform).GetElements();
+				var elements = await app.GetElements();
 				response.Elements.AddRange(elements.Select(e => new Element(e)));
 			}
 			catch (Exception ex)
