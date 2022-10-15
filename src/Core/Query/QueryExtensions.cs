@@ -131,7 +131,7 @@ public static class DriverQueryExtensions
 	public static DriverQuery InputText(this DriverQuery query, string text)
 		=> query.Append(new InteractionQueryStep((driver, element) => driver.InputText(element, text)));
 
-	public static DriverQuery ClearText(this DriverQuery query, string text)
+	public static DriverQuery ClearText(this DriverQuery query)
 	=> query.Append(new InteractionQueryStep((driver, element) => driver.ClearText(element)));
 }
 
