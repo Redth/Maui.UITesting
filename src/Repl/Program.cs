@@ -1,4 +1,5 @@
 ﻿using Grpc.Net.Client;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Automation;
 using Microsoft.Maui.Automation.Driver;
@@ -12,7 +13,7 @@ using System.Net;
 //	//.Device("9B141FFAZ008CJ")
 //	.Build();
 
-var driver = new AppDriverBuilder()
+var builder = new AppDriverBuilder()
 	//.AppId("D05ADD49-B96D-49E5-979C-FA3A3F42F8E0_yn9kjvr01ms9j!App")
 	//.DevicePlatform(Platform.Winappsdk)
 	.AppFilename("/Users/redth/code/Maui.UITesting/samples/SampleMauiApp/bin/Debug/net7.0-ios/iossimulator-x64/SampleMauiApp.app")
@@ -22,9 +23,12 @@ var driver = new AppDriverBuilder()
 		log.AddConsole();
 	})
 	//.Device("83880AF2-46CC-4302-86E9-E17970E3B33D")
-	.Device("iPhone 14 Pro")
-	.ConfigureDriver(c => c.Set(ConfigurationKeys.GrpcHostLoggingEnabled, true))
-	.Build();
+	.Device("iPhonte 14 Pro")
+	.ConfigureDriver(c => c.Set(ConfigurationKeys.GrpcHostLoggingEnabled, true));
+
+var driver = builder!.Build();
+var logger = builder!.Host!.Services!.GetRequiredService<ILogger<Microsoft.Maui.Automation.Querying.Query>>();
+
 
 Task<string?>? readTask = null;
 CancellationTokenSource ctsMain = new CancellationTokenSource();
@@ -35,7 +39,7 @@ Console.CancelKeyPress += (s, e) =>
 };
 
 
-//await driver.Start();
+Microsoft.Maui.Automation.Querying.Query.Logger = logger!;
 
 var mappings = new Dictionary<string, Func<string[], Task>>
 {
@@ -61,18 +65,21 @@ var mappings = new Dictionary<string, Func<string[], Task>>
 				.First()
 				.Tap();
 
+			logger.LogInformation("Looking for OK");
 			await driver
 				.Query(Platform.Ios)
 				.Marked("OK", StringComparison.OrdinalIgnoreCase)
 				.Tap();
 
-
 			// Fill in username/password
+			logger.LogInformation("Looking for ENTRY");
 			await driver
 				.AutomationId("entryPassword")
 				.First()
+				.ClearText()
 				.InputText("1234");
 
+			logger.LogInformation("Looking for BUTTON");
 			// Click Login
 			await driver
 				.Type("Button")
