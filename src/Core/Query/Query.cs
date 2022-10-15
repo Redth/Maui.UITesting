@@ -1,16 +1,31 @@
-﻿using Microsoft.Maui.Automation.Driver;
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Maui.Automation.Driver;
 
 namespace Microsoft.Maui.Automation.Querying;
 
 public class Query
 {
+	public static class ConfigurationKeys
+	{
+		public const string PauseBeforeInteractions = "QUERY_PAUSE_BEFORE_INTERACTIONS";
+		public const string PauseAfterInteractions = "QUERY_PAUSE_AFTER_INTERACTIONS";
+	}
+
+	public static ILogger Logger { get; set; } = NullLogger.Instance;
+
 	public Query()
-	{ }
+	{
+		Id = Guid.NewGuid().ToString();
+	}
 
 	public Query(Platform automationPlatform)
 	{
 		AutomationPlatform = automationPlatform;
+		Id = Guid.NewGuid().ToString();
 	}
+
+	public readonly string Id;
 
 	List<IQueryStep> steps = new();
 
