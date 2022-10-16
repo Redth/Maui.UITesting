@@ -16,7 +16,7 @@ namespace RemoteAutomationTests
 				.WithWindow("window1", "Window", "Window Title")
 				.WithView("view1");
 
-			var windows = new List<Element>();
+			var windows = new List<IElement>();
 			var elems = await app.GetElements();
 
 			// Query the remote host

@@ -8,7 +8,7 @@ using Xunit;
 
 namespace Microsoft.Maui.Automation.Test
 {
-	public class Tests
+    public class Tests
 	{
 		readonly IDriver driver;
 
@@ -30,16 +30,20 @@ namespace Microsoft.Maui.Automation.Test
 			await driver.Start();
 
 			// Find the button by its MAUI AutomationId property
-			var button = await driver.First(By.AutomationId("buttonOne"));
+			var button = await driver
+				.AutomationId("buttonOne")
+				.Element();
 			Assert.NotNull(button);
 
 			// Tap the button to increment the counter
 			await driver.Tap(button);
 
 			// Find the label we expect to have changed
-			var label = await driver.First(e =>
-				e.Type == "Label"
-				&& e.Text.Contains("1"));
+			var label = await driver
+				.By(e =>
+					e.Type == "Label"
+					&& e.Text.Contains("1"))
+				.Element();
 
 			Assert.NotNull(label);
 		}

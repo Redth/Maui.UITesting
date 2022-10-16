@@ -1,4 +1,5 @@
 ﻿using Grpc.Net.Client;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Automation;
 using Microsoft.Maui.Automation.Driver;
@@ -6,14 +7,13 @@ using Microsoft.Maui.Automation.Remote;
 using Spectre.Console;
 using System.Net;
 
-
 //var driver = new AppDriverBuilder()
 //	.AppFilename(@"C:\code\Maui.UITesting\samples\SampleMauiApp\bin\Debug\net7.0-android\com.companyname.samplemauiapp-Signed.apk")
 //	.Device("Pixel_5_API_31")
 //	//.Device("9B141FFAZ008CJ")
 //	.Build();
 
-var driver = new AppDriverBuilder()
+var builder = new AppDriverBuilder()
 	//.AppId("D05ADD49-B96D-49E5-979C-FA3A3F42F8E0_yn9kjvr01ms9j!App")
 	//.DevicePlatform(Platform.Winappsdk)
 	.AppFilename("/Users/redth/code/Maui.UITesting/samples/SampleMauiApp/bin/Debug/net7.0-ios/iossimulator-x64/SampleMauiApp.app")
@@ -23,9 +23,12 @@ var driver = new AppDriverBuilder()
 		log.AddConsole();
 	})
 	//.Device("83880AF2-46CC-4302-86E9-E17970E3B33D")
-	.Device("Pixel_4_API_31")
-	.ConfigureDriver(c => c.Set(ConfigurationKeys.GrpcHostLoggingEnabled, true))
-	.Build();
+	.Device("iPhonte 14 Pro")
+	.ConfigureDriver(c => c.Set(ConfigurationKeys.GrpcHostLoggingEnabled, true));
+
+var driver = builder!.Build();
+var logger = builder!.Host!.Services!.GetRequiredService<ILogger<Driver>>();
+
 
 Task<string?>? readTask = null;
 CancellationTokenSource ctsMain = new CancellationTokenSource();
@@ -36,40 +39,69 @@ Console.CancelKeyPress += (s, e) =>
 };
 
 
-await driver.Start();
+Microsoft.Maui.Automation.Querying.Query.Logger = logger!;
 
 var mappings = new Dictionary<string, Func<string[], Task>>
 {
+	{ "start", Start },
 	{ "tree", Tree },
 	{ "windows", Windows },
 	{ "test", async (string[] args) =>
 		{
-			
+			// Fill in username/password
 			await driver
-				.First(By.AutomationId("entryUsername"))
+				.AutomationId("entryUsername")
+				.First()
 				.InputText("xamarin");
-
 			await driver
-				.First(By.AutomationId("entryPassword"))
-				.InputText("1234");
+				.AutomationId("entryPassword")
+				.First()
+				.InputText("wrong");
 
+			// Click Login
 			await driver
-				.First(By.ContainingText("Login"))
+				.Type("Button")
+				.Text("Login")
+				.First()
 				.Tap();
 
-			await driver.None(By.AutomationId("entryUsername"));
+			await driver
+				.Query(Platform.Ios)
+				.Marked("OK", StringComparison.OrdinalIgnoreCase)
+				.Tap();
 
-			var label = await driver.First(By.ContainingText("Hello, World!"));
+			// Fill in username/password
+			await driver
+				.AutomationId("entryPassword")
+				.First()
+				.ClearText()
+				.InputText("1234");
 
-			var button = await driver.First(By.AutomationId("buttonOne"));
+			// Click Login
+			await driver
+				.Type("Button")
+				.Text("Login")
+				.First()
+				.Tap();
 
-			await button.Tap();
+			// Wait for next page
+			await driver
+				.ContainsText("Hello, World!")
+				.First();
 
-			await driver.Screenshot();
+			// Click the counter button
+			await driver
+				.AutomationId("buttonOne")
+				.First()
+				.Tap();
 
-			await driver.Any(By.Type("Label").ThenContainingText("Current count: 1"));
+			// Find the label we expect to be incremented
+			var label = await driver
+				.Type("Label")
+				.ContainsText("Current count:")
+				.Element();
 
-			Console.WriteLine(label.Text);
+			Console.WriteLine(label!.Text);
 		}
 	},
 	{ "perf", async (string[] args) =>
@@ -80,7 +112,7 @@ var mappings = new Dictionary<string, Func<string[], Task>>
 			for (int i = 0; i < 1000; i++)
 			{
 				var indstart = DateTime.UtcNow;
-				var f = await driver.First(e => e.Type == "Label" && e.Text.Contains("count"));
+				var f = await driver.Query().By(e => e.Type == "Label" && e.Text.Contains("count")).Element();
 				var t = f.Text;
 				var indtotal = DateTime.UtcNow - indstart;
 				ind.Add(indtotal.TotalMilliseconds);
@@ -138,13 +170,13 @@ while (!ctsMain.Token.IsCancellationRequested)
 	}
 }
 
-driver.Dispose();
+driver.DisposeAsync().GetAwaiter().GetResult();
 
 Environment.Exit(0);
 
 async Task Tree(params string[] args)
 {
-	IEnumerable<Element> children;
+	IEnumerable<IElement> children;
 
 	if (args?.Length > 0 && Enum.TryParse<Platform>(args[0], true, out var p))
 		children = await driver.GetElements(p);
@@ -165,6 +197,9 @@ async Task Tree(params string[] args)
 	}
 }
 
+Task Start(params string[] args)
+	=> driver!.Start();
+
 async Task Windows(params string[] args)
 {
 	var children = await driver.GetElements();
@@ -177,7 +212,7 @@ async Task Windows(params string[] args)
 	}
 }
 
-void PrintTree(IHasTreeNodes node, Element element, int depth)
+void PrintTree(IHasTreeNodes node, IElement element, int depth)
 {
 	var subnode = node.AddNode(element.ToTable(ConfigureTable));
 

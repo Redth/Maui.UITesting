@@ -15,7 +15,7 @@ internal class ProcessRunner
 		: this(logger, executable, args, System.Threading.CancellationToken.None)
 	{ }
 
-	public ProcessRunner(ILogger logger, string executable, string[] args, System.Threading.CancellationToken cancelToken, bool redirectStandardInput = false)
+	public ProcessRunner(ILogger logger, string executable, string[] args, System.Threading.CancellationToken cancelToken, bool redirectStandardInput = false, bool logStandardError = true, bool logStandardOut = true)
 	{
 		this.logger = logger;
 		standardOutput = new List<string>();
@@ -35,20 +35,26 @@ internal class ProcessRunner
 
 		process.OutputDataReceived += (s, e) =>
 		{
-			if (!string.IsNullOrWhiteSpace(e.Data) && !e.Data.Equals("\0"))
+			if (logStandardOut)
 			{
-				logger.LogInformation(e.Data);
-				standardOutput.Add(e.Data);
-				OutputLine?.Invoke(this, e.Data);
+				if (!string.IsNullOrWhiteSpace(e.Data) && !e.Data.Equals("\0"))
+				{
+					logger.LogInformation(e.Data);
+					standardOutput.Add(e.Data);
+					OutputLine?.Invoke(this, e.Data);
+				}
 			}
 		};
 		process.ErrorDataReceived += (s, e) =>
 		{
-			if (!string.IsNullOrWhiteSpace(e.Data) && !e.Data.Equals("\0"))
+			if (logStandardError)
 			{
-				logger.LogError(e.Data);
-				standardError.Add(e.Data);
-				OutputLine?.Invoke(this, e.Data);
+				if (!string.IsNullOrWhiteSpace(e.Data) && !e.Data.Equals("\0"))
+				{
+					logger.LogError(e.Data);
+					standardError.Add(e.Data);
+					OutputLine?.Invoke(this, e.Data);
+				}
 			}
 		};
 		process.Start();

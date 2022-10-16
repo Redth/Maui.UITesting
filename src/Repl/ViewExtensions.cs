@@ -4,7 +4,7 @@ namespace Microsoft.Maui.Automation
 {
 	public static class ViewExtensions
 	{
-		public static Table ToTable(this Element element, Action<Table>? config = null)
+		public static Table ToTable(this IElement element, Action<Table>? config = null)
 		{
 			var table = new Table()
 				.AddColumn("[bold]" + element.Type + "[/]")

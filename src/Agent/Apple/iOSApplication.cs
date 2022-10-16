@@ -40,15 +40,20 @@ namespace Microsoft.Maui.Automation
 			return string.Empty;
 		}
 
-		public override Task<IEnumerable<Element>> GetElements()
+		public override Task<IEnumerable<IElement>> GetElements()
 		{
-			var root = GetRootElements(-1);
+			IEnumerable<IElement> root = Enumerable.Empty<IElement>();
+
+			UIApplication.SharedApplication.InvokeOnMainThread(() =>
+			{
+				root = GetRootElements(-1);
+			});
 
 			return Task.FromResult(root);
 		}
 
 
-		IEnumerable<Element> GetRootElements(int depth)
+		IEnumerable<IElement> GetRootElements(int depth)
 		{
 			var children = new List<Element>();
 
@@ -86,20 +91,20 @@ namespace Microsoft.Maui.Automation
 			return children;
 		}
 
-		public override Task<IEnumerable<Element>> FindElements(Predicate<Element> matcher)
+		public override Task<IEnumerable<IElement>> FindElements(Predicate<IElement> matcher)
 		{
 			var windows = GetRootElements(-1);
 
-			var matches = new List<Element>();
+			var matches = new List<IElement>();
 			Traverse(windows, matches, matcher);
 
-			return Task.FromResult<IEnumerable<Element>>(matches);
+			return Task.FromResult<IEnumerable<IElement>>(matches);
 		}
 
 		public override Task<PerformActionResult> PerformAction(string action, string elementId, params string[] arguments)
 			=> Task.FromResult(new PerformActionResult { Status = -1 });
 
-		void Traverse(IEnumerable<Element> elements, IList<Element> matches, Predicate<Element> matcher)
+		void Traverse(IEnumerable<IElement> elements, IList<IElement> matches, Predicate<IElement> matcher)
 		{
 			foreach (var e in elements)
 			{

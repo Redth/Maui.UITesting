@@ -19,5 +19,8 @@
 
 		int Get(string key, int defaultValue);
 		void Set(string key, int value);
-	}
+
+		TimeSpan Get(string key, TimeSpan defaultValue);
+		void Set(string key, TimeSpan value);
+    }
 }

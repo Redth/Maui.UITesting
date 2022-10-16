@@ -45,19 +45,19 @@ namespace Microsoft.Maui.Automation
 			throw new NotImplementedException();
 		}
 
-		public override Task<IEnumerable<Element>> GetElements()
+		public override Task<IEnumerable<IElement>> GetElements()
 		{
-			return Task.FromResult(LifecycleListener.Activities.Select(a => a.GetElement(this, 1, -1)));
+			return Task.FromResult<IEnumerable<IElement>>(LifecycleListener.Activities.Select(a => a.GetElement(this, 1, -1)));
 		}
 
-		public override Task<IEnumerable<Element>> FindElements(Predicate<Element> matcher)
+		public override Task<IEnumerable<IElement>> FindElements(Predicate<IElement> matcher)
 		{
 			var windows = LifecycleListener.Activities.Select(a => a.GetElement(this, 1, 1));
 
 			var matches = new List<Element>();
 			Traverse(windows, matches, matcher);
 
-			return Task.FromResult<IEnumerable<Element>>(matches);
+			return Task.FromResult<IEnumerable<IElement>>(matches);
 		}
 
 		public override async Task<PerformActionResult> PerformAction(string action, string elementId, params string[] arguments)

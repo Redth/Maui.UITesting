@@ -29,13 +29,13 @@ namespace Microsoft.Maui.Automation
 			return PlatformApps[platform];
 		}
 
-		public override Task<IEnumerable<Element>> GetElements()
+		public override Task<IEnumerable<IElement>> GetElements()
 			=> GetApp(DefaultPlatform).GetElements();
 
 		public override Task<string> GetProperty(string elementId, string propertyName)
 			=> GetApp(DefaultPlatform).GetProperty(elementId, propertyName);
 
-		public override Task<IEnumerable<Element>> FindElements(Predicate<Element> matcher)
+		public override Task<IEnumerable<IElement>> FindElements(Predicate<IElement> matcher)
 			=> GetApp(DefaultPlatform).FindElements(matcher);
 
 

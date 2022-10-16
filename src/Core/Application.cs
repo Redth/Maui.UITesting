@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Maui.Automation.Querying;
 
 namespace Microsoft.Maui.Automation
 {
@@ -80,9 +81,9 @@ namespace Microsoft.Maui.Automation
 
 		public abstract Task<string> GetProperty(string elementId, string propertyName);
 
-		public abstract Task<IEnumerable<Element>> GetElements();
+		public abstract Task<IEnumerable<IElement>> GetElements();
 
-		public abstract Task<IEnumerable<Element>> FindElements(Predicate<Element> matcher);
+		public abstract Task<IEnumerable<IElement>> FindElements(Predicate<IElement> matcher);
 
 		public Task<PerformActionResult> PerformAction(string action, params string[] arguments)
 			=> PerformAction(action, string.Empty, arguments);
@@ -97,5 +98,5 @@ namespace Microsoft.Maui.Automation
 			return Task.FromResult(result as string[] ?? new string[0] );
 		}
 
-    }
+	}
 }

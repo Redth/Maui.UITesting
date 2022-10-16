@@ -26,7 +26,7 @@ public class AppDriverBuilder
 	public readonly IAutomationConfiguration Configuration;
 
 	protected readonly IHostBuilder HostBuilder;
-	protected IHost? Host;
+	public IHost? Host;
 
 	public AppDriverBuilder()
 	{

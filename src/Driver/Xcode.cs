@@ -23,7 +23,8 @@ public class Xcode
         if (!xcdevice.Exists)
             throw new FileNotFoundException(xcdevice.FullName);
         var pr = new ProcessRunner(NullLogger.Instance, xcdevice.FullName, "list");
-        
+        pr.WaitForExit();
+
         var json = string.Join(Environment.NewLine, pr.Output);
 
 

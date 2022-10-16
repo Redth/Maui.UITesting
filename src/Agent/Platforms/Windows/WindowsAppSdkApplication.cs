@@ -14,8 +14,8 @@ namespace Microsoft.Maui.Automation
 		public override Platform DefaultPlatform => Platform.Winappsdk;
 
 
-		public override Task<IEnumerable<Element>> GetElements()
-			=> Task.FromResult<IEnumerable<Element>>(new[] { UI.Xaml.Window.Current.GetElement(this, 1, -1) });
+		public override Task<IEnumerable<IElement>> GetElements()
+			=> Task.FromResult<IEnumerable<IElement>>(new[] { UI.Xaml.Window.Current.GetElement(this, 1, -1) });
 
 		public override async Task<string> GetProperty(string elementId, string propertyName)
 		{
@@ -30,7 +30,7 @@ namespace Microsoft.Maui.Automation
 		}
 
 
-		public override async Task<IEnumerable<Element>> FindElements(Predicate<Element> matcher)
+		public override async Task<IEnumerable<IElement>> FindElements(Predicate<IElement> matcher)
 		{
 			var windows = new[] { UI.Xaml.Window.Current.GetElement(this, 1, 1) };
 
