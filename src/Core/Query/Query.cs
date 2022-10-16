@@ -111,7 +111,7 @@ public class Query
 		s.Append($"Query(Id='{QueryId}'");
 
 		if (AutomationPlatform is not null)
-			s.Append(", AutomationPlatform={AutomationPlatform}");
+			s.Append($", AutomationPlatform={AutomationPlatform}");
 		s.AppendLine(")");
 
 		for (int i = 0; i < steps.Count; i++)
