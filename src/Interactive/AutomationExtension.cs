@@ -86,7 +86,7 @@ public class AutomationExtensions : IKernelExtension
 			Arity = ArgumentArity.ZeroOrOne
 		};
 
-		var appOption = new Option<FileInfo>(
+		var appOption = new Option<FileSystemInfo>(
 			new[] { "--app" },
 			"The application file (.app, .apk, etc.) to test.")
 		{
@@ -144,8 +144,8 @@ public class AutomationExtensions : IKernelExtension
 			nameOption
 		};
 
-		testCommand.SetHandler<Platform, Platform, string, FileInfo?, string, string>(
-			async (Platform platform, Platform automationPlatform, string appId, FileInfo? app, string device, string name) =>
+		testCommand.SetHandler<Platform, Platform, string, FileSystemInfo?, string, string>(
+			async (Platform platform, Platform automationPlatform, string appId, FileSystemInfo? app, string device, string name) =>
 			{
 				// if there is an already used dirver with such name dispose
 				if (csharpKernel.TryGetValue(name, out IDriver oldDriver) && oldDriver is { })
