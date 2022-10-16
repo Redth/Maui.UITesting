@@ -28,8 +28,8 @@ namespace Microsoft.Maui.Automation
 			}
 			else if (view is Microsoft.Maui.Controls.NavigationPage navigationPage)
 			{
-                return new[] { navigationPage.CurrentPage.GetMauiElement(application, parentId, currentDepth, maxDepth) };
-            }
+				return new[] { navigationPage.CurrentPage.GetMauiElement(application, parentId, currentDepth, maxDepth) };
+			}
 			else if (view is IContentView content && content?.Content is Maui.IView contentView)
 			{
 				return new[] { contentView.GetMauiElement(application, parentId, currentDepth, maxDepth) };
@@ -39,7 +39,7 @@ namespace Microsoft.Maui.Automation
 		}
 
 
-		internal static Element GetPlatformWindowElement(this Maui.IWindow window, IApplication application)
+		internal static IElement GetPlatformWindowElement(this Maui.IWindow window, IApplication application)
 		{
 #if ANDROID
 			if (window.Handler.PlatformView is Android.App.Activity activity)
@@ -54,7 +54,7 @@ namespace Microsoft.Maui.Automation
 			return null;
 		}
 
-		internal static Element GetPlatformViewElement(this Maui.IView view, IApplication application, string parentId = "")
+		internal static IElement GetPlatformViewElement(this Maui.IView view, IApplication application, string parentId = "")
 		{
 #if ANDROID
 			if (view.Handler.PlatformView is Android.Views.View androidview)
@@ -86,7 +86,7 @@ namespace Microsoft.Maui.Automation
 //		}
 
 
-		internal static Element GetMauiElement(this Maui.IWindow window, IApplication application, string parentId = "", int currentDepth = -1, int maxDepth = -1)
+		internal static IElement GetMauiElement(this Maui.IWindow window, IApplication application, string parentId = "", int currentDepth = -1, int maxDepth = -1)
 		{
 			var platformElement = window.GetPlatformWindowElement(application);
 

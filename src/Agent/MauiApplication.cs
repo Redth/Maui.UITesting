@@ -9,6 +9,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MauiIElement = Microsoft.Maui.IElement;
 
 namespace Microsoft.Maui.Automation
 {
@@ -42,10 +43,10 @@ namespace Microsoft.Maui.Automation
 
 		public readonly IApplication PlatformApplication;
 
-		public override Task<IEnumerable<Element>> GetElements()
-			=> Dispatch<IEnumerable<Element>>(() =>
+		public override Task<IEnumerable<IElement>> GetElements()
+			=> Dispatch<IEnumerable<IElement>>(() =>
 			{
-				var windows = new List<Element>();
+				var windows = new List<IElement>();
 
 				foreach (var window in MauiPlatformApplication.Windows)
 				{
@@ -53,13 +54,13 @@ namespace Microsoft.Maui.Automation
 					windows.Add(w);
 				}
 
-				return Task.FromResult<IEnumerable<Element>>(windows);
+				return Task.FromResult<IEnumerable<IElement>>(windows);
 			});
 
-		public override Task<IEnumerable<Element>> FindElements(Predicate<Element> matcher)
-			=> Dispatch<IEnumerable<Element>>(() =>
+		public override Task<IEnumerable<IElement>> FindElements(Predicate<IElement> matcher)
+			=> Dispatch<IEnumerable<IElement>>(() =>
 			{
-				var windows = new List<Element>();
+				var windows = new List<IElement>();
 
 				foreach (var window in MauiPlatformApplication.Windows)
 				{
@@ -67,13 +68,13 @@ namespace Microsoft.Maui.Automation
 					windows.Add(w);
 				}
 
-				var matches = new List<Element>();
+				var matches = new List<IElement>();
 				Traverse(windows, matches, matcher);
 
-				return Task.FromResult<IEnumerable<Element>>(matches);
+				return Task.FromResult<IEnumerable<IElement>>(matches);
 			});
 
-		void Traverse(IEnumerable<Element> elements, IList<Element> matches, Predicate<Element> matcher)
+		void Traverse(IEnumerable<IElement> elements, IList<IElement> matches, Predicate<IElement> matcher)
 		{
 			foreach (var e in elements)
 			{
@@ -111,7 +112,7 @@ namespace Microsoft.Maui.Automation
 				var elements = await this.GetElements();
 				var element = elements.Find(e => e.Id == elementId).FirstOrDefault();
 
-				if (element.PlatformElement is IElement mauiElement)
+				if (element.PlatformElement is MauiIElement mauiElement)
 				{
 
 					if (action == Actions.InputText)

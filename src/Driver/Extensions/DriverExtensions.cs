@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Maui.Automation.Querying;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,77 +12,59 @@ namespace Microsoft.Maui.Automation.Driver;
 
 public static partial class DriverExtensions
 {
+	public static DriverQuery On(this IDriver driver, Platform automationPlatform)
+		=> new DriverQuery(driver, automationPlatform);
 
-	public static Task<IEnumerable<Element>> All(this IDriver driver, Query query)
-		=> driver.AutoWait(query);
+	public static DriverQuery Query(this IDriver driver)
+		=> new DriverQuery(driver);
 
-	public static Task<IEnumerable<Element>> Any(this IDriver driver, Query query)
-		=> driver.AutoWait(query);
-
-	public static Task<Element?> First(this IDriver driver, Query query)
-		=> driver.AutoWaitFirst(query);
-
-
-	public static Task<IEnumerable<Element>> All(this IDriver driver, Predicate<Element> predicate)
-		=> driver.All(Query.By(predicate));
-
-	public static Task<IEnumerable<Element>> Any(this IDriver driver, Predicate<Element> predicate)
-		=> driver.Any(Query.By(predicate));
-
-	public static Task<Element?> First(this IDriver driver, Predicate<Element> predicate)
-		=> driver.First(Query.By(predicate));
-
-	public static Task None(this IDriver driver, Query query)
-		=> driver.AutoWait(query, waitForNone: true);
-
-	public static Task None(this IDriver driver, Predicate<Element> predicate)
-		=> driver.None(Query.By(predicate));
+	public static DriverQuery Query(this IDriver driver, Platform automationPlatform)
+		=> new DriverQuery(driver, automationPlatform);
 
 
-	static async Task<Element?> AutoWaitFirst(this IDriver driver, Query query, int autoWaitMs = 3000, int retryDelayMs = 200)
-		=> (await driver.AutoWait(query, autoWaitMs, retryDelayMs).ConfigureAwait(false)).FirstOrDefault();
+	public static DriverQuery ChildrenBy(this IDriver driver, Predicate<IElement> predicate)
+		=> new DriverQuery(driver).Children(predicate);
 
-	static async Task<IEnumerable<Element>> AutoWait(this IDriver driver, Query query, int autoWaitMs = 3000, int retryDelayMs = 200, bool waitForNone = false)
-	{
-		var waited = 0;
+	public static DriverQuery ChildrenByAutomationId(this IDriver driver, string automationId)
+		=> new DriverQuery(driver).ChildrenByAutomationId(automationId);
 
-		while (waited < autoWaitMs || autoWaitMs <= 0)
-		{
-			// See which automation platform to use
-			var platform = query.AutomationPlatform ?? driver.Configuration.AutomationPlatform;
+	public static DriverQuery ChildrenById(this IDriver driver, string id)
+		=> new DriverQuery(driver).ChildrenById(id);
 
-			var elements = await driver.GetElements(platform).ConfigureAwait(false);
+	public static DriverQuery ChildrenOfType(this IDriver driver, string typeName)
+		=> new DriverQuery(driver).ChildrenOfType(typeName);
 
-			var results = query.Execute(elements);
+	public static DriverQuery ChildrenOfFullType(this IDriver driver, string fullTypeName)
+		=> new DriverQuery(driver).ChildrenOfFullType(fullTypeName);
 
-			var anyResults = results.Any();
+	public static DriverQuery ChildrenContainingText(this IDriver driver, string text, StringComparison comparisonType = StringComparison.InvariantCultureIgnoreCase)
+		=> new DriverQuery(driver).ChildrenContainingText(text, comparisonType);
 
-			if (waitForNone)
-			{
-				// Wait until no results found
-				if (autoWaitMs <= 0 || !anyResults)
-				{
-					if (anyResults)
-						throw new ElementsStillFoundException(query);
+	public static DriverQuery ChildrenMarked(this IDriver driver, string marked, StringComparison comparisonType = StringComparison.InvariantCultureIgnoreCase)
+		=> new DriverQuery(driver).ChildrenMarked(marked, comparisonType);
 
-					return results;
-				}
-			}
-			else
-			{
-				// Wait until we find 1 or more
-				if (autoWaitMs <= 0 || anyResults)
-					return results;
-			}
 
-			Thread.Sleep(retryDelayMs);
-			waited += retryDelayMs;
-		}
+	public static DriverQuery By(this IDriver driver, Predicate<IElement>? predicate = null)
+		=> new DriverQuery(driver).By(predicate);
 
-		if (waitForNone)
-			throw new ElementsStillFoundException(query);
-		else
-			throw new ElementsNotFoundException(query);
-	}
+    public static DriverQuery AutomationId(this IDriver driver, string automationId)
+        => new DriverQuery(driver).AutomationId(automationId);
+
+    public static DriverQuery Id(this IDriver driver, string id)
+        => new DriverQuery(driver).Id(id);
+
+    public static DriverQuery Type(this IDriver driver, string typeName)
+        => new DriverQuery(driver).Type(typeName);
+
+    public static DriverQuery FullType(this IDriver driver, string fullTypeName)
+        => new DriverQuery(driver).FullType(fullTypeName);
+
+    public static DriverQuery Text(this IDriver driver, string text, StringComparison comparisonType = StringComparison.InvariantCultureIgnoreCase)
+        => new DriverQuery(driver).Text(text, comparisonType);
+
+    public static DriverQuery ContainsText(this IDriver driver, string text, StringComparison comparisonType = StringComparison.InvariantCultureIgnoreCase)
+        => new DriverQuery(driver).ContainsText(text, comparisonType);
+
+    public static DriverQuery Marked(this IDriver driver, string marked, StringComparison comparisonType = StringComparison.InvariantCultureIgnoreCase)
+        => new DriverQuery(driver).Marked(marked, comparisonType);
 }
-

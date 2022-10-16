@@ -4,7 +4,7 @@
 		<TargetFramework>net6.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
-		<AssemblyName>Microsoft.Maui.Automation.Interactive</AssemblyName>
+		<AssemblyName>Redth.Microsoft.Maui.Automation.Interactive</AssemblyName>
 		<PackageId>Redth.Microsoft.Maui.Automation.Interactive</PackageId>
 	</PropertyGroup>
 
@@ -13,18 +13,16 @@
 		<ProjectReference Include="..\Driver\Driver.csproj" />
 	</ItemGroup>
 	<ItemGroup>
-		<None Remove="Microsoft.DotNet.Interactive" />
-		<None Remove="Microsoft.DotNet.Interactive.CSharp" />
+		<PackageReference Include="Microsoft.DotNet.Interactive" Version="1.0.0-beta.22504.6" />
+		<PackageReference Include="Microsoft.DotNet.Interactive.CSharp" Version="1.0.0-beta.22504.6" />
+		<PackageReference Include="PocketLogger" Version="0.4.1">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="Microsoft.DotNet.Interactive" Version="1.0.0-beta.22452.2" />
-		<PackageReference Include="Microsoft.DotNet.Interactive.CSharp" Version="1.0.0-beta.22452.2" />
-	</ItemGroup>
-	<ItemGroup>
-		<None Include="$(OutputPath)/Microsoft.Maui.Automation.Interactive.dll" Pack="true" PackagePath="interactive-extensions/dotnet" />
+		<None Include="$(OutputPath)/Redth.Microsoft.Maui.Automation.Interactive.dll" Pack="true" PackagePath="interactive-extensions/dotnet" />
 		<None Include="$(OutputPath)/Microsoft.Maui.Automation.Core.dll" Pack="true" PackagePath="interactive-extensions/dotnet" />
 		<None Include="$(OutputPath)/Microsoft.Maui.Automation.Driver.dll" Pack="true" PackagePath="interactive-extensions/dotnet" />
-		<None Include="Package.props" Pack="true" PackagePath="build/Microsoft.Maui.Automation.Interactive.props" />
-		<None Include="extension.dib" Pack="true" PackagePath="interactive-extensions/dotnet" />
 	</ItemGroup>
 </Project>

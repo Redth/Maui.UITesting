@@ -47,21 +47,34 @@ internal static class iOSExtensions
 		return ti.TextInRange(range);
 	}
 
+	internal static string EnsureUniqueId(this UIKit.UIView view)
+	{
+		var id = view.AccessibilityIdentifier;
+
+		if (string.IsNullOrEmpty(id))
+		{
+			id = Guid.NewGuid().ToString();
+			view.AccessibilityIdentifier = id;
+		}
+
+		return id;
+	}
+
 	public static Element GetElement(this UIKit.UIView uiView, IApplication application, string parentId = "", int currentDepth = -1, int maxDepth = -1)
 	{
 		var scale = uiView.Window?.Screen?.NativeScale.Value ?? 1.0f;
 
 		var viewFrame = uiView.Frame.ToFrame();
-        var windowFrame = uiView.ConvertRectToView(uiView.Bounds, uiView.Window).ToFrame();
+		var windowFrame = uiView.ConvertRectToView(uiView.Bounds, uiView.Window).ToFrame();
 
 #if MACCATALYST
 		var nsWindow = UINSWindow.From(uiView.Window);
 		var screenFrame = nsWindow.ConvertRectToScreen(uiView.Frame).ToFrame();
 #else
-        var screenFrame = UIAccessibility.ConvertFrameToScreenCoordinates(uiView.Frame, uiView).ToFrame();
+		var screenFrame = UIAccessibility.ConvertFrameToScreenCoordinates(uiView.Frame, uiView).ToFrame();
 #endif
 
-        var e = new Element(application, Platform.Ios, uiView.Handle.ToString(), uiView, parentId)
+		var e = new Element(application, Platform.Ios, uiView.EnsureUniqueId(), uiView, parentId)
 		{
 			AutomationId = uiView.AccessibilityIdentifier ?? string.Empty,
 			Visible = !uiView.Hidden,
@@ -95,20 +108,20 @@ internal static class iOSExtensions
 
 	public static Element GetElement(this UIWindow window, IApplication application, int currentDepth = -1, int maxDepth = -1)
 	{
-        var scale = window?.Screen?.NativeScale.Value ?? 1.0f;
+		var scale = window?.Screen?.NativeScale.Value ?? 1.0f;
 
 #if MACCATALYST
-        var nsWindow = UINSWindow.From(window);
+		var nsWindow = UINSWindow.From(window);
 		
 		var viewFrame = window.Frame.ToFrame();
 		var windowFrame = nsWindow.Frame.ToFrame();
 		var screenFrame = nsWindow.ConvertRectToScreen(window.Frame).ToFrame();
 #else
-        var viewFrame = window.Frame.ToFrame();
-        var windowFrame = window.Frame.ToFrame();
-        var screenFrame = UIAccessibility.ConvertFrameToScreenCoordinates(window.Frame, window).ToFrame();
+		var viewFrame = window.Frame.ToFrame();
+		var windowFrame = window.Frame.ToFrame();
+		var screenFrame = UIAccessibility.ConvertFrameToScreenCoordinates(window.Frame, window).ToFrame();
 #endif
-        var e = new Element(application, Platform.Ios, window.Handle.ToString(), window)
+		var e = new Element(application, Platform.Ios, window.EnsureUniqueId(), window)
 		{
 			AutomationId = window.AccessibilityIdentifier ?? window.Handle.ToString(),
 			ViewFrame = viewFrame,

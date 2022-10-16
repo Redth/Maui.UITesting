@@ -3,6 +3,7 @@ using Microsoft.Maui.Automation.Remote;
 using Idb;
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
+using Microsoft.Maui.Automation.Util;
 
 namespace Microsoft.Maui.Automation.Driver;
 
@@ -14,6 +15,7 @@ public class iOSDriver : Driver
 		public const string IdbCompanionPort = "iOS:IdbCompanionPort";
 		public const string AutoStartIdbCompanion = "iOS:AutoStartIdbCompanion";
 	}
+
 	public iOSDriver(IAutomationConfiguration configuration, ILoggerFactory? loggerProvider)
 		: base(configuration, loggerProvider)
 	{
@@ -31,14 +33,40 @@ public class iOSDriver : Driver
 			configuration.AppId = AppUtil.GetBundleIdentifier(configuration.AppFilename)
 				?? throw new Exception("AppId not found");
 
+		// Find ios udid
+		var tpi = configuration.DevicePlatform switch
+		{
+			Platform.Ios => "ios",
+			Platform.Tvos => "tvos",
+			Platform.Maccatalyst => "macos",
+			_ => throw new Exception("Platform not supported with this driver")
+		};
+
+		var devices = Xcode.GetDevices(tpi);
+
+		string rawUdid(string input)
+			=> input.Replace("{", "")
+				.Replace("}", "")
+				.Replace("-", "")
+				.Trim();
+
+		var specifiedDevice = devices.FirstOrDefault(d =>
+			d.Name.Equals(configuration.Device, StringComparison.OrdinalIgnoreCase)
+			|| rawUdid(d.Serial).Equals(rawUdid(configuration.Device), StringComparison.OrdinalIgnoreCase));
+
+		if (specifiedDevice is null)
+			specifiedDevice = devices.FirstOrDefault();
+		if (specifiedDevice is null)
+			throw new Exception("No device found");
+
 		if (idbStart)
 		{
 			idbCompanionPath = UnpackIdb();
 
-			idbCompanionProcess = new ProcessRunner(idbLogger, idbCompanionPath, $"--boot {configuration.Device}");
+			idbCompanionProcess = new ProcessRunner(idbLogger, idbCompanionPath, $"--boot {specifiedDevice.Serial}");
 			var bootResult = idbCompanionProcess.WaitForExit();
 
-			idbCompanionProcess = new ProcessRunner(idbLogger, idbCompanionPath, $"--udid {configuration.Device}");
+			idbCompanionProcess = new ProcessRunner(idbLogger, idbCompanionPath, new[] { $"--udid {specifiedDevice.Serial}" }, CancellationToken.None, logStandardError: false);
 
 			// Sleep until idb exited or started
 			while (true)
@@ -180,11 +208,11 @@ public class iOSDriver : Driver
 		{
 			if (thisApp.ProcessState == InstalledAppInfo.Types.AppProcessState.Running)
 			{
-                await idb.terminateAsync(new TerminateRequest
-                {
-                    BundleId = Configuration.AppId
-                }).ResponseAsync;
-            }
+				await idb.terminateAsync(new TerminateRequest
+				{
+					BundleId = Configuration.AppId
+				}).ResponseAsync;
+			}
 		}
 	}
 
@@ -229,7 +257,7 @@ public class iOSDriver : Driver
 		});
 
 
-	public override async Task InputText(Element element, string text)
+	public override async Task InputText(IElement element, string text)
 	{
 		await Tap(element);
 		await Task.Delay(250);
@@ -238,7 +266,7 @@ public class iOSDriver : Driver
 		await idb.hid().SendStream<HIDEvent, HIDResponse>(TimeSpan.FromMilliseconds(100), textEvents);
 	}
 
-	public override async Task ClearText(Element element)
+	public override async Task ClearText(IElement element)
 	{
 		await Tap(element);
 		
@@ -256,7 +284,7 @@ public class iOSDriver : Driver
 	public override Task Tap(int x, int y)
 		=> press(x, y, TimeSpan.FromMilliseconds(100));
 
-	public override Task Tap(Element element)
+	public override Task Tap(IElement element)
 		=> Tap(
 			(int)((element.WindowFrame.X + (element.WindowFrame.Width / 2))),
 			(int)((element.WindowFrame.Y + (element.WindowFrame.Height / 2))));
@@ -264,7 +292,7 @@ public class iOSDriver : Driver
 	public override Task LongPress(int x, int y)
 		=> press(x, y, TimeSpan.FromSeconds(3));
 
-	public override Task LongPress(Element element)
+	public override Task LongPress(IElement element)
 			=> press(
 				(int)((element.WindowFrame.X + (element.WindowFrame.Width / 2))),
 				(int)((element.WindowFrame.Y + (element.WindowFrame.Height / 2))), TimeSpan.FromSeconds(3));
@@ -298,8 +326,8 @@ public class iOSDriver : Driver
 				{
 					Press = new HIDEvent.Types.HIDPress
 					{
-                        Action = pressAction,
-                        Direction = HIDEvent.Types.HIDDirection.Up
+						Action = pressAction,
+						Direction = HIDEvent.Types.HIDDirection.Up
 					}
 				}
 			});
@@ -327,8 +355,8 @@ public class iOSDriver : Driver
 	public override Task<string?> GetProperty(Platform automationPlatform, string elementId, string propertyName)
 			=> grpc.Client.GetProperty(automationPlatform, elementId, propertyName);
 
-	public override Task<IEnumerable<Element>> GetElements(Platform automationPlatform)
-		=> base.SetDriver(grpc.Client.GetElements(automationPlatform));
+	public override Task<IEnumerable<IElement>> GetElements(Platform automationPlatform)
+		=> grpc.Client.GetElements(automationPlatform);
 
 	public override Task<PerformActionResult> PerformAction(Platform automationPlatform, string action, string elementId, params string[] arguments)
 		=> grpc.Client.PerformAction(automationPlatform, action, elementId, arguments);
@@ -338,9 +366,9 @@ public class iOSDriver : Driver
 
 	public override Task Screenshot(string? filename = null)
 	{
-        var fullFilename = base.GetScreenshotFilename(filename);
+		var fullFilename = base.GetScreenshotFilename(filename);
 		
-        var response = idb.screenshot(new ScreenshotRequest());
+		var response = idb.screenshot(new ScreenshotRequest());
 		var data = response.ImageData.ToByteArray();
 		using var stream = File.Create(fullFilename);
 		response.ImageData.WriteTo(stream);
@@ -363,16 +391,18 @@ public class iOSDriver : Driver
 		return exePath;
 	}
 
-	public override async void Dispose()
+	public override async ValueTask DisposeAsync()
 	{
-		try
-		{
-			idbCompanionProcess?.Kill();
-			idbCompanionProcess?.WaitForExit();
-		}
-		catch { }
-
-		if (grpc is not null)
-			await grpc.Stop();
+		await Task.WhenAll(
+			grpc.DisposeAsync().AsTask(),
+			Task.Run(() =>
+			{
+				try
+				{
+					idbCompanionProcess?.Kill();
+					idbCompanionProcess?.WaitForExit();
+				}
+				catch { }
+			}));
 	}
 }

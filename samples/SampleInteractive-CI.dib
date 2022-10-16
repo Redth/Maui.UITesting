@@ -1,0 +1,28 @@
+#!csharp
+
+#i "nuget:C:\code\Maui.UITesting\src\packages"
+#r "nuget:Redth.Microsoft.Maui.Automation.Interactive,0.10001.0"
+
+#!markdown
+
+`dotnet repl --run .\SampleInteractive-CI.dib --input platform="Android" device="Pixel_5_API_31" app="C:\code\Maui.UITesting\samples\SampleMauiApp\bin\Debug\net7.0-android\com.companyname.samplemauiapp-Signed.apk" --output-format trx --output-path .\testresults.trx --exit-after-run`
+
+#!csharp
+
+// Pixel_5_API_31
+#!uitest --platform @input:platform --device @input:device --app @input:app
+
+#!csharp
+
+await Driver.First(By.AutomationId("entryUsername"))
+	.InputText("redth");
+
+await Driver.First(By.AutomationId("entryPassword"))
+	.InputText("1234");
+
+await Driver.First(By.ContainingText("Login"))
+	.Tap();
+
+#!csharp
+
+await Driver.RenderScreenshot();

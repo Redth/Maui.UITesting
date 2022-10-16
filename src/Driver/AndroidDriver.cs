@@ -180,7 +180,7 @@ public class AndroidDriver : Driver
 			(ulong)density));
 	}
 
-	public override async Task InputText(Element element, string text)
+	public override async Task InputText(IElement element, string text)
 	{
 		// Hide keyboard first
 		Shell($"input keyevent 111");
@@ -200,7 +200,7 @@ public class AndroidDriver : Driver
 		}
 	}
 
-	public override async Task ClearText(Element element)
+	public override async Task ClearText(IElement element)
 	{
 		await Tap(element);
 
@@ -261,7 +261,7 @@ public class AndroidDriver : Driver
 		return Task.CompletedTask;
 	}
 
-	public override Task LongPress(Element element)
+	public override Task LongPress(IElement element)
 		=> LongPress(element.ScreenFrame.X, element.ScreenFrame.Y);
 
 	public override Task OpenUri(string uri)
@@ -304,7 +304,7 @@ public class AndroidDriver : Driver
 		return Task.CompletedTask;
 	}
 
-	public override Task Tap(Element element)
+	public override Task Tap(IElement element)
 		=> Tap(element.ScreenFrame.X, element.ScreenFrame.Y);
 
 
@@ -313,8 +313,8 @@ public class AndroidDriver : Driver
 			.Any(p => p.PackageName?.Equals(AppId, StringComparison.OrdinalIgnoreCase) ?? false);
 
 
-	public override Task<IEnumerable<Element>> GetElements(Platform automationPlatform)
-		=> base.SetDriver(grpc.Client.GetElements(automationPlatform));
+	public override Task<IEnumerable<IElement>> GetElements(Platform automationPlatform)
+		=> grpc.Client.GetElements(automationPlatform);
 
 	public override Task<string?> GetProperty(Platform automationPlatform, string elementId, string propertyName)
 		=> grpc.Client.GetProperty(automationPlatform, elementId, propertyName);
@@ -327,23 +327,21 @@ public class AndroidDriver : Driver
 
 	public override Task Screenshot(string? filename = null)
 	{
-        var fullFilename = base.GetScreenshotFilename(filename);
+		var fullFilename = base.GetScreenshotFilename(filename);
+		var localDir = Path.Combine(Path.GetTempPath(), "adbshellpull");
+		Directory.CreateDirectory(localDir);
 
-        WrapAdbTool(() =>
-			Adb.ScreenCapture(new FileInfo(fullFilename), Device));
+		var remoteFile = $"/sdcard/{Guid.NewGuid().ToString("N")}.png";
+		
+		Shell($"screencap {remoteFile}");
+
+		WrapAdbTool(() => Adb.Run("-s", $"\"{Device}\"", "pull", remoteFile, localDir));
+
+		File.Move(Path.Combine(localDir, Path.GetFileName(remoteFile)), fullFilename, true);
+
+		Shell($"rm {remoteFile}");
+
 		return Task.CompletedTask;
-	}
-
-	public override async void Dispose()
-	{
-		if (grpc is not null)
-			await grpc.Stop();
-
-		if (emulatorProcess is not null)
-		{
-			emulatorProcess.Shutdown();
-			emulatorProcess.WaitForExit();
-		}
 	}
 
 	string? GetDeviceName(string? serial)
@@ -399,5 +397,16 @@ public class AndroidDriver : Driver
 
 			throw toolException;
 		}
+	}
+
+	public override async ValueTask DisposeAsync()
+	{
+		await Task.WhenAll(
+			grpc.DisposeAsync().AsTask(),
+			Task.Run(() =>
+			{
+				emulatorProcess?.Shutdown();
+				emulatorProcess?.WaitForExit();
+			}));
 	}
 }

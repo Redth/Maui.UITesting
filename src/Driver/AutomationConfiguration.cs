@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace Microsoft.Maui.Automation.Driver
 {
-    public class AutomationConfiguration : Dictionary<string, object>, IAutomationConfiguration
+	public class AutomationConfiguration : Dictionary<string, object>, IAutomationConfiguration
 	{
 
 		public static AutomationConfiguration FromYaml(string yamlFilename)
@@ -45,6 +45,16 @@ namespace Microsoft.Maui.Automation.Driver
 		public AutomationConfiguration(string appId, string appFilename, Platform devicePlatform, string? device = null, Platform? automationPlatform = null)
 		{
 			AppFilename = appFilename;
+			AppId = appId;
+			DevicePlatform = devicePlatform;
+			if (!string.IsNullOrEmpty(device))
+				Device = device;
+			AutomationPlatform = automationPlatform ?? devicePlatform;
+		}
+
+		public AutomationConfiguration(string appId, FileInfo appFilename, Platform devicePlatform, string? device = null, Platform? automationPlatform = null)
+		{
+			AppFilename = appFilename.FullName;
 			AppId = appId;
 			DevicePlatform = devicePlatform;
 			if (!string.IsNullOrEmpty(device))
@@ -186,6 +196,18 @@ namespace Microsoft.Maui.Automation.Driver
 		{
 			if (TryGetValue(key, out var val) && int.TryParse(val.ToString(), out var v))
 				return v;
+			return defaultValue;
+		}
+
+		public void Set(string key, TimeSpan value)
+		{
+			this[key] = value.Milliseconds;
+		}
+
+		public TimeSpan Get(string key, TimeSpan defaultValue)
+		{
+			if (TryGetValue(key, out var val) && int.TryParse(val.ToString(), out var v))
+				return TimeSpan.FromMilliseconds(v);
 			return defaultValue;
 		}
 

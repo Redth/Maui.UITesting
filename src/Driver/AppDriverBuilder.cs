@@ -25,8 +25,8 @@ public class AppDriverBuilder
 
 	public readonly IAutomationConfiguration Configuration;
 
-	readonly IHostBuilder HostBuilder;
-	IHost? Host;
+	protected readonly IHostBuilder HostBuilder;
+	public IHost? Host;
 
 	public AppDriverBuilder()
 	{
@@ -82,7 +82,7 @@ public class AppDriverBuilder
 		return this;
 	}
 
-	public IDriver Build()
+	public virtual IDriver Build()
 	{
 		Host = HostBuilder.Build();
 

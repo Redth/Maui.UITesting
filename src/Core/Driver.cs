@@ -21,13 +21,11 @@ namespace Microsoft.Maui.Automation.Driver
 
 		public abstract Task ClearAppState();
 
-		public abstract void Dispose();
-
 		public abstract Task<IDeviceInfo> GetDeviceInfo();
 
-		public abstract Task InputText(Element element, string text);
+		public abstract Task InputText(IElement element, string text);
 
-		public abstract Task ClearText(Element element);
+		public abstract Task ClearText(IElement element);
 
 		public virtual async Task Start(bool forceReInstall = false, bool clearAppState = false)
 		{
@@ -47,37 +45,15 @@ namespace Microsoft.Maui.Automation.Driver
 
 		public abstract Task LongPress(int x, int y);
 
-		public abstract Task LongPress(Element element);
+		public abstract Task LongPress(IElement element);
 
 		public abstract Task OpenUri(string uri);
 
-		protected async Task<IEnumerable<Element>> SetDriver(Task<IEnumerable<Element>> elements)
-		{
-			var allElements = await elements;
-			foreach (var element in allElements)
-			{
-				element.Driver = this;
-				if (element.Children.Any())
-					SetDriver(element.Children);
-			}
-			return allElements;
-		}
-
-		void SetDriver(IEnumerable<Element> elements)
-		{
-			foreach (var element in elements)
-			{
-				element.Driver = this;
-				if (element.Children.Any())
-					SetDriver(element.Children);
-			}
-		}
-
-        public abstract Task<IEnumerable<Element>> GetElements(Platform automationPlatform);
-        public Task<IEnumerable<Element>> GetElements()
+		public abstract Task<IEnumerable<IElement>> GetElements(Platform automationPlatform);
+		public Task<IEnumerable<IElement>> GetElements()
 			=> GetElements(Configuration.AutomationPlatform);
 
-        public abstract Task<string?> GetProperty(Platform automationPlatform, string elementId, string propertyName);
+		public abstract Task<string?> GetProperty(Platform automationPlatform, string elementId, string propertyName);
 		public Task<string?> GetProperty(string elementId, string propertyName)
 			=> GetProperty(Configuration.AutomationPlatform, elementId, propertyName);
 
@@ -85,11 +61,11 @@ namespace Microsoft.Maui.Automation.Driver
 		public Task<PerformActionResult> PerformAction(string action, string elementId, params string[] arguments)
 			=> PerformAction(Configuration.AutomationPlatform, action, elementId, arguments);
 
-        public abstract Task<string[]> Backdoor(Platform automationPlatform, string fullyQualifiedTypeName, string staticMethodName, string[] args);
+		public abstract Task<string[]> Backdoor(Platform automationPlatform, string fullyQualifiedTypeName, string staticMethodName, string[] args);
 		public Task<string[]> Backdoor(string fullyQualifiedTypeName, string staticMethodName, string[] args)
 			=> Backdoor(Configuration.AutomationPlatform, fullyQualifiedTypeName, staticMethodName, args);
 
-        public abstract Task PullFile(string remoteFile, string localDirectory);
+		public abstract Task PullFile(string remoteFile, string localDirectory);
 
 		public abstract Task PushFile(string localFile, string destinationDirectory);
 
@@ -101,7 +77,7 @@ namespace Microsoft.Maui.Automation.Driver
 
 		public abstract Task Tap(int x, int y);
 
-		public abstract Task Tap(Element element);
+		public abstract Task Tap(IElement element);
 
 		int screenshotSequence = 0;
 
@@ -112,8 +88,8 @@ namespace Microsoft.Maui.Automation.Driver
 			if (string.IsNullOrEmpty(filename))
 				filename = $"{screenshotSequence}.png";
 
-            string dir;
-            if (!string.IsNullOrEmpty(filename) && Path.IsPathFullyQualified(filename))
+			string dir;
+			if (!string.IsNullOrEmpty(filename) && Path.IsPathFullyQualified(filename))
 				dir = Path.GetDirectoryName(filename)!;
 			else
 				dir = Configuration.Get(ConfigurationKeys.DriverScreenshotDirectory,
@@ -128,5 +104,10 @@ namespace Microsoft.Maui.Automation.Driver
 		}
 
 		public abstract Task Screenshot(string? filename);
+
+		public virtual ValueTask DisposeAsync()
+		{
+			return ValueTask.CompletedTask;
+		}
 	}
 }
