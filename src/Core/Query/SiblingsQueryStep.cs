@@ -7,7 +7,8 @@ class SiblingsQueryStep : PredicateQueryStep
 	public SiblingsQueryStep() : base()
 	{ }
 
-	public SiblingsQueryStep(Predicate<IElement>? predicate = null) : base(predicate)
+	public SiblingsQueryStep(Predicate<IElement>? predicate = null, string? predicateDescription = null)
+		: base(predicate, predicateDescription)
 	{ }
 
 	public override Task<IEnumerable<IElement>> Execute(IDriver driver, IEnumerable<IElement> tree, IEnumerable<IElement> currentSet)
@@ -27,4 +28,7 @@ class SiblingsQueryStep : PredicateQueryStep
 
 		return Task.FromResult<IEnumerable<IElement>>(newSet);
 	}
+
+	public override string ToString()
+		=> $"[Siblings({base.ToString()})]";
 }

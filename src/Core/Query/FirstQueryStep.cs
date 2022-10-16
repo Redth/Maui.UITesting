@@ -7,7 +7,8 @@ class FirstQueryStep : PredicateQueryStep
 	public FirstQueryStep() : base()
 	{ }
 
-	public FirstQueryStep(Predicate<IElement>? predicate = null) : base(predicate)
+	public FirstQueryStep(Predicate<IElement>? predicate = null, string? predicateDescription = null)
+		: base(predicate, predicateDescription)
 	{ }
 
 	public override Task<IEnumerable<IElement>> Execute(IDriver driver, IEnumerable<IElement> tree, IEnumerable<IElement> currentSet)
@@ -19,5 +20,8 @@ class FirstQueryStep : PredicateQueryStep
 		else
 			return Task.FromResult(Enumerable.Empty<IElement>());
 	}
+
+	public override string ToString()
+		=> $"First({base.ToString()})";
 }
 

@@ -51,10 +51,29 @@ namespace Microsoft.Maui.Automation.Querying
 		public TaskAwaiter<IEnumerable<IElement>> GetAwaiter()
 			=> AutoWait().GetAwaiter();
 
+		void LogQuery(IEnumerable<IElement> elements, int waited)
+		{
+			var s = new StringBuilder();
+			s.Append(Query.ToString());
+			s.AppendLine($"\t ✅ (Waited {waited}ms)");
+			Logger.LogInformation(s.ToString());
+		}
+
+		Exception LogQuery(Exception ex, int waited, IEnumerable<IElement> elements)
+		{
+			var s = new StringBuilder();
+			s.Append(Query.ToString());
+			s.AppendLine($"\t ❌ (Waited {waited}ms)");
+			Logger.LogInformation(s.ToString());
+			Logger.LogError(ex, ex.Message);
+
+			return ex;
+		}
+
 		async Task<IEnumerable<IElement>> AutoWait(int autoWaitMs = DefaultAutoWaitMilliseconds, int retryDelayMs = DefaultAutoWaitRetryMilliseconds, bool waitForNone = false)
 		{
-			Logger.LogInformation($"[Query({Query.Id})] AutoWaiting...");
 			var waited = 0;
+			IEnumerable<IElement> results = Enumerable.Empty<IElement>();
 
 			while (waited < autoWaitMs || autoWaitMs <= 0)
 			{
@@ -63,7 +82,7 @@ namespace Microsoft.Maui.Automation.Querying
 
 				var elements = await Driver.GetElements(platform).ConfigureAwait(false);
 
-				var results = await Query.Execute(Driver, elements);
+				results = await Query.Execute(Driver, elements);
 
 				var anyResults = results.Any();
 
@@ -73,13 +92,9 @@ namespace Microsoft.Maui.Automation.Querying
 					if (autoWaitMs <= 0 || !anyResults)
 					{
 						if (anyResults)
-						{
-							var ex = new ElementsStillFoundException(Query);
-							Logger.LogError(ex, $"[Query({Query.Id})] {ex.Message}");
-							throw ex;
-						}
+							throw LogQuery(new ElementsStillFoundException(Query), waited, results);
 
-						Logger.LogInformation($"[Query({Query.Id})] Completed with {results.Count()} element(s).");
+						LogQuery(results, waited);
 						return results;
 					}
 				}
@@ -88,28 +103,19 @@ namespace Microsoft.Maui.Automation.Querying
 					// Wait until we find 1 or more
 					if (autoWaitMs <= 0 || anyResults)
 					{
-						Logger.LogInformation($"[Query({Query.Id})] Completed with {results.Count()} element(s).");
+						LogQuery(results, waited);
 						return results;
 					}
 				}
 
-				Logger.LogInformation($"[Query({Query.Id})] Waited {waited}ms, Waiting another {retryDelayMs}ms...");
-				Thread.Sleep(retryDelayMs);
+				await Task.Delay(retryDelayMs);
 				waited += retryDelayMs;
 			}
 
 			if (waitForNone)
-			{
-				var ex = new ElementsStillFoundException(Query);
-				Logger.LogError(ex, $"[Query({Query.Id})] {ex.Message}");
-				throw ex;
-			}
+				throw LogQuery(new ElementsStillFoundException(Query), waited, results);
 			else
-			{
-				var ex = new ElementsNotFoundException(Query);
-				Logger.LogError(ex, $"[Query({Query.Id})] {ex.Message}");
-				throw ex;
-			}
+				throw LogQuery(new ElementsNotFoundException(Query), waited, results);
 		}
 
 	}

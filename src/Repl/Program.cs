@@ -27,7 +27,7 @@ var builder = new AppDriverBuilder()
 	.ConfigureDriver(c => c.Set(ConfigurationKeys.GrpcHostLoggingEnabled, true));
 
 var driver = builder!.Build();
-var logger = builder!.Host!.Services!.GetRequiredService<ILogger<Microsoft.Maui.Automation.Querying.Query>>();
+var logger = builder!.Host!.Services!.GetRequiredService<ILogger<Driver>>();
 
 
 Task<string?>? readTask = null;
@@ -65,21 +65,18 @@ var mappings = new Dictionary<string, Func<string[], Task>>
 				.First()
 				.Tap();
 
-			logger.LogInformation("Looking for OK");
 			await driver
 				.Query(Platform.Ios)
 				.Marked("OK", StringComparison.OrdinalIgnoreCase)
 				.Tap();
 
 			// Fill in username/password
-			logger.LogInformation("Looking for ENTRY");
 			await driver
 				.AutomationId("entryPassword")
 				.First()
 				.ClearText()
 				.InputText("1234");
 
-			logger.LogInformation("Looking for BUTTON");
 			// Click Login
 			await driver
 				.Type("Button")

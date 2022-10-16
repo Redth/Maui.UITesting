@@ -1,6 +1,8 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.Text;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Maui.Automation.Driver;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Microsoft.Maui.Automation.Querying;
 
@@ -16,41 +18,45 @@ public class Query
 
 	public Query()
 	{
-		Id = Guid.NewGuid().ToString();
+		QueryId = Guid.NewGuid().ToString();
 	}
 
 	public Query(Platform automationPlatform)
 	{
 		AutomationPlatform = automationPlatform;
-		Id = Guid.NewGuid().ToString();
+		QueryId = Guid.NewGuid().ToString();
 	}
 
-	public readonly string Id;
+	public readonly string QueryId;
 
 	List<IQueryStep> steps = new();
 
 	public static Query On(Platform automationPlatform)
 		=> new Query(automationPlatform);
 
-	public static Query By(Predicate<IElement> predicate)
-		=> new Query().Append(predicate);
+	static Query by(Predicate<IElement> predicate, string? predicateDescription = null)
+		=> new Query().append(predicate, predicateDescription);
 
-	public static Query ByAutomationId(string automationId)
-		=> By(e => e.AutomationId == automationId);
+	public static Query By(Predicate<IElement> predicate)
+		=> by(predicate, null);
+
+    public static Query AutomationId(string automationId)
+		=> by(e => e.AutomationId == automationId, $"AutomationId='{automationId}'");
 
 	public static Query ById(string id)
-		=> By(e => e.Id == id);
+		=> by(e => e.Id == id, $"Id='{id}'");
 
-	public static Query OfType(string type)
-		=> By(e => e.Type == type);
+	public static Query Type(string type)
+		=> by(e => e.Type == type, $"Type='{type}'");
 
 	public static Query ContainingText(string text, StringComparison comparisonType = StringComparison.InvariantCultureIgnoreCase)
-		=> By(e => e.Text.Contains(text, comparisonType));
+		=> by(e => e.Text.Contains(text, comparisonType), $"$Text.Contains('{text}')");
 
 	public static Query Marked(string marked, StringComparison comparisonType = StringComparison.InvariantCultureIgnoreCase)
-		=> By(e => e.Id.Equals(marked, comparisonType)
+		=> by(e => e.Id.Equals(marked, comparisonType)
 			|| e.AutomationId.Equals(marked, comparisonType)
-			|| e.Text.Equals(marked, comparisonType));
+			|| e.Text.Equals(marked, comparisonType),
+			$"Id='{marked}' OR AutomationId='{marked}' OR Text='{marked}'");
 
 	public Query Append(IQueryStep step)
 	{
@@ -59,8 +65,11 @@ public class Query
 	}
 
 	public Query Append(Predicate<IElement> predicate)
+		=> append(predicate, null);
+
+	internal Query append(Predicate<IElement> predicate, string? predicateDescription = null)
 	{
-		steps.Add(new PredicateQueryStep(predicate));
+		steps.Add(new PredicateQueryStep(predicate, predicateDescription));
 		return this;
 	}
 
@@ -96,4 +105,23 @@ public class Query
 		return currentSet;
 	}
 
+	public override string ToString()
+	{
+		var s = new StringBuilder();
+		s.Append($"Query(Id='{QueryId}'");
+
+		if (AutomationPlatform is not null)
+			s.Append(", AutomationPlatform={AutomationPlatform}");
+		s.AppendLine(")");
+
+		for (int i = 0; i < steps.Count; i++)
+		{
+			var step = steps[i];
+			s.Append($"\t .{step.ToString()}");
+			if (i < steps.Count - 1)
+				s.AppendLine();
+		}
+
+		return s.ToString();
+	}
 }

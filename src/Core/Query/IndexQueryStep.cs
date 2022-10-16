@@ -2,16 +2,10 @@
 
 namespace Microsoft.Maui.Automation.Querying;
 
-public class IndexQueryStep : PredicateQueryStep
+public class IndexQueryStep : QueryStep
 {
 	public IndexQueryStep(int index)
 		: base()
-	{
-		Index = index;
-	}
-
-	public IndexQueryStep(int index, Predicate<IElement> predicate)
-		: base(predicate)
 	{
 		Index = index;
 	}
@@ -30,5 +24,8 @@ public class IndexQueryStep : PredicateQueryStep
 
 		return Task.FromResult<IEnumerable<IElement>>(newSet);
 	}
+
+	public override string ToString()
+		=> $"Index({Index})";
 }
 

@@ -34,24 +34,24 @@ public static class QueryExtensions
 		=> query.Append(new IndexQueryStep(index));
 
 	public static Query Tap(this Query query)
-		=> query.Append(new InteractionQueryStep((driver, element) => driver.Tap(element)));
+		=> query.Append(new InteractionQueryStep((driver, element) => driver.Tap(element), "Tap"));
 
 	public static Query LongPress(this Query query)
-		=> query.Append(new InteractionQueryStep((driver, element) => driver.LongPress(element)));
+		=> query.Append(new InteractionQueryStep((driver, element) => driver.LongPress(element), "LongPress"));
 
 	public static Query InputText(this Query query, string text)
-		=> query.Append(new InteractionQueryStep((driver, element) => driver.InputText(element, text)));
+		=> query.Append(new InteractionQueryStep((driver, element) => driver.InputText(element, text), $"InputText('{text}')"));
 
 	public static Query ClearText(this Query query, string text)
-	=> query.Append(new InteractionQueryStep((driver, element) => driver.ClearText(element)));
+	=> query.Append(new InteractionQueryStep((driver, element) => driver.ClearText(element), "ClearText()"));
 }
 
 
 public static class DriverQueryExtensions
 {
-	static DriverQuery AppendChildren(this DriverQuery query, Predicate<IElement> predicate)
+	static DriverQuery AppendChildren(this DriverQuery query, Predicate<IElement> predicate, string? predicateDescription)
 	{
-		query.Query.Append(predicate);
+		query.Query.append(predicate, predicateDescription);
 		return query;
 	}
 
@@ -62,27 +62,30 @@ public static class DriverQueryExtensions
 	}
 
 
-	public static DriverQuery By(this DriverQuery query, Predicate<IElement>? predicate = null)
-		=> query.Append(new DescendantsQueryStep(predicate));
+	static DriverQuery by(this DriverQuery query, Predicate<IElement>? predicate = null, string? predicateDescription = null)
+		=> query.Append(new DescendantsQueryStep(predicate, predicateDescription));
 
+
+	public static DriverQuery By(this DriverQuery query, Predicate<IElement>? predicate = null)
+		=> by(query, predicate, "Predicate");
 
 	public static DriverQuery AutomationId(this DriverQuery query, string automationId)
-		=> query.By(e => e.AutomationId == automationId);
+		=> query.by(e => e.AutomationId == automationId, $"AutomationId='{automationId}'");
 
 	public static DriverQuery Id(this DriverQuery query, string id)
-		=> query.By(e => e.Id == id);
+		=> query.by(e => e.Id == id, $"Id='{id}'");
 
 	public static DriverQuery Type(this DriverQuery query, string typeName)
-		=> query.By(e => e.Type == typeName);
+		=> query.by(e => e.Type == typeName, $"Type='{typeName}'");
 
 	public static DriverQuery FullType(this DriverQuery query, string fullTypeName)
-		=> query.By(e => e.FullType == fullTypeName);
+		=> query.by(e => e.FullType == fullTypeName, $"FullType='{fullTypeName}'");
 
 	public static DriverQuery Text(this DriverQuery query, string text, StringComparison comparisonType = StringComparison.InvariantCultureIgnoreCase)
-		=> query.By(e => e.Text.Equals(text, comparisonType));
+		=> query.by(e => e.Text.Equals(text, comparisonType), $"Text='{text}'");
 
     public static DriverQuery ContainsText(this DriverQuery query, string text, StringComparison comparisonType = StringComparison.InvariantCultureIgnoreCase)
-        => query.By(e => e.Text.Contains(text, comparisonType));
+        => query.by(e => e.Text.Contains(text, comparisonType), $"$Text.Contains('{text}')");
 
     public static DriverQuery Marked(this DriverQuery query, string marked, StringComparison comparisonType = StringComparison.InvariantCultureIgnoreCase)
 		=> query.By(e => e.Id.Equals(marked, comparisonType)
@@ -94,27 +97,28 @@ public static class DriverQueryExtensions
 
 
 	public static DriverQuery Children(this DriverQuery query, Predicate<IElement> predicate)
-		=> query.AppendChildren(predicate);
+		=> query.AppendChildren(predicate, "Predicate()");
 
 	public static DriverQuery ChildrenByAutomationId(this DriverQuery query, string automationId)
-		=> query.AppendChildren(e => e.AutomationId == automationId);
+		=> query.AppendChildren(e => e.AutomationId == automationId, $"AutomationId='{automationId}'");
 
 	public static DriverQuery ChildrenById(this DriverQuery query, string id)
-		=> query.AppendChildren(e => e.Id == id);
+		=> query.AppendChildren(e => e.Id == id, $"Id='{id}'");
 
 	public static DriverQuery ChildrenOfType(this DriverQuery query, string typeName)
-		=> query.AppendChildren(e => e.Type == typeName);
+		=> query.AppendChildren(e => e.Type == typeName, $"Type='{Type}'");
 
 	public static DriverQuery ChildrenOfFullType(this DriverQuery query, string fullTypeName)
-		=> query.AppendChildren(e => e.FullType == fullTypeName);
+		=> query.AppendChildren(e => e.FullType == fullTypeName, $"FullType='{fullTypeName}'");
 
 	public static DriverQuery ChildrenContainingText(this DriverQuery query, string text, StringComparison comparisonType = StringComparison.InvariantCultureIgnoreCase)
-		=> query.AppendChildren(e => e.Text.Contains(text, comparisonType));
+		=> query.AppendChildren(e => e.Text.Contains(text, comparisonType), $"$Text.Contains('{text}')");
 
 	public static DriverQuery ChildrenMarked(this DriverQuery query, string marked, StringComparison comparisonType = StringComparison.InvariantCultureIgnoreCase)
 		=> query.AppendChildren(e => e.Id.Equals(marked, comparisonType)
 			|| e.AutomationId.Equals(marked, comparisonType)
-			|| e.Text.Equals(marked, comparisonType));
+			|| e.Text.Equals(marked, comparisonType),
+			$"Id='{marked}' OR AutomationId='{marked}' OR Text='{marked}'");
 
 	public static DriverQuery Siblings(this DriverQuery query, Predicate<IElement>? predicate = null)
 		=> query.Append(new SiblingsQueryStep(predicate));
@@ -123,16 +127,16 @@ public static class DriverQueryExtensions
 		=> query.Append(new IndexQueryStep(index));
 
 	public static DriverQuery Tap(this DriverQuery query)
-		=> query.Append(new InteractionQueryStep((driver, element) => driver.Tap(element)));
+		=> query.Append(new InteractionQueryStep((driver, element) => driver.Tap(element), "Tap()"));
 
 	public static DriverQuery LongPress(this DriverQuery query)
-		=> query.Append(new InteractionQueryStep((driver, element) => driver.LongPress(element)));
+		=> query.Append(new InteractionQueryStep((driver, element) => driver.LongPress(element), "LongPress()"));
 
 	public static DriverQuery InputText(this DriverQuery query, string text)
-		=> query.Append(new InteractionQueryStep((driver, element) => driver.InputText(element, text)));
+		=> query.Append(new InteractionQueryStep((driver, element) => driver.InputText(element, text), $"InputText('{text}')"));
 
 	public static DriverQuery ClearText(this DriverQuery query)
-	=> query.Append(new InteractionQueryStep((driver, element) => driver.ClearText(element)));
+	=> query.Append(new InteractionQueryStep((driver, element) => driver.ClearText(element), "ClearText()"));
 }
 
 public static class On
