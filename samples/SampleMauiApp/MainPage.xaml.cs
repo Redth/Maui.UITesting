@@ -1,20 +1,17 @@
-﻿namespace SampleMauiApp
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+
+namespace SampleMauiApp;
+
+public partial class MainPage : ContentPage
 {
-	public partial class MainPage : ContentPage
+	MainViewModel viewModel = new();
+
+	public MainPage()
 	{
-		int count = 0;
+		BindingContext = viewModel;
 
-		public MainPage()
-		{
-			InitializeComponent();
-		}
-
-		private void OnCounterClicked(object sender, EventArgs e)
-		{
-			count++;
-			CounterLabel.Text = $"Current count: {count}";
-
-			SemanticScreenReader.Announce(CounterLabel.Text);
-		}
+		InitializeComponent();
 	}
+
 }
