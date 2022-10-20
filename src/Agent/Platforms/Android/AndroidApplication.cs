@@ -1,7 +1,10 @@
 ﻿using Android.App;
 using Android.Content;
 using Android.OS;
+using Android.Runtime;
 using Android.Views;
+using Java.Lang;
+using Kotlin.Reflect;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -47,7 +50,29 @@ namespace Microsoft.Maui.Automation
 
 		public override Task<IEnumerable<IElement>> GetElements()
 		{
-			return Task.FromResult<IEnumerable<IElement>>(LifecycleListener.Activities.Select(a => a.GetElement(this, 1, -1)));
+			var results = new List<IElement>();
+
+			//foreach (var a in LifecycleListener.Activities)
+			//{
+			//	var window = a.GetElement(this, 1, -1);
+
+			//	results.Add(window);
+			//}
+			
+			// get the list from WindowManagerGlobal.mViews
+			var wmgClass = Class.ForName("android.view.WindowManagerGlobal");
+			var wmgInstance = wmgClass.GetMethod("getInstance").Invoke(null);
+			var viewsField = wmgClass.GetDeclaredField("mViews");
+			viewsField.Accessible = true;
+				
+			var views = viewsField.Get(wmgInstance).JavaCast<JavaList<View>>();
+
+			foreach (var view in views)
+			{
+				results.Add(view.GetElement(this, view.EnsureUniqueId(), 1, -1));
+			}
+
+			return Task.FromResult<IEnumerable<IElement>>(results);
 		}
 
 		public override Task<IEnumerable<IElement>> FindElements(Predicate<IElement> matcher)
