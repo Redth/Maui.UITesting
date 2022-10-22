@@ -49,6 +49,9 @@ public class Query
 	public static Query Type(string type)
 		=> by(e => e.Type == type, $"Type='{type}'");
 
+	public static Query Type(string[] types)
+		=> by(e => types.Any(t => t == e.Type), string.Join(" OR ", types.Select(t => $"Type='{t}'")));
+
 	public static Query ContainingText(string text, StringComparison comparisonType = StringComparison.InvariantCultureIgnoreCase)
 		=> by(e => e.Text.Contains(text, comparisonType), $"$Text.Contains('{text}')");
 
